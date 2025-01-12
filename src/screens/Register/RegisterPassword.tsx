@@ -24,6 +24,14 @@ const RegisterPassword = ({ navigation }: any) => {
     }
   };
 
+  const handleRegisterComplete = () => {
+    // Reset navigation stack to start from DyslexiaTestStart
+    navigation.reset({
+      index: 0, // Make DyslexiaTestStart the first screen
+      routes: [{ name: 'DyslexiaTestStart' }],
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Set up your password</Text>
@@ -41,9 +49,9 @@ const RegisterPassword = ({ navigation }: any) => {
       )}
       <TouchableOpacity
         style={styles.nextButton}
-        onPress={() => navigation.navigate('StarterScreen')}
+        onPress={handleRegisterComplete}
       >
-        <Text style={styles.nextButtonText}>Start</Text>
+        <Text style={styles.nextButtonText}>Start Dyslexia Test</Text>
       </TouchableOpacity>
     </View>
   );
