@@ -66,9 +66,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: '600',
     color: '#007BFF',
+    fontFamily: 'OpenDyslexic-Bold',
   },
   descriptionContainer: {
     flex: 1.5,
@@ -80,17 +81,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mainDescription: {
-    fontSize: 20,
+    fontSize: 35,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#FFFFFF',
-    marginBottom: 10,
+    marginBottom: 30,
+    fontFamily: 'OpenDyslexic-Regular',
   },
   subDescription: {
-    fontSize: 14,
+    fontSize: 20,
     textAlign: 'center',
     color: '#E9F5FF', // Lighter text for secondary description
     marginBottom: 20,
+    fontFamily: 'OpenDyslexic-Regular',
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -129,6 +132,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF', // White text for register button
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Regular',
   },
   loginButton: {
     backgroundColor: '#FFFFFF', // White background for login button
@@ -144,6 +148,7 @@ const styles = StyleSheet.create({
     color: '#007BFF', // Blue text for login button
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Regular',
   },
 });
 
