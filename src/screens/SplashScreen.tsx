@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#007BFF', // Blue background
+    backgroundColor: '#3DB2FF', // Blue background
   },
   logo: {
     width: 150,
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     color: '#fff',
-    fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

@@ -1,7 +1,26 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
 
 const StarterScreen = ({ navigation }: any) => {
+  const [activePage, setActivePage] = useState(0); // Manage active page state
+  const scrollViewRef = useRef<ScrollView>(null); // Ref for ScrollView
+  const descriptions = [
+    'Discover the joy of learning with EDULEX AI, your personalized AR/AI teacher.',
+    'Explore topics interactively and make learning engaging with fun AR games.',
+    'Bridge the gap in education with AI-driven tools and personalized guidance.',
+  ];
+
+  const handleScroll = (event: any) => {
+    const scrollX = event.nativeEvent.contentOffset.x;
+    const page = Math.round(scrollX / Dimensions.get('window').width); // Calculate active page
+    setActivePage(page);
+  };
+
+  const handleDotPress = (index: number) => {
+    setActivePage(index);
+    scrollViewRef.current?.scrollTo({ x: index * Dimensions.get('window').width, animated: true });
+  };
+
   return (
     <View style={styles.container}>
       {/* Logo Section */}
@@ -15,19 +34,39 @@ const StarterScreen = ({ navigation }: any) => {
 
       {/* Blue Description Section */}
       <View style={styles.descriptionContainer}>
-        <Text style={styles.mainDescription}>
-          Explore, Learn, and Grow with Your New Friend.
-        </Text>
-        <Text style={styles.subDescription}>
-          With your AR friend by your side, learning becomes an exciting
-          adventure tailored just for you!
-        </Text>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16} // To optimize scroll event handling
+          ref={scrollViewRef}
+        >
+          {descriptions.map((description, index) => (
+            <View
+              key={index}
+              style={styles.descriptionSlide}
+            >
+              <Text style={styles.mainDescription}>{description}</Text>
+            </View>
+          ))}
+        </ScrollView>
 
         {/* Pagination Dots */}
         <View style={styles.paginationContainer}>
-          <View style={[styles.paginationDot, styles.activeDot]} />
-          <View style={styles.paginationDot} />
-          <View style={styles.paginationDot} />
+          {descriptions.map((_, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleDotPress(index)}
+            >
+              <View
+                style={[
+                  styles.paginationDot,
+                  activePage === index && styles.activeDot, // Highlight the active dot
+                ]}
+              />
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Buttons */}
@@ -61,66 +100,74 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 10,
+    marginTop: 100,
+    width: 350,
+    height: 250,
   },
   title: {
-    fontSize: 30,
+    fontSize: 45,
     fontWeight: '600',
-    color: '#007BFF',
+    color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
+    marginTop: 10,
   },
   descriptionContainer: {
     flex: 1.5,
-    backgroundColor: '#007BFF', // Blue background
-    borderTopLeftRadius: 30, // Rounded corners
+    backgroundColor: '#3DB2FF',
+    borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+    paddingVertical: 50,
     alignItems: 'center',
+    marginTop: 130,
+  },
+  descriptionSlide: {
+    width: Dimensions.get('window').width, // Full width for each slide
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
   mainDescription: {
-    fontSize: 35,
-    fontWeight: 'bold',
+    fontSize: 25,
     textAlign: 'center',
     color: '#FFFFFF',
-    marginBottom: 30,
-    fontFamily: 'OpenDyslexic-Regular',
-  },
-  subDescription: {
-    fontSize: 20,
-    textAlign: 'center',
-    color: '#E9F5FF', // Lighter text for secondary description
+    fontFamily: 'OpenDyslexic-Bold',
+    marginHorizontal: 20,
     marginBottom: 20,
-    fontFamily: 'OpenDyslexic-Regular',
+    marginTop: -120,
   },
   paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    position: 'absolute',
+    bottom: 160,
   },
   paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#C4C4C4', // Light gray dot
+    width: 10,
+    height: 10,
+    borderRadius: 6,
+    backgroundColor: '#C4C4C4',
     marginHorizontal: 5,
+    marginTop: 30,
   },
   activeDot: {
-    backgroundColor: '#FFFFFF', // White active dot
+    backgroundColor: '#FFFFFF',
+    width: 18,
   },
   buttonsContainer: {
     flexDirection: 'row',
+    position: 'absolute',
+    bottom: 80,
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
+    marginTop: 30,
   },
   registerButton: {
     borderWidth: 1.5,
-    borderColor: '#FFFFFF', // White border for register button
-    borderRadius: 25,
+    borderColor: '#FFFFFF',
+    borderRadius: 50,
     paddingVertical: 12,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -129,14 +176,13 @@ const styles = StyleSheet.create({
     width: '45%',
   },
   registerText: {
-    color: '#FFFFFF', // White text for register button
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular',
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontFamily: 'OpenDyslexic-Bold',
   },
   loginButton: {
-    backgroundColor: '#FFFFFF', // White background for login button
-    borderRadius: 25,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 50,
     paddingVertical: 12,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -145,10 +191,9 @@ const styles = StyleSheet.create({
     width: '45%',
   },
   loginText: {
-    color: '#007BFF', // Blue text for login button
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular',
+    color: '#3DB2FF',
+    fontSize: 20,
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

@@ -37,11 +37,11 @@ const RegisterStart = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#3DB2FF',
   },
   topImageContainer: {
     flex: 1.3, // Slightly larger space for the image
-    backgroundColor: '#007BFF', // Fallback blue background
+    backgroundColor: '#3DB2FF', // Fallback blue background
     borderBottomLeftRadius: 40, // Rounded edges at the bottom
     borderBottomRightRadius: 40,
     overflow: 'hidden', // Ensures the image stays within the rounded corners
@@ -56,28 +56,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    marginTop: -40, // Overlap the rounded white section on the blue
+    marginTop: 5, // Overlap the rounded white section on the blue
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5, // Shadow for Android
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007BFF',
+    fontSize: 28,
+    color: '#3DB2FF',
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'OpenDyslexic-Bold',
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: 17,
+    color: '#3DB2FF',
     textAlign: 'center',
     marginBottom: 20,
+    fontFamily: 'OpenDyslexic-Regular',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -85,26 +81,30 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   backButton: {
-    padding: 12,
-    backgroundColor: '#E9F5FF',
-    borderRadius: 8,
-    width: '45%',
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF',
+    borderRadius: 50,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    width: '45%',
   },
   backButtonText: {
-    color: '#007BFF',
-    fontWeight: 'bold',
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
   },
   nextButton: {
     padding: 12,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
+    backgroundColor: '#3DB2FF',
+    borderRadius: 50,
     width: '45%',
     alignItems: 'center',
   },
   nextButtonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

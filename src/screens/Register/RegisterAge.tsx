@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 const RegisterAge = ({ navigation }: any) => {
   const [age, setAge] = useState('');
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
+      </TouchableOpacity>
       <Text style={styles.title}>How old are you?</Text>
       <TextInput
         style={styles.input}
@@ -35,8 +38,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
   },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+  },
+  backButtonImage: {
+    marginLeft: -20,
+    width: 80,
+    height: 80,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#007BFF',

@@ -43,7 +43,7 @@ const RegisterPassword = ({ navigation }: any) => {
         secureTextEntry
       />
       {password.length > 0 && (
-        <Text style={[styles.passwordStrength, styles[passwordStrength.toLowerCase()]]}>
+        <Text style={[styles.passwordStrength, styles[passwordStrength.toLowerCase() as PasswordStrength]]}>
           Password Strength: {passwordStrength}
         </Text>
       )}
@@ -56,6 +56,8 @@ const RegisterPassword = ({ navigation }: any) => {
     </View>
   );
 };
+
+type PasswordStrength = 'weak' | 'moderate' | 'strong';
 
 const styles = StyleSheet.create({
   container: {
