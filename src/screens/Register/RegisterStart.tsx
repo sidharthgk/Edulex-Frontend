@@ -18,6 +18,7 @@ const RegisterStart = ({ navigation }: any) => {
         <Image
           source={require('../../assets/start_logo.png')} // Replace with the cropped image path
           style={styles.topImage}
+          resizeMode="contain"
         />
       </View>
 
@@ -49,16 +50,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#3DB2FF',
   },
   topImageContainer: {
-    flex: 1.3, // Slightly larger space for the image
+    flex: 0.8, // Slightly larger space for the image
     backgroundColor: '#3DB2FF', // Fallback blue background
     borderBottomLeftRadius: 40, // Rounded edges at the bottom
     borderBottomRightRadius: 40,
     overflow: 'hidden', // Ensures the image stays within the rounded corners
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   topImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover', // Ensures the image covers the container
+    width: 500,
+    height: 300,
+    marginTop: 50,
   },
   bottomContainer: {
     flex: 1,
@@ -78,10 +81,10 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Bold',
   },
   subtitle: {
-    fontSize: 17,
+    fontSize: 18,
     color: '#3DB2FF',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     fontFamily: 'OpenDyslexic-Regular',
   },
   buttonContainer: {

@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useFonts } from 'expo-font';
 
 const RegisterEmail = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true);
   let [fontsLoaded] = useFonts({
-      'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-      'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-      'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
-    });
-    if (!fontsLoaded) {
-      return null;
-    }
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const handleNext = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,6 +30,9 @@ const RegisterEmail = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
+      </TouchableOpacity>
       <Text style={styles.title}>What is your email?</Text>
       <TextInput
         style={[styles.input, !isValidEmail && styles.invalidInput]}
@@ -34,6 +42,7 @@ const RegisterEmail = ({ navigation }: any) => {
           setIsValidEmail(true);
         }}
         placeholder="Enter your email"
+        placeholderTextColor="#888" // Updated placeholder color
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -53,19 +62,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
   },
+  backButton: {
+    position: 'absolute',
+    top: 60, // Positioned slightly below the top
+    left: 20,
+  },
+  backButtonImage: {
+    width: 80, // Keep original size
+    height: 80,
+    marginLeft: -20, // Maintain alignment
+  },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#3DB2FF', // Updated color to match theme
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
     marginBottom: 20,
-    color: '#007BFF',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF', // Updated border color
+    borderRadius: 50, // Updated input radius
     width: '80%',
-    padding: 12,
+    padding: 15, // Increased padding for better usability
     marginBottom: 10,
+    color: '#333', // Darker text for input
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular', // Updated font family
   },
   invalidInput: {
     borderColor: 'red',
@@ -74,16 +96,18 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 12,
     marginBottom: 10,
+    fontFamily: 'OpenDyslexic-Regular', // Updated font family
   },
   nextButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
     paddingHorizontal: 50,
-    borderRadius: 8,
+    borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for button
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
+    fontSize: 14,
   },
 });
 

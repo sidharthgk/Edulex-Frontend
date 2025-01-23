@@ -7,10 +7,15 @@ const RegisterAge = ({ navigation }: any) => {
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
+
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
 
   return (
@@ -24,6 +29,7 @@ const RegisterAge = ({ navigation }: any) => {
         value={age}
         onChangeText={setAge}
         placeholder="Enter your age"
+        placeholderTextColor="#888" // Updated placeholder color
         keyboardType="numeric"
       />
       <TouchableOpacity
@@ -31,9 +37,6 @@ const RegisterAge = ({ navigation }: any) => {
         onPress={() => navigation.navigate('RegisterName')}
       >
         <Text style={styles.nextButtonText}>Next</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('RegisterName')}>
-        <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
     </View>
   );
@@ -49,43 +52,42 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 40,
+    top: 60, // Positioned slightly below the top
     left: 20,
   },
   backButtonImage: {
-    marginLeft: -20,
-    width: 80,
+    width: 80, // Keep original size
     height: 80,
+    marginLeft: -20, // Maintain alignment
   },
   title: {
-    fontSize: 30,
-    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#3DB2FF', // Updated color to match theme
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
     marginBottom: 20,
-    color: '#007BFF',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF', // Updated border color to match theme
+    borderRadius: 50, // Updated input radius
     width: '80%',
-    padding: 12,
+    padding: 15, // Slightly increased padding
     marginBottom: 20,
+    fontFamily: 'OpenDyslexic-Regular', // Updated font family
+    fontSize: 14,
+    color: '#333', // Darker text for input
   },
   nextButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
     paddingHorizontal: 50,
-    borderRadius: 8,
+    borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  skipText: {
-    marginTop: 10,
-    color: '#007BFF',
-    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for button
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
   },
 });
+
 
 export default RegisterAge;

@@ -108,12 +108,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginTop: 100,
+    marginTop: 160,
     width: 350,
     height: 250,
   },
   title: {
-    fontSize: 35, // Decreased font size
+    fontSize: 30, // Decreased font size
     fontWeight: '600',
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
@@ -124,7 +124,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#3DB2FF',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingVertical: 50,
     alignItems: 'center',
     marginTop: 130,
   },
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 50,
     marginTop: -120,
   },
   paginationContainer: {

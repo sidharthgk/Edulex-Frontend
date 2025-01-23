@@ -1,27 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useFonts } from 'expo-font';
 
 const RegisterName = ({ navigation }: any) => {
   const [name, setName] = useState('');
   let [fontsLoaded] = useFonts({
-        'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-        'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-        'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
-      });
-      if (!fontsLoaded) {
-        return null;
-      }
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
+      </TouchableOpacity>
       <Text style={styles.title}>What is your name?</Text>
       <TextInput
         style={styles.input}
         value={name}
         onChangeText={setName}
         placeholder="Enter your name"
-        placeholderTextColor="#6B7280"
+        placeholderTextColor="#888" // Updated placeholder color
       />
       <TouchableOpacity
         style={styles.nextButton}
@@ -41,32 +49,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
   },
+  backButton: {
+    position: 'absolute',
+    top: 60, // Positioned slightly below the top
+    left: 20,
+  },
+  backButtonImage: {
+    width: 80, // Keep original size
+    height: 80,
+    marginLeft: -20, // Maintain alignment
+  },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#3DB2FF', // Updated color to match theme
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
     marginBottom: 20,
-    color: '#007BFF',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    borderRadius: 8,
+    borderWidth: 1.5, // Updated border width
+    borderColor: '#3DB2FF', // Updated border color
+    borderRadius: 50, // Updated input radius
     width: '80%',
-    padding: 12,
+    padding: 15, // Increased padding for better usability
     marginBottom: 20,
-    color: '#000', // Text color
-    fontSize: 16,
+    color: '#333', // Darker text for input
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular', // Updated font family
   },
   nextButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
     paddingHorizontal: 50,
-    borderRadius: 8,
+    borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for button
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
+    fontSize: 14,
   },
 });
 

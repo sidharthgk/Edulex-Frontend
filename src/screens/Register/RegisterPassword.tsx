@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useFonts } from 'expo-font';
 
 const RegisterPassword = ({ navigation }: any) => {
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState('');
   let [fontsLoaded] = useFonts({
-        'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-        'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-        'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
-      });
-      if (!fontsLoaded) {
-        return null;
-      }
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const handlePasswordChange = (text: string) => {
     setPassword(text);
@@ -36,30 +35,36 @@ const RegisterPassword = ({ navigation }: any) => {
   const handleRegisterComplete = () => {
     // Reset navigation stack to start from DyslexiaTestStart
     navigation.reset({
-      index: 0, // Make DyslexiaTestStart the first screen
+      index: 0,
       routes: [{ name: 'DyslexiaTestStart' }],
     });
   };
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
+      </TouchableOpacity>
       <Text style={styles.title}>Set up your password</Text>
       <TextInput
         style={styles.input}
         value={password}
         onChangeText={handlePasswordChange}
         placeholder="Enter your password"
+        placeholderTextColor="#888"
         secureTextEntry
       />
       {password.length > 0 && (
-        <Text style={[styles.passwordStrength, styles[passwordStrength.toLowerCase() as PasswordStrength]]}>
+        <Text
+          style={[
+            styles.passwordStrength,
+            styles[passwordStrength.toLowerCase() as PasswordStrength],
+          ]}
+        >
           Password Strength: {passwordStrength}
         </Text>
       )}
-      <TouchableOpacity
-        style={styles.nextButton}
-        onPress={handleRegisterComplete}
-      >
+      <TouchableOpacity style={styles.nextButton} onPress={handleRegisterComplete}>
         <Text style={styles.nextButtonText}>Start Dyslexia Test</Text>
       </TouchableOpacity>
     </View>
@@ -76,23 +81,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
   },
+  backButton: {
+    position: 'absolute',
+    top: 60, // Positioned slightly below the top
+    left: 20,
+  },
+  backButtonImage: {
+    width: 80, // Keep original size
+    height: 80,
+    marginLeft: -20, // Maintain alignment
+  },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#3DB2FF', // Updated color to match theme
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
     marginBottom: 20,
-    color: '#007BFF',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF', // Updated border color
+    borderRadius: 50, // Updated input radius
     width: '80%',
-    padding: 12,
+    padding: 15,
     marginBottom: 10,
+    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 14,
+    color: '#333',
   },
   passwordStrength: {
     fontSize: 14,
     marginBottom: 20,
+    fontFamily: 'OpenDyslexic-Regular',
   },
   weak: {
     color: 'red',
@@ -104,14 +123,15 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   nextButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
-    paddingHorizontal: 50,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Bold', // Updated font family
+    fontSize: 14,
   },
 });
 
