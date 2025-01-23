@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const RegisterEmail = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true);
+  let [fontsLoaded] = useFonts({
+      'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+      'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+      'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    });
+    if (!fontsLoaded) {
+      return null;
+    }
 
   const handleNext = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

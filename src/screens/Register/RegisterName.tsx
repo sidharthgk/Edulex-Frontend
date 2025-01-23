@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const RegisterName = ({ navigation }: any) => {
   const [name, setName] = useState('');
+  let [fontsLoaded] = useFonts({
+        'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+        'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+        'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+      });
+      if (!fontsLoaded) {
+        return null;
+      }
 
   return (
     <View style={styles.container}>
