@@ -45,7 +45,7 @@ const RegisterPassword = ({ navigation }: any) => {
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
       </TouchableOpacity>
-      <Text style={styles.title}>Set up your password</Text>
+      <Text style={styles.title}>Enter your password</Text>
       <TextInput
         style={styles.input}
         value={password}
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   backButton: {
     position: 'absolute',
@@ -123,9 +123,10 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   nextButton: {
+    marginTop: 19,
     backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
