@@ -119,14 +119,14 @@ const styles = StyleSheet.create({
   moderate: {
     color: '#E0A800', // Yellow
   },
+
   strong: {
     color: 'green',
   },
   nextButton: {
-    marginTop: 19,
     backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
-    paddingHorizontal: 15,
+    paddingHorizontal: 12,
     borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
