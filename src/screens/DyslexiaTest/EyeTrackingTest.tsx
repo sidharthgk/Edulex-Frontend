@@ -1,7 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const EyeTrackingTest = ({ navigation }: any) => {
+  let [fontsLoaded] = useFonts({
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <View style={styles.container}>
       {/* Circular Placeholder for Camera */}

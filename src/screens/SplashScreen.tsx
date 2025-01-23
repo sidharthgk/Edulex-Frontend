@@ -1,14 +1,28 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const SplashScreen = ({ navigation }: any) => {
+    let [fontsLoaded] = useFonts({
+          'OpenDyslexic-Regular': require('../assets/fonts/OpenDyslexic-Regular.otf'),
+          'OpenDyslexic-Bold': require('../assets/fonts/OpenDyslexic-Bold.otf'),
+          'OpenDyslexic-Italic': require('../assets/fonts/OpenDyslexic-Italic.otf'),
+        });
+
   useEffect(() => {
+    if (!fontsLoaded) {
+      return;
+    }
     // Navigate to Starter Screen after 2 seconds
     const timer = setTimeout(() => {
       navigation.replace('StarterScreen');
     }, 2000);
     return () => clearTimeout(timer); // Cleanup timer
-  }, [navigation]);
+  }, [navigation, fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
@@ -34,7 +48,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     color: '#fff',
     fontFamily: 'OpenDyslexic-Bold',
   },

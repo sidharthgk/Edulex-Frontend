@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const StarterScreen = ({ navigation }: any) => {
   const [activePage, setActivePage] = useState(0); // Manage active page state
@@ -20,7 +21,14 @@ const StarterScreen = ({ navigation }: any) => {
     setActivePage(index);
     scrollViewRef.current?.scrollTo({ x: index * Dimensions.get('window').width, animated: true });
   };
-
+  let [fontsLoaded] = useFonts({
+        'OpenDyslexic-Regular': require('../assets/fonts/OpenDyslexic-Regular.otf'),
+        'OpenDyslexic-Bold': require('../assets/fonts/OpenDyslexic-Bold.otf'),
+        'OpenDyslexic-itallic': require('../assets/fonts/OpenDyslexic-Italic.otf'),
+      });
+    if (!fontsLoaded) {
+        return null;
+      }
   return (
     <View style={styles.container}>
       {/* Logo Section */}
@@ -105,7 +113,7 @@ const styles = StyleSheet.create({
     height: 250,
   },
   title: {
-    fontSize: 45,
+    fontSize: 35, // Decreased font size
     fontWeight: '600',
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
@@ -127,7 +135,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   mainDescription: {
-    fontSize: 25,
+    fontSize: 20, // Decreased font size
     textAlign: 'center',
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
@@ -177,7 +185,7 @@ const styles = StyleSheet.create({
   },
   registerText: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 18, // Decreased font size
     fontFamily: 'OpenDyslexic-Bold',
   },
   loginButton: {
@@ -192,7 +200,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: '#3DB2FF',
-    fontSize: 20,
+    fontSize: 18, // Decreased font size
     fontFamily: 'OpenDyslexic-Bold',
   },
 });

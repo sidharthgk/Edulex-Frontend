@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -9,6 +10,14 @@ const LoginScreen = ({ navigation }: any) => {
     console.log('Email:', email, 'Password:', password);
     // Implement authentication logic here
   };
+  let [fontsLoaded] = useFonts({
+        'OpenDyslexic-Regular': require('../assets/fonts/OpenDyslexic-Regular.otf'),
+        'OpenDyslexic-Bold': require('../assets/fonts/OpenDyslexic-Bold.otf'),
+        'OpenDyslexic-itallic': require('../assets/fonts/OpenDyslexic-Italic.otf'),
+      });
+      if (!fontsLoaded) {
+        return null;
+      }
 
   return (
     <View style={styles.container}>
