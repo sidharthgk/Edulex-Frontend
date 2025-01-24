@@ -1,43 +1,53 @@
-import React from 'react';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useFonts } from 'expo-font';
+import React, {useRef, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  CameraView,
+  useCameraPermissions,
+  useMicrophonePermissions,
+  PermissionStatus,
+} from 'expo-camera';
+import {useFonts} from 'expo-font';
 
 export default function App() {
-  const [permission, requestPermission] = useCameraPermissions();
+  // Request both camera & mic permissions
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [microphonePermission, requestMicrophonePermission] =
+    useMicrophonePermissions();
+
+  const [isCameraReady, setIsCameraReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [isCameraReady, setIsCameraReady] = useState(false); // Track CameraView readiness
   const [videoUri, setVideoUri] = useState<string | null>(null);
+
   const cameraRef = useRef<CameraView | null>(null);
 
-  let [fontsLoaded] = useFonts({
-    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
-  });
-
-  if (!fontsLoaded) {
-    return null; // Wait until fonts are loaded
-  }
-
-  if (!permission) {
-    // Camera permissions are still loading.
+  // 1. Permissions are still loading
+  if (!cameraPermission || !microphonePermission) {
     return <View />;
   }
 
-  if (!permission.granted) {
-    // Show permission request UI if permissions are not granted
+  // 2. If camera or mic permission not granted, show UI to request them
+  if (
+    cameraPermission.status !== PermissionStatus.GRANTED ||
+    microphonePermission.status !== PermissionStatus.GRANTED
+  ) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <TouchableOpacity onPress={requestPermission} style={styles.permissionButton}>
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        <Text style={styles.message}>
+          We need Camera and Microphone permissions to record a video.
+        </Text>
+        <TouchableOpacity
+          onPress={async () => {
+            await requestCameraPermission();
+            await requestMicrophonePermission();
+          }}
+          style={styles.permissionButton}>
+          <Text style={styles.permissionButtonText}>Grant Permissions</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  // 3. Once permissions are granted, show the camera UI
   const toggleRecording = async () => {
     if (!isCameraReady) {
       console.warn('CameraView is not ready yet.');
@@ -45,23 +55,29 @@ export default function App() {
     }
 
     if (isRecording) {
-      // Stop recording
+      // Stop any ongoing recording
       try {
-        cameraRef.current?.stopRecording();
+        await cameraRef.current?.stopRecording();
         setIsRecording(false);
         console.log('Recording stopped');
       } catch (error) {
         console.error('Error stopping recording:', error);
+        setIsRecording(false);
       }
     } else {
-      // Start recording
+      // Start a new recording
       try {
+        setIsRecording(true); // Mark state as recording BEFORE calling recordAsync
         const video = await cameraRef.current?.recordAsync();
-        setVideoUri(video?.uri || null);
-        setIsRecording(true);
-        console.log('Recording started:', video?.uri);
+        setIsRecording(false);
+
+        if (video?.uri) {
+          setVideoUri(video.uri);
+          console.log('Recording finished, URI:', video.uri);
+        }
       } catch (error) {
         console.error('Error starting recording:', error);
+        setIsRecording(false);
       }
     }
   };
@@ -71,13 +87,15 @@ export default function App() {
       {/* Circular Camera View */}
       <View style={styles.cameraPlaceholder}>
         <CameraView
-          ref={(ref) => {
+          ref={ref => {
             cameraRef.current = ref;
           }}
           style={styles.camera}
           facing="front"
           mode="video"
-          mute
+          // Set `mute` to false if you want audio recorded.
+          // If you truly want silent videos, be aware that Android often still requires mic permission.
+          mute={false}
           onCameraReady={() => {
             console.log('CameraView is ready');
             setIsCameraReady(true);
@@ -88,7 +106,8 @@ export default function App() {
       {/* Reading Paragraph Box */}
       <View style={styles.paragraphBox}>
         <Text style={styles.paragraph}>
-          The cat is on the mat. The dog runs fast. Look at the red ball. Can you find the star?
+          The cat is on the mat. The dog runs fast. Look at the red ball. Can
+          you find the star?
         </Text>
       </View>
 
@@ -102,25 +121,28 @@ export default function App() {
                 ? isRecording
                   ? '#FF6666' // Red when recording
                   : '#E9F5FF' // Light blue when ready
-                : '#CCCCCC', // Grey when disabled
+                : '#CCCCCC', // Gray when disabled
             },
           ]}
           onPress={toggleRecording}
-          disabled={!isCameraReady} // Disable button if camera is not ready
+          disabled={!isCameraReady} // Disable if camera not ready
         >
           <Text
             style={[
               styles.refreshButtonText,
-              { color: isCameraReady ? '#007BFF' : '#888888' } // Grey text when disabled
-            ]}
-          >
-            {isRecording ? 'Stop Recording' : isCameraReady ? 'Start Recording' : 'Loading...'}
+              {color: isCameraReady ? '#007BFF' : '#888888'}, // Gray text when disabled
+            ]}>
+            {isRecording
+              ? 'Stop Recording'
+              : isCameraReady
+              ? 'Start Recording'
+              : 'Loading...'}
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.nextButton}
-          onPress={() => console.log('Next')} // Replace with navigation logic if applicable
-        >
+          onPress={() => console.log('Next')}>
           <Text style={styles.nextButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
@@ -136,15 +158,16 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
     paddingVertical: 40,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   message: {
     textAlign: 'center',
     paddingBottom: 10,
+    fontFamily: 'OpenDyslexic-Regular',
   },
   permissionButton: {
     backgroundColor: '#007BFF',
