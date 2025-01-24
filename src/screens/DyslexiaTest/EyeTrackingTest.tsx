@@ -1,5 +1,11 @@
 import React, {useRef, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView, // optional if you need scrolling
+} from 'react-native';
 import {
   CameraView,
   useCameraPermissions,
@@ -7,6 +13,8 @@ import {
   PermissionStatus,
 } from 'expo-camera';
 import {useFonts} from 'expo-font';
+// Import Video component from expo-av
+import {Video} from 'expo-av';
 
 export default function App() {
   // Request both camera & mic permissions
@@ -19,6 +27,7 @@ export default function App() {
   const [videoUri, setVideoUri] = useState<string | null>(null);
 
   const cameraRef = useRef<CameraView | null>(null);
+  const videoRef = useRef<Video | null>(null);
 
   // 1. Permissions are still loading
   if (!cameraPermission || !microphonePermission) {
@@ -83,7 +92,7 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* Circular Camera View */}
       <View style={styles.cameraPlaceholder}>
         <CameraView
@@ -94,7 +103,6 @@ export default function App() {
           facing="front"
           mode="video"
           // Set `mute` to false if you want audio recorded.
-          // If you truly want silent videos, be aware that Android often still requires mic permission.
           mute={false}
           onCameraReady={() => {
             console.log('CameraView is ready');
@@ -125,8 +133,7 @@ export default function App() {
             },
           ]}
           onPress={toggleRecording}
-          disabled={!isCameraReady} // Disable if camera not ready
-        >
+          disabled={!isCameraReady}>
           <Text
             style={[
               styles.refreshButtonText,
@@ -147,21 +154,34 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* Video URI Display */}
+      {/* Video URI & Preview */}
       {videoUri && (
-        <Text style={styles.videoUriText}>Saved Video: {videoUri}</Text>
+        <>
+          <Text style={styles.videoUriText}>Saved Video: {videoUri}</Text>
+          <View style={styles.videoContainer}>
+            <Video
+              ref={ref => {
+                videoRef.current = ref;
+              }}
+              style={styles.video}
+              source={{uri: videoUri}}
+              useNativeControls
+              resizeMode="contain"
+              isLooping
+            />
+          </View>
+        </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
     paddingVertical: 40,
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
   message: {
@@ -191,6 +211,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#007BFF',
     overflow: 'hidden',
+    marginBottom: 20,
   },
   camera: {
     width: '100%',
@@ -206,6 +227,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderWidth: 1,
     borderColor: '#007BFF',
+    marginBottom: 20,
   },
   paragraph: {
     fontSize: 18,
@@ -219,6 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 20,
+    marginBottom: 20,
   },
   refreshButton: {
     paddingVertical: 12,
@@ -254,5 +277,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#007BFF',
     fontFamily: 'OpenDyslexic-Regular',
+  },
+  videoContainer: {
+    width: '100%',
+    height: 200,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  video: {
+    width: '90%',
+    height: '100%',
   },
 });
