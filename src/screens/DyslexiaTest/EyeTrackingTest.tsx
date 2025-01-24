@@ -1,21 +1,88 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFonts } from 'expo-font';
 
-const EyeTrackingTest = ({ navigation }: any) => {
+export default function App() {
+  const [permission, requestPermission] = useCameraPermissions();
+  const [isRecording, setIsRecording] = useState(false);
+  const [isCameraReady, setIsCameraReady] = useState(false); // Track CameraView readiness
+  const [videoUri, setVideoUri] = useState<string | null>(null);
+  const cameraRef = useRef<CameraView | null>(null);
+
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
+
   if (!fontsLoaded) {
-    return null;
+    return null; // Wait until fonts are loaded
   }
+
+  if (!permission) {
+    // Camera permissions are still loading.
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    // Show permission request UI if permissions are not granted
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <TouchableOpacity onPress={requestPermission} style={styles.permissionButton}>
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const toggleRecording = async () => {
+    if (!isCameraReady) {
+      console.warn('CameraView is not ready yet.');
+      return;
+    }
+
+    if (isRecording) {
+      // Stop recording
+      try {
+        cameraRef.current?.stopRecording();
+        setIsRecording(false);
+        console.log('Recording stopped');
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+    } else {
+      // Start recording
+      try {
+        const video = await cameraRef.current?.recordAsync();
+        setVideoUri(video?.uri || null);
+        setIsRecording(true);
+        console.log('Recording started:', video?.uri);
+      } catch (error) {
+        console.error('Error starting recording:', error);
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* Circular Placeholder for Camera */}
+      {/* Circular Camera View */}
       <View style={styles.cameraPlaceholder}>
-        <Text style={styles.placeholderText}>Camera Placeholder</Text>
+        <CameraView
+          ref={(ref) => {
+            cameraRef.current = ref;
+          }}
+          style={styles.camera}
+          facing="front"
+          mode="video"
+          mute
+          onCameraReady={() => {
+            console.log('CameraView is ready');
+            setIsCameraReady(true);
+          }}
+        />
       </View>
 
       {/* Reading Paragraph Box */}
@@ -27,19 +94,44 @@ const EyeTrackingTest = ({ navigation }: any) => {
 
       {/* Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.refreshButton} onPress={() => console.log('Refresh')}>
-          <Text style={styles.refreshButtonText}>Refresh</Text>
+        <TouchableOpacity
+          style={[
+            styles.refreshButton,
+            {
+              backgroundColor: isCameraReady
+                ? isRecording
+                  ? '#FF6666' // Red when recording
+                  : '#E9F5FF' // Light blue when ready
+                : '#CCCCCC', // Grey when disabled
+            },
+          ]}
+          onPress={toggleRecording}
+          disabled={!isCameraReady} // Disable button if camera is not ready
+        >
+          <Text
+            style={[
+              styles.refreshButtonText,
+              { color: isCameraReady ? '#007BFF' : '#888888' } // Grey text when disabled
+            ]}
+          >
+            {isRecording ? 'Stop Recording' : isCameraReady ? 'Start Recording' : 'Loading...'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.nextButton}
-          onPress={() => navigation.navigate('WritingTest')} // Navigate to the next screen
+          onPress={() => console.log('Next')} // Replace with navigation logic if applicable
         >
           <Text style={styles.nextButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Video URI Display */}
+      {videoUri && (
+        <Text style={styles.videoUriText}>Saved Video: {videoUri}</Text>
+      )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -50,25 +142,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 40,
   },
+  message: {
+    textAlign: 'center',
+    paddingBottom: 10,
+  },
+  permissionButton: {
+    backgroundColor: '#007BFF',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  permissionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
   cameraPlaceholder: {
-    width: 150,
-    height: 150,
-    borderRadius: 75, // Circular shape
-    backgroundColor: '#E9F5FF', // Light blue background
+    width: 300,
+    height: 300,
+    borderRadius: 200,
+    backgroundColor: '#E9F5FF',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#007BFF', // Blue border
-    marginBottom: 20,
+    borderColor: '#007BFF',
+    overflow: 'hidden',
   },
-  placeholderText: {
-    fontSize: 14,
-    color: '#6B7280', // Light gray text
-    textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
+  camera: {
+    width: '100%',
+    height: '100%',
   },
   paragraphBox: {
-    backgroundColor: '#E9F5FF', // Light blue box
+    backgroundColor: '#E9F5FF',
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
@@ -76,14 +182,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '90%',
     borderWidth: 1,
-    borderColor: '#007BFF', // Subtle border for clarity
+    borderColor: '#007BFF',
   },
   paragraph: {
     fontSize: 18,
     lineHeight: 28,
-    color: '#000000', // Black text for maximum contrast
+    color: '#000000',
     textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
+    fontFamily: 'OpenDyslexic-Regular',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -92,7 +198,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   refreshButton: {
-    backgroundColor: '#E9F5FF', // Light blue background for refresh button
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -101,13 +206,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   refreshButtonText: {
-    color: '#007BFF', // Blue text
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
+    fontFamily: 'OpenDyslexic-Regular',
   },
   nextButton: {
-    backgroundColor: '#007BFF', // Blue background for next button
+    backgroundColor: '#007BFF',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -116,11 +220,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nextButtonText: {
-    color: '#FFFFFF', // White text
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  videoUriText: {
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: 'center',
+    color: '#007BFF',
+    fontFamily: 'OpenDyslexic-Regular',
   },
 });
-
-export default EyeTrackingTest;
