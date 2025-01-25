@@ -1,10 +1,10 @@
-import React, {useRef, useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView, // optional if you need scrolling
+  ScrollView,
 } from 'react-native';
 import {
   CameraView,
@@ -12,12 +12,10 @@ import {
   useMicrophonePermissions,
   PermissionStatus,
 } from 'expo-camera';
-import {useFonts} from 'expo-font';
-// Import Video component from expo-av
-import {Video} from 'expo-av';
+import { useFonts } from 'expo-font';
+import { Video, ResizeMode } from 'expo-av';
 
-export default function App() {
-  // Request both camera & mic permissions
+export default function EyeTrackingTest() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [microphonePermission, requestMicrophonePermission] =
     useMicrophonePermissions();
@@ -28,6 +26,16 @@ export default function App() {
 
   const cameraRef = useRef<CameraView | null>(null);
   const videoRef = useRef<Video | null>(null);
+
+  // Load custom fonts
+  let [fontsLoaded] = useFonts({
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+  if (!fontsLoaded) {
+    return null;
+  }
 
   // 1. Permissions are still loading
   if (!cameraPermission || !microphonePermission) {
@@ -49,14 +57,15 @@ export default function App() {
             await requestCameraPermission();
             await requestMicrophonePermission();
           }}
-          style={styles.permissionButton}>
+          style={styles.permissionButton}
+        >
           <Text style={styles.permissionButtonText}>Grant Permissions</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  // 3. Once permissions are granted, show the camera UI
+  // Start/Stop Recording
   const toggleRecording = async () => {
     if (!isCameraReady) {
       console.warn('CameraView is not ready yet.');
@@ -91,24 +100,46 @@ export default function App() {
     }
   };
 
+  // User chose to retake
+  const retake = () => {
+    setVideoUri(null);
+    console.log('Video retaken');
+  };
+
+  // User chose to submit
+  const submit = () => {
+    console.log('Video submitted:', videoUri);
+    // Add your own logic here, e.g. upload the video
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Circular Camera View */}
+      {/* Circular container: either show CameraView OR Video preview */}
       <View style={styles.cameraPlaceholder}>
-        <CameraView
-          ref={ref => {
-            cameraRef.current = ref;
-          }}
-          style={styles.camera}
-          facing="front"
-          mode="video"
-          // Set `mute` to false if you want audio recorded.
-          mute={false}
-          onCameraReady={() => {
-            console.log('CameraView is ready');
-            setIsCameraReady(true);
-          }}
-        />
+        {videoUri ? (
+          // Show the recorded video in the same circle
+          <Video
+            ref={videoRef}
+            style={styles.camera}
+            source={{ uri: videoUri }}
+            resizeMode={ResizeMode.CONTAIN}
+            useNativeControls
+            isLooping
+          />
+        ) : (
+          // Show live camera
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing="front"
+            mode="video"
+            mute={false}
+            onCameraReady={() => {
+              console.log('CameraView is ready');
+              setIsCameraReady(true);
+            }}
+          />
+        )}
       </View>
 
       {/* Reading Paragraph Box */}
@@ -119,63 +150,62 @@ export default function App() {
         </Text>
       </View>
 
-      {/* Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.refreshButton,
-            {
-              backgroundColor: isCameraReady
-                ? isRecording
-                  ? '#FF6666' // Red when recording
-                  : '#E9F5FF' // Light blue when ready
-                : '#CCCCCC', // Gray when disabled
-            },
-          ]}
-          onPress={toggleRecording}
-          disabled={!isCameraReady}>
-          <Text
+      {/* Buttons (Conditional) */}
+      {videoUri ? (
+        // If we have a recorded video, show 'Retake' and 'Submit'
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.actionButtonRetake]}
+            onPress={retake}
+          >
+            <Text style={styles.actionButtonText}>Retake</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.actionButtonSubmit]}
+            onPress={submit}
+          >
+            <Text style={styles.actionButtonText}>Submit</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        // If no video yet, show Record/Stop button
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
             style={[
-              styles.refreshButtonText,
-              {color: isCameraReady ? '#007BFF' : '#888888'}, // Gray text when disabled
-            ]}>
-            {isRecording
-              ? 'Stop Recording'
-              : isCameraReady
-              ? 'Start Recording'
-              : 'Loading...'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.nextButton}
-          onPress={() => console.log('Next')}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Video URI & Preview */}
-      {videoUri && (
-        <>
-          <Text style={styles.videoUriText}>Saved Video: {videoUri}</Text>
-          <View style={styles.videoContainer}>
-            <Video
-              ref={ref => {
-                videoRef.current = ref;
-              }}
-              style={styles.video}
-              source={{uri: videoUri}}
-              useNativeControls
-              resizeMode="contain"
-              isLooping
-            />
-          </View>
-        </>
+              styles.recordButton,
+              // Merge additional dynamic state-based styles
+              !isCameraReady
+                ? styles.recordButtonDisabled
+                : isRecording
+                ? styles.recordButtonRecording
+                : styles.recordButtonDefault,
+            ]}
+            onPress={toggleRecording}
+            disabled={!isCameraReady}
+          >
+            <Text
+              style={[
+                styles.recordButtonText,
+                isCameraReady
+                  ? styles.recordButtonTextEnabled
+                  : styles.recordButtonTextDisabled,
+              ]}
+            >
+              {isRecording
+                ? 'Stop Recording'
+                : isCameraReady
+                ? 'Start Recording'
+                : 'Loading...'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
     </ScrollView>
   );
 }
 
+// ---- STYLES ----
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -204,7 +234,7 @@ const styles = StyleSheet.create({
   cameraPlaceholder: {
     width: 300,
     height: 300,
-    borderRadius: 200,
+    borderRadius: 200, // circle
     backgroundColor: '#E9F5FF',
     justifyContent: 'center',
     alignItems: 'center',
@@ -236,56 +266,63 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Regular',
   },
+
+  // Button Containers
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
     marginTop: 20,
     marginBottom: 20,
   },
-  refreshButton: {
+
+  // Recording button (Start/Stop)
+  recordButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
-    flex: 1,
-    marginRight: 10,
     alignItems: 'center',
   },
-  refreshButtonText: {
+  recordButtonDefault: {
+    backgroundColor: '#E9F5FF', // Light blue
+  },
+  recordButtonRecording: {
+    backgroundColor: '#FF6666', // Red
+  },
+  recordButtonDisabled: {
+    backgroundColor: '#CCCCCC', // Gray
+  },
+  recordButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'OpenDyslexic-Regular',
   },
-  nextButton: {
-    backgroundColor: '#007BFF',
+  recordButtonTextEnabled: {
+    color: '#007BFF',
+  },
+  recordButtonTextDisabled: {
+    color: '#888888',
+  },
+
+  // Action buttons (Retake/Submit)
+  actionButton: {
+    flex: 1,
+    marginHorizontal: 5,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
-    flex: 1,
-    marginLeft: 10,
     alignItems: 'center',
   },
-  nextButtonText: {
+  // Orange background for Retake
+  actionButtonRetake: {
+    backgroundColor: '#FF8C00',
+  },
+  // Blue background for Submit
+  actionButtonSubmit: {
+    backgroundColor: '#007BFF',
+  },
+  actionButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'OpenDyslexic-Regular',
-  },
-  videoUriText: {
-    fontSize: 14,
-    marginTop: 10,
-    textAlign: 'center',
-    color: '#007BFF',
-    fontFamily: 'OpenDyslexic-Regular',
-  },
-  videoContainer: {
-    width: '100%',
-    height: 200,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  video: {
-    width: '90%',
-    height: '100%',
   },
 });
