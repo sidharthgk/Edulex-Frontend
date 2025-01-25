@@ -4,7 +4,7 @@ const HandWritingTestInstructions = ({ navigation }: any) => {
     return(
         <View style={styles.container}>
             <Text>Instructions</Text>
-            <TouchableOpacity onPress={navigation.navigate('WritingTest')}>
+            <TouchableOpacity onPress={() => navigation.navigate('WritingTest')}>
                 <Text>continue</Text>
             </TouchableOpacity>
         </View>

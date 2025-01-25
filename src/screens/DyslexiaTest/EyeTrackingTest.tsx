@@ -46,19 +46,21 @@ const EyeTrackingTest = ({ navigation }: any) => {
     microphonePermission.status !== PermissionStatus.GRANTED
   ) {
     return (
-      <View style={styles.container}>
+      <View style={styles.permissionContainer}>
         <Text style={styles.message}>
           We need Camera and Microphone permissions to record a video.
         </Text>
-        <TouchableOpacity
-          onPress={async () => {
-            await requestCameraPermission();
-            await requestMicrophonePermission();
-          }}
-          style={styles.permissionButton}
-        >
-          <Text style={styles.permissionButtonText}>Grant Permissions</Text>
-        </TouchableOpacity>
+        <View style={styles.permissionButtonContainer}>
+          <TouchableOpacity
+            onPress={async () => {
+              await requestCameraPermission();
+              await requestMicrophonePermission();
+            }}
+            style={styles.permissionButton}
+          >
+            <Text style={styles.permissionButtonText}>Grant Permissions</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -173,7 +175,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
           <TouchableOpacity
             style={[
               styles.recordButton,
-              // Merge additional dynamic state-based styles
               !isCameraReady
                 ? styles.recordButtonDisabled
                 : isRecording
@@ -186,7 +187,10 @@ const EyeTrackingTest = ({ navigation }: any) => {
             <Text
               style={[
                 styles.recordButtonText,
-                isCameraReady
+                // When recording, text should be white
+                isRecording
+                  ? styles.recordButtonTextRecording
+                  : isCameraReady
                   ? styles.recordButtonTextEnabled
                   : styles.recordButtonTextDisabled,
               ]}
@@ -212,30 +216,44 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
     alignItems: 'center',
   },
+  // New style for permission screen to display white text
+  permissionContainer: {
+    flex: 1,
+    backgroundColor: '#3DB2FF', // Blue background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   message: {
     textAlign: 'center',
     paddingBottom: 10,
     fontFamily: 'OpenDyslexic-Regular',
     fontSize: 16,
-    color: '#FFFFFF', // Text matches the blue background
+    color: '#FFFFFF', // White text against blue background
+  },
+  permissionButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 100,
   },
   permissionButton: {
     backgroundColor: '#FFFFFF', // White button with blue text
-    padding: 15,
+    padding: 9,
     borderRadius: 50, // Rounded button
     alignItems: 'center',
-    width: '70%', // Center the button with a defined width
-    justifyContent: 'center',
+    width: '90%', // Center the button with a defined width
+    borderWidth: 2, // Add border width
+    borderColor: '#3DB2FF', // Blue border color
   },
   permissionButtonText: {
-    color: '#3DB2FF', // Blue text to match the theme
-    fontSize: 14,
+    color: '#3DB2FF', // Blue text
+    fontSize: 23,
     fontFamily: 'OpenDyslexic-Bold',
   },
   cameraPlaceholder: {
     width: 300,
     height: 300,
-    borderRadius: 200, // Circle
+    borderRadius: 150, // Circle (half of 300)
     backgroundColor: '#FFFFFF', // White background for the camera area
     justifyContent: 'center',
     alignItems: 'center',
@@ -249,7 +267,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   paragraphBox: {
-    backgroundColor: '#FFFFFF', // White box for the paragraph
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
@@ -267,17 +285,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Regular',
   },
-
-  // Button Containers
   buttonContainer: {
     flexDirection: 'row',
     marginTop: 20,
     marginBottom: 20,
   },
-
   // Recording button (Start/Stop)
   recordButton: {
-    paddingVertical: 12,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 50, // Rounded buttons
     alignItems: 'center',
@@ -285,9 +300,11 @@ const styles = StyleSheet.create({
   },
   recordButtonDefault: {
     backgroundColor: '#FFFFFF', // White button
+    borderWidth: 2, // Add border width
+    borderColor: '#3DB2FF', // Blue border color
   },
   recordButtonRecording: {
-    backgroundColor: '#FF6666', // Red button for recording
+    backgroundColor: '#FF6666',
   },
   recordButtonDisabled: {
     backgroundColor: '#CCCCCC', // Gray for disabled state
@@ -297,29 +314,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'OpenDyslexic-Bold',
   },
+  // **New style** for white text when recording
+  recordButtonTextRecording: {
+    color: '#FFFFFF',
+  },
   recordButtonTextEnabled: {
     color: '#3DB2FF', // Blue text
   },
   recordButtonTextDisabled: {
     color: '#888888',
   },
-
   // Action buttons (Retake/Submit)
   actionButton: {
     flex: 1,
     marginHorizontal: 5,
-    paddingVertical: 12,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 50,
     alignItems: 'center',
   },
-  // Orange background for Retake
   actionButtonRetake: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#FF8C00', // Orange
   },
-  // Blue background for Submit
   actionButtonSubmit: {
-    backgroundColor: '#3DB2FF',
+    backgroundColor: '#3DB2FF', // Blue
   },
   actionButtonText: {
     color: '#FFFFFF',
