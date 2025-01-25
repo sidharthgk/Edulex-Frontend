@@ -53,10 +53,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007BFF', // Blue color for the title
+    color: '#3DB2FF', // Blue color for the title
     textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexic-friendly font
+    fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
     marginBottom: 20,
   },
   instructions: {
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   startButton: {
-    backgroundColor: '#007BFF', // Blue background for the button
+    backgroundColor: '#3DB2FF', // Blue background for the button
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 30,
@@ -81,8 +80,7 @@ const styles = StyleSheet.create({
   startButtonText: {
     color: '#FFFFFF', // White text for the button
     fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexic-friendly font
+    fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
   },
 });
 
