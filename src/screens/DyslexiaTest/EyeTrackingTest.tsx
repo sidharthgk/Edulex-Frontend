@@ -15,11 +15,9 @@ import {
 import { useFonts } from 'expo-font';
 import { Video, ResizeMode } from 'expo-av';
 
-export default function EyeTrackingTest() {
+const EyeTrackingTest = ({ navigation }: any) => {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [microphonePermission, requestMicrophonePermission] =
-    useMicrophonePermissions();
-
+  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
@@ -108,6 +106,7 @@ export default function EyeTrackingTest() {
 
   // User chose to submit
   const submit = () => {
+    navigation.navigate('EyeTrackingTestSubmitted');
     console.log('Video submitted:', videoUri);
     // Add your own logic here, e.g. upload the video
   };
@@ -203,13 +202,12 @@ export default function EyeTrackingTest() {
       )}
     </ScrollView>
   );
-}
+};
 
-// ---- STYLES ----
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF', // Match the LoginScreen background
     paddingHorizontal: 20,
     paddingVertical: 40,
     alignItems: 'center',
@@ -218,28 +216,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingBottom: 10,
     fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 16,
+    color: '#FFFFFF', // Text matches the blue background
   },
   permissionButton: {
-    backgroundColor: '#007BFF',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF', // White button with blue text
+    padding: 15,
+    borderRadius: 50, // Rounded button
     alignItems: 'center',
+    width: '70%', // Center the button with a defined width
+    justifyContent: 'center',
   },
   permissionButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular',
+    color: '#3DB2FF', // Blue text to match the theme
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
   },
   cameraPlaceholder: {
     width: 300,
     height: 300,
-    borderRadius: 200, // circle
-    backgroundColor: '#E9F5FF',
+    borderRadius: 200, // Circle
+    backgroundColor: '#FFFFFF', // White background for the camera area
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#007BFF',
+    borderColor: '#3DB2FF', // Blue border
     overflow: 'hidden',
     marginBottom: 20,
   },
@@ -248,21 +249,21 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   paragraphBox: {
-    backgroundColor: '#E9F5FF',
+    backgroundColor: '#FFFFFF', // White box for the paragraph
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
     width: '90%',
-    borderWidth: 1,
-    borderColor: '#007BFF',
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF', // Blue border
     marginBottom: 20,
   },
   paragraph: {
     fontSize: 18,
     lineHeight: 28,
-    color: '#000000',
+    color: '#333333', // Dark text for readability
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Regular',
   },
@@ -278,25 +279,26 @@ const styles = StyleSheet.create({
   recordButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 50, // Rounded buttons
     alignItems: 'center',
+    width: '90%',
   },
   recordButtonDefault: {
-    backgroundColor: '#E9F5FF', // Light blue
+    backgroundColor: '#FFFFFF', // White button
   },
   recordButtonRecording: {
-    backgroundColor: '#FF6666', // Red
+    backgroundColor: '#FF6666', // Red button for recording
   },
   recordButtonDisabled: {
-    backgroundColor: '#CCCCCC', // Gray
+    backgroundColor: '#CCCCCC', // Gray for disabled state
   },
   recordButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular',
+    fontFamily: 'OpenDyslexic-Bold',
   },
   recordButtonTextEnabled: {
-    color: '#007BFF',
+    color: '#3DB2FF', // Blue text
   },
   recordButtonTextDisabled: {
     color: '#888888',
@@ -308,7 +310,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 50,
     alignItems: 'center',
   },
   // Orange background for Retake
@@ -317,12 +319,13 @@ const styles = StyleSheet.create({
   },
   // Blue background for Submit
   actionButtonSubmit: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#3DB2FF',
   },
   actionButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
+
+export default EyeTrackingTest;
