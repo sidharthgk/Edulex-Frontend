@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
-import SvgImage from '../assets/Logo-Splash.svg';
+import SvgImage from '../assets/Splash.svg';
 
 const SplashScreen = ({ navigation }: any) => {
   let [fontsLoaded] = useFonts({
