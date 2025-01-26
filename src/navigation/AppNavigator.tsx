@@ -1,4 +1,5 @@
 import React from 'react';
+import { TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -22,13 +23,23 @@ import WritingTest from '../screens/DyslexiaTest/WritingTest';
 import EyeTrackingTestSubmitted from '../screens/DyslexiaTest/EyeTrackingTestSubmitted';
 import HandWritingTestInstructions from '../screens/DyslexiaTest/HandWritingTestInstructions';
 
-
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false, // Hide header globally
+          gestureEnabled: true, // Enable swipe gestures
+          gestureDirection: 'horizontal', // Default gesture direction
+          transitionSpec: {
+            open: TransitionSpecs.TransitionIOSSpec, // Use iOS-like smooth transition
+            close: TransitionSpecs.TransitionIOSSpec,
+          },
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, // Smooth horizontal transitions
+        }}
+      >
         {/* Onboarding and Login Screens */}
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="StarterScreen" component={StarterScreen} />
@@ -49,8 +60,14 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="EyeTrackingTest" component={EyeTrackingTest} />
         <Stack.Screen name="WritingTest" component={WritingTest} />
-        <Stack.Screen name="EyeTrackingTestSubmitted" component={EyeTrackingTestSubmitted} />
-        <Stack.Screen name="HandWritingTestInstructions" component={HandWritingTestInstructions}/>
+        <Stack.Screen
+          name="EyeTrackingTestSubmitted"
+          component={EyeTrackingTestSubmitted}
+        />
+        <Stack.Screen
+          name="HandWritingTestInstructions"
+          component={HandWritingTestInstructions}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

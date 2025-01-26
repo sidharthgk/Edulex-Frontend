@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: '#3DB2FF', // Updated button background color
     paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingHorizontal: 30,
     borderRadius: 50, // Updated button radius
   },
   nextButtonText: {
