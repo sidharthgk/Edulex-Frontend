@@ -6,9 +6,9 @@ const RegisterPassword = ({ navigation }: any) => {
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState('');
   let [fontsLoaded] = useFonts({
-    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
   if (!fontsLoaded) {
@@ -43,7 +43,7 @@ const RegisterPassword = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
+        <Image source={require('../../../assets/backbutton.png')} style={styles.backButtonImage} />
       </TouchableOpacity>
       <Text style={styles.title}>Enter your password</Text>
       <TextInput
@@ -99,40 +99,40 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1.5,
-    borderColor: '#3DB2FF', // Updated border color
-    borderRadius: 50, // Updated input radius
+    borderColor: '#3DB2FF',
+    borderRadius: 50,
     width: '80%',
-    padding: 15,
+    height: 50, // Ensures matching height with the button
     marginBottom: 10,
     fontFamily: 'OpenDyslexic-Regular',
     fontSize: 14,
     color: '#333',
+    paddingHorizontal: 15, // Maintain horizontal padding
   },
   passwordStrength: {
-    fontSize: 14,
-    marginBottom: 20,
-    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 10,
   },
   weak: {
     color: 'red',
   },
   moderate: {
-    color: '#E0A800', // Yellow
+    color: 'orange',
   },
-
   strong: {
     color: 'green',
   },
   nextButton: {
-    backgroundColor: '#3DB2FF', // Updated button background color
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 50, // Updated button radius
+    backgroundColor: '#3DB2FF',
+    borderRadius: 50,
+    width: '80%',
+    height: 50, // Ensures matching height with the input
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   nextButtonText: {
     color: '#FFFFFF',
-    fontFamily: 'OpenDyslexic-Bold', // Updated font family
-    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
+    fontSize: 16,
   },
 });
 

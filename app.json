@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "slug": "frontend",
+  "newArchEnabled": true,
   "plugins": [
     "expo-font",
     [
