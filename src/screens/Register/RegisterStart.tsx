@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
+import SvgImage from '../../../assets/Ilustration-Register.svg';
 
 const RegisterStart = ({ navigation }: any) => {
   let [fontsLoaded] = useFonts({
-        'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-        'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-        'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+        'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
+        'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
+        'OpenDyslexic-itallic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
       });
       if (!fontsLoaded) {
         return null;
@@ -15,10 +16,8 @@ const RegisterStart = ({ navigation }: any) => {
     <View style={styles.container}>
       {/* Top Blue Section with Cropped Image */}
       <View style={styles.topImageContainer}>
-        <Image
-          source={require('../../assets/start_logo.png')} // Replace with the cropped image path
+        <SvgImage height={400} width={500}
           style={styles.topImage}
-          resizeMode="contain"
         />
       </View>
 
@@ -68,29 +67,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    marginTop: 5, // Overlap the rounded white section on the blue
-    backgroundColor: '#FFFFFF',
+    marginTop: 5,
+   backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
   },
   title: {
-    fontSize: 28,
+    fontSize: 35,
     color: '#3DB2FF',
     textAlign: 'center',
     marginBottom: 10,
     fontFamily: 'OpenDyslexic-Bold',
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#3DB2FF',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
     fontFamily: 'OpenDyslexic-Regular',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
+    marginBottom: 40,
   },
   backButton: {
     borderWidth: 1.5,

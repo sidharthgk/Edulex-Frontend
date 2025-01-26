@@ -21,9 +21,9 @@ const EyeTrackingTestSubmitted = ({ navigation }: any) => {
 
   // Load custom fonts
   const [fontsLoaded] = useFonts({
-    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
   // Reset animation and states whenever this screen is focused
@@ -79,7 +79,7 @@ const EyeTrackingTestSubmitted = ({ navigation }: any) => {
       <View style={styles.animationContainer}>
         <LottieView
           ref={lottieRef}
-          source={require('../../assets/success.json')}
+          source={require('../../../assets/success.json')}
           autoPlay
           loop={false}
           style={styles.lottieAnimation}

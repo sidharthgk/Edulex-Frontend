@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { useFonts } from 'expo-font';
+import SvgImage from '../../assets/Logo-Starter.svg';
 
 const StarterScreen = ({ navigation }: any) => {
   const [activePage, setActivePage] = useState(0); // Manage active page state
@@ -21,22 +22,22 @@ const StarterScreen = ({ navigation }: any) => {
     setActivePage(index);
     scrollViewRef.current?.scrollTo({ x: index * Dimensions.get('window').width, animated: true });
   };
+
   let [fontsLoaded] = useFonts({
-        'OpenDyslexic-Regular': require('../assets/fonts/OpenDyslexic-Regular.otf'),
-        'OpenDyslexic-Bold': require('../assets/fonts/OpenDyslexic-Bold.otf'),
-        'OpenDyslexic-itallic': require('../assets/fonts/OpenDyslexic-Italic.otf'),
-      });
-    if (!fontsLoaded) {
-        return null;
-      }
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       {/* Logo Section */}
       <View style={styles.logoContainer}>
-        <Image
-          source={require('../assets/logo2.png')} // Replace with your logo
-          style={styles.logo}
-        />
+      <SvgImage height={350} width={600} style={styles.logo} />
         <Text style={styles.title}>EDULEX AI</Text>
       </View>
 
@@ -51,10 +52,7 @@ const StarterScreen = ({ navigation }: any) => {
           ref={scrollViewRef}
         >
           {descriptions.map((description, index) => (
-            <View
-              key={index}
-              style={styles.descriptionSlide}
-            >
+            <View key={index} style={styles.descriptionSlide}>
               <Text style={styles.mainDescription}>{description}</Text>
             </View>
           ))}
@@ -63,10 +61,7 @@ const StarterScreen = ({ navigation }: any) => {
         {/* Pagination Dots */}
         <View style={styles.paginationContainer}>
           {descriptions.map((_, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handleDotPress(index)}
-            >
+            <TouchableOpacity key={index} onPress={() => handleDotPress(index)}>
               <View
                 style={[
                   styles.paginationDot,
@@ -108,16 +103,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginTop: 160,
-    width: 350,
-    height: 250,
+    marginTop: 130,
+    height: 200, // Adjust the height of the logo
+    width: 'auto', // Maintain aspect ratio or adjust as needed
   },
   title: {
-    fontSize: 30, // Decreased font size
-    fontWeight: '600',
+    fontSize: 35, // Decreased font size
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
-    marginTop: 10,
+    marginTop: -30,
   },
   descriptionContainer: {
     flex: 1.5,
@@ -166,10 +160,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     position: 'absolute',
     bottom: 80,
-    justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 10,
     marginTop: 30,
+    paddingLeft: 16,
+    paddingRight: 15,
   },
   registerButton: {
     borderWidth: 1.5,
@@ -177,6 +172,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 12,
     paddingHorizontal: 20,
+    marginLeft: 10,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -196,6 +192,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '45%',
+    marginLeft: 15,
+    marginRight: 10,
   },
   loginText: {
     color: '#3DB2FF',

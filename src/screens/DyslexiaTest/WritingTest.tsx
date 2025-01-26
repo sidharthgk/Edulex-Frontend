@@ -4,9 +4,9 @@ import { useFonts } from 'expo-font';
 
 const WritingTest = () => {
   let [fontsLoaded] = useFonts({
-    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-itallic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-itallic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
   if (!fontsLoaded) {
     return null;
@@ -15,7 +15,7 @@ const WritingTest = () => {
     <View style={styles.container}>
       {/* Top Icon */}
       <Image
-        source={require('../../assets/writing_icon.png')} // Path to the provided icon
+        source={require('../../../assets/writing_icon.png')} // Path to the provided icon
         style={styles.icon}
       />
 

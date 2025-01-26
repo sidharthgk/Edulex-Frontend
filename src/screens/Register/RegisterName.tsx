@@ -5,9 +5,9 @@ import { useFonts } from 'expo-font';
 const RegisterName = ({ navigation }: any) => {
   const [name, setName] = useState('');
   let [fontsLoaded] = useFonts({
-    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
   if (!fontsLoaded) {
@@ -21,7 +21,7 @@ const RegisterName = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Image source={require('../../assets/backbutton.png')} style={styles.backButtonImage} />
+        <Image source={require('../../../assets/backbutton.png')} style={styles.backButtonImage} />
       </TouchableOpacity>
       <Text style={styles.title}>What is your name?</Text>
       <TextInput
