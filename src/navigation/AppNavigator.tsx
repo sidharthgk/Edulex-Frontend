@@ -22,6 +22,7 @@ import EyeTrackingTest from '../screens/DyslexiaTest/EyeTrackingTest';
 import WritingTest from '../screens/DyslexiaTest/WritingTest';
 import EyeTrackingTestSubmitted from '../screens/DyslexiaTest/EyeTrackingTestSubmitted';
 import HandWritingTestInstructions from '../screens/DyslexiaTest/HandWritingTestInstructions';
+import PhotoCamera from '../screens/DyslexiaTest/PhotoCamera';
 
 const Stack = createStackNavigator();
 
@@ -68,6 +69,7 @@ const AppNavigator = () => {
           name="HandWritingTestInstructions"
           component={HandWritingTestInstructions}
         />
+        <Stack.Screen name="PhotoCamera" component={PhotoCamera}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

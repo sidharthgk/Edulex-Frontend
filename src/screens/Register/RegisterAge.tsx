@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { useFonts } from 'expo-font';
 
 const RegisterAge = ({ navigation }: any) => {
@@ -19,32 +29,50 @@ const RegisterAge = ({ navigation }: any) => {
   }
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Image source={require('../../../assets/backbutton.png')} style={styles.backButtonImage} />
-      </TouchableOpacity>
-      <Text style={styles.title}>How old are you?</Text>
-      <TextInput
-        style={styles.input}
-        value={age}
-        onChangeText={setAge}
-        placeholder="Enter your age"
-        placeholderTextColor="#888" // Updated placeholder color
-        keyboardType="numeric"
-      />
-      <TouchableOpacity
-        style={styles.nextButton}
-        onPress={() => navigation.navigate('RegisterName')}
-      >
-        <Text style={styles.nextButtonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+    // Added KeyboardAvoidingView to adjust the layout when the keyboard appears
+    <KeyboardAvoidingView
+      style={styles.KeyboardView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={60} // Adjust this value if needed
+    >
+      {/* Wrapped content inside ScrollView to enable scrolling when needed */}
+      <ScrollView contentContainerStyle={styles.container}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Image
+            source={require('../../../assets/backbutton.png')}
+            style={styles.backButtonImage}
+          />
+        </TouchableOpacity>
+        <Text style={styles.title}>How old are you?</Text>
+        <TextInput
+          style={styles.input}
+          value={age}
+          onChangeText={setAge}
+          placeholder="Enter your age"
+          placeholderTextColor="#888" // Updated placeholder color
+          keyboardType="numeric"
+        />
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() => navigation.navigate('RegisterName')}
+        >
+          <Text style={styles.nextButtonText}>Next</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  KeyboardView: {
     flex: 1,
+  },
+
+  container: {
+    flexGrow: 1, // Changed from flex: 1 to flexGrow: 1 for ScrollView compatibility
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
@@ -88,6 +116,5 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Bold', // Updated font family
   },
 });
-
 
 export default RegisterAge;

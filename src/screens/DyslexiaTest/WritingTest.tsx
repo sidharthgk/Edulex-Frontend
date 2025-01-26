@@ -1,105 +1,124 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  Image,
+} from 'react-native';
 import { useFonts } from 'expo-font';
 
-const WritingTest = () => {
+const HandWritingTest = ({ navigation }: any) => {
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+
+  // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-itallic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
   if (!fontsLoaded) {
     return null;
   }
+
   return (
-    <View style={styles.container}>
-      {/* Top Icon */}
-      <Image
-        source={require('../../../assets/writing_icon.png')} // Path to the provided icon
-        style={styles.icon}
-      />
-
-      {/* Instruction Text */}
-      <Text style={styles.instruction}>
-        Please write the following paragraph in your notebook. When you are done, take a
-        picture of your work and upload it using the button below.
-      </Text>
-
-      {/* Paragraph Box */}
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Writing Paragraph Box */}
       <View style={styles.paragraphBox}>
         <Text style={styles.paragraph}>
-          "Creativity is seeing the world in new ways, finding hidden patterns, and
-          making connections between things that seem unrelated."
+          Please write the following sentence on a piece of paper and show it to the camera:
+          "The quick brown fox jumps over the lazy dog."
         </Text>
       </View>
 
-      {/* Upload Button */}
-      <TouchableOpacity style={styles.uploadButton}>
-        <Text style={styles.uploadButtonText}>Upload</Text>
-      </TouchableOpacity>
-    </View>
+      {/* Show photo if available */}
+      {photoUri && (
+        <View style={styles.cameraPlaceholder}>
+          <Image
+            style={styles.camera}
+            source={{ uri: photoUri }}
+          />
+        </View>
+      )}
+
+      {/* Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.actionButtonTakePhoto]}
+          onPress={() => navigation.navigate('PhotoCamera', { setPhotoUri })}
+        >
+          <Text style={styles.actionButtonText}>Take Photo</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'space-between',
+    flexGrow: 1,
+    backgroundColor: '#FFFFFF', // Match the background color
+    paddingHorizontal: 20,
+    paddingVertical: 40,
     alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
   },
-  icon: {
-    width: 220, // Larger icon size
-    height: 220,
-    resizeMode: 'contain',
-    marginTop: 30,
+  cameraPlaceholder: {
+    width: 300,
+    height: 300,
+    borderRadius: 150, // Circle (half of 300)
+    backgroundColor: '#FFFFFF', // White background for the camera area
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#3DB2FF', // Blue border
+    overflow: 'hidden',
+    marginBottom: 20,
   },
-  instruction: {
-    fontSize: 16,
-    color: '#FF0000', // Red color for the instruction text
-    textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
-    marginVertical: 20,
-    paddingHorizontal: 20,
+  camera: {
+    width: '100%',
+    height: '100%',
   },
   paragraphBox: {
-    backgroundColor: '#E9F5FF', // Light blue box for the paragraph
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
     width: '90%',
-    borderWidth: 1,
-    borderColor: '#007BFF', // Subtle border for clarity
-    marginVertical: 20,
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF', // Blue border
+    marginBottom: 20,
   },
   paragraph: {
-    fontSize: 18, // Increased font size for readability
+    fontSize: 20,
     lineHeight: 28,
-    color: '#000000', // Black text for maximum contrast
+    color: '#333333', // Dark text for readability
     textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
+    fontFamily: 'OpenDyslexic-Regular',
   },
-  uploadButton: {
-    backgroundColor: '#007BFF', // Blue background for the button
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 30,
-    marginBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5, // Shadow for Android
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+    marginBottom: 20,
   },
-  uploadButtonText: {
-    color: '#FFFFFF', // White text for the button
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexia-friendly font
+  actionButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 50,
+    alignItems: 'center',
+  },
+  actionButtonTakePhoto: {
+    backgroundColor: '#3DB2FF', // Orange
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 
-export default WritingTest;
+export default HandWritingTest;

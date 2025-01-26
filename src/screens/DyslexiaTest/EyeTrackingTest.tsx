@@ -29,18 +29,22 @@ const EyeTrackingTest = ({ navigation }: any) => {
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-itallic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
+
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading Fonts...</Text>
+      </View>
+    );
   }
 
-  // 1. Permissions are still loading
+  // Handle permissions
   if (!cameraPermission || !microphonePermission) {
     return <View />;
   }
 
-  // 2. If camera or mic permission not granted, show UI to request them
   if (
     cameraPermission.status !== PermissionStatus.GRANTED ||
     microphonePermission.status !== PermissionStatus.GRANTED
@@ -65,7 +69,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
     );
   }
 
-  // Start/Stop Recording
   const toggleRecording = async () => {
     if (!isCameraReady) {
       console.warn('CameraView is not ready yet.');
@@ -73,7 +76,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
     }
 
     if (isRecording) {
-      // Stop any ongoing recording
       try {
         await cameraRef.current?.stopRecording();
         setIsRecording(false);
@@ -83,9 +85,8 @@ const EyeTrackingTest = ({ navigation }: any) => {
         setIsRecording(false);
       }
     } else {
-      // Start a new recording
       try {
-        setIsRecording(true); // Mark state as recording BEFORE calling recordAsync
+        setIsRecording(true);
         const video = await cameraRef.current?.recordAsync();
         setIsRecording(false);
 
@@ -100,25 +101,20 @@ const EyeTrackingTest = ({ navigation }: any) => {
     }
   };
 
-  // User chose to retake
   const retake = () => {
     setVideoUri(null);
     console.log('Video retaken');
   };
 
-  // User chose to submit
   const submit = () => {
     navigation.navigate('EyeTrackingTestSubmitted');
     console.log('Video submitted:', videoUri);
-    // Add your own logic here, e.g. upload the video
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Circular container: either show CameraView OR Video preview */}
       <View style={styles.cameraPlaceholder}>
         {videoUri ? (
-          // Show the recorded video in the same circle
           <Video
             ref={videoRef}
             style={styles.camera}
@@ -128,7 +124,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
             isLooping
           />
         ) : (
-          // Show live camera
           <CameraView
             ref={cameraRef}
             style={styles.camera}
@@ -143,7 +138,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
         )}
       </View>
 
-      {/* Reading Paragraph Box */}
       <View style={styles.paragraphBox}>
         <Text style={styles.paragraph}>
           The cat is on the mat. The dog runs fast. Look at the red ball. Can
@@ -151,9 +145,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
         </Text>
       </View>
 
-      {/* Buttons (Conditional) */}
       {videoUri ? (
-        // If we have a recorded video, show 'Retake' and 'Submit'
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.actionButton, styles.actionButtonRetake]}
@@ -170,7 +162,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
       ) : (
-        // If no video yet, show Record/Stop button
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[
@@ -187,7 +178,6 @@ const EyeTrackingTest = ({ navigation }: any) => {
             <Text
               style={[
                 styles.recordButtonText,
-                // When recording, text should be white
                 isRecording
                   ? styles.recordButtonTextRecording
                   : isCameraReady
@@ -211,15 +201,25 @@ const EyeTrackingTest = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#FFFFFF', // Match the LoginScreen background
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
     paddingVertical: 40,
     alignItems: 'center',
   },
-  // New style for permission screen to display white text
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  loadingText: {
+    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 20,
+    color: '#000000',
+  },
   permissionContainer: {
     flex: 1,
-    backgroundColor: '#3DB2FF', // Blue background
+    backgroundColor: '#3DB2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -228,37 +228,34 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     fontFamily: 'OpenDyslexic-Regular',
     fontSize: 16,
-    color: '#FFFFFF', // White text against blue background
+    color: '#FFFFFF',
   },
   permissionButtonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 100,
   },
   permissionButton: {
-    backgroundColor: '#FFFFFF', // White button with blue text
+    backgroundColor: '#FFFFFF',
     padding: 9,
-    borderRadius: 50, // Rounded button
+    borderRadius: 50,
     alignItems: 'center',
-    width: '90%', // Center the button with a defined width
-    borderWidth: 2, // Add border width
-    borderColor: '#3DB2FF', // Blue border color
+    width: '90%',
+    borderWidth: 2,
+    borderColor: '#3DB2FF',
   },
   permissionButtonText: {
-    color: '#3DB2FF', // Blue text
+    color: '#3DB2FF',
     fontSize: 23,
     fontFamily: 'OpenDyslexic-Bold',
   },
   cameraPlaceholder: {
     width: 300,
     height: 300,
-    borderRadius: 150, // Circle (half of 300)
-    backgroundColor: '#FFFFFF', // White background for the camera area
+    borderRadius: 150,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#3DB2FF', // Blue border
+    borderColor: '#3DB2FF',
     overflow: 'hidden',
     marginBottom: 20,
   },
@@ -275,13 +272,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '90%',
     borderWidth: 1.5,
-    borderColor: '#3DB2FF', // Blue border
+    borderColor: '#3DB2FF',
     marginBottom: 20,
   },
   paragraph: {
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 28,
-    color: '#333333', // Dark text for readability
+    color: '#333333',
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Regular',
   },
@@ -290,58 +287,54 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  // Recording button (Start/Stop)
   recordButton: {
     paddingVertical: 20,
     paddingHorizontal: 20,
-    borderRadius: 50, // Rounded buttons
+    borderRadius: 50,
     alignItems: 'center',
     width: '90%',
   },
   recordButtonDefault: {
-    backgroundColor: '#FFFFFF', // White button
-    borderWidth: 2, // Add border width
-    borderColor: '#3DB2FF', // Blue border color
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#3DB2FF',
   },
   recordButtonRecording: {
     backgroundColor: '#FF6666',
   },
   recordButtonDisabled: {
-    backgroundColor: '#CCCCCC', // Gray for disabled state
+    backgroundColor: '#CCCCCC',
   },
   recordButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 20,
     fontFamily: 'OpenDyslexic-Bold',
   },
-  // **New style** for white text when recording
   recordButtonTextRecording: {
     color: '#FFFFFF',
   },
   recordButtonTextEnabled: {
-    color: '#3DB2FF', // Blue text
+    color: '#3DB2FF',
   },
   recordButtonTextDisabled: {
     color: '#888888',
   },
-  // Action buttons (Retake/Submit)
   actionButton: {
     flex: 1,
     marginHorizontal: 5,
-    paddingVertical: 20,
+    paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 50,
     alignItems: 'center',
   },
   actionButtonRetake: {
-    backgroundColor: '#FF8C00', // Orange
+    backgroundColor: '#FF8C00',
   },
   actionButtonSubmit: {
-    backgroundColor: '#3DB2FF', // Blue
+    backgroundColor: '#3DB2FF',
   },
   actionButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 20,
     fontFamily: 'OpenDyslexic-Bold',
   },
 });
