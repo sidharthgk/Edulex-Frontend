@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
+import SvgImage from '../assets/Logo-Splash.svg';
 
 const SplashScreen = ({ navigation }: any) => {
   let [fontsLoaded] = useFonts({
@@ -26,10 +27,9 @@ const SplashScreen = ({ navigation }: any) => {
 
   return (
   <View style={styles.container}>
-    <Image
-    source={require('../assets/logo.png')} // Add logo to assets folder
-    style={styles.logo}
-    />
+    <View>
+      <SvgImage style={styles.logo} />
+    </View>
     <Text style={styles.title}>EDULEX AI</Text>
   </View>
   );
