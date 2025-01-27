@@ -20,10 +20,10 @@ import DyslexiaTestStart from '../screens/DyslexiaTest/DyslexiaTestStart';
 import DyslexiaTestInstructions from '../screens/DyslexiaTest/DyslexiaTestInstructions';
 import EyeTrackingTest from '../screens/DyslexiaTest/EyeTrackingTest';
 import WritingTest from '../screens/DyslexiaTest/WritingTest';
-import EyeTrackingTestSubmitted from '../screens/DyslexiaTest/EyeTrackingTestSubmitted';
+import TestSubmitted from '../screens/DyslexiaTest/TestSubmitted';
 import HandWritingTestInstructions from '../screens/DyslexiaTest/HandWritingTestInstructions';
 import PhotoCamera from '../screens/DyslexiaTest/PhotoCamera';
-import WritingTestSubmitted from '../screens/DyslexiaTest/WritingTestSubmitted';
+import DyslexiaQuiz from '../screens/DyslexiaTest/DyslexiaQuiz';
 
 const Stack = createStackNavigator();
 
@@ -63,18 +63,16 @@ const AppNavigator = () => {
         <Stack.Screen name="EyeTrackingTest" component={EyeTrackingTest} />
         <Stack.Screen name="WritingTest" component={WritingTest} />
         <Stack.Screen
-          name="EyeTrackingTestSubmitted"
-          component={EyeTrackingTestSubmitted}
-        />
-        <Stack.Screen
           name="HandWritingTestInstructions"
           component={HandWritingTestInstructions}
         />
-        <Stack.Screen name="PhotoCamera" component={PhotoCamera}/>
-        </Stack.Navigator>
-        <Stack.Screen name="WritingTestSubmitted" component={WritingTestSubmitted}/>
+        <Stack.Screen name="PhotoCamera" component={PhotoCamera} />
+        <Stack.Screen name="DyslexiaQuiz" component={DyslexiaQuiz} />
+        <Stack.Screen name="TestSubmitted" component={TestSubmitted} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
+
 
 export default AppNavigator;

@@ -107,7 +107,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
   };
 
   const submit = () => {
-    navigation.navigate('EyeTrackingTestSubmitted');
+    navigation.navigate('TestSubmitted', { mediaType: 'video' });
     console.log('Video submitted:', videoUri);
   };
 
@@ -197,6 +197,8 @@ const EyeTrackingTest = ({ navigation }: any) => {
     </ScrollView>
   );
 };
+
+export default EyeTrackingTest;
 
 const styles = StyleSheet.create({
   container: {
@@ -339,4 +341,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EyeTrackingTest;

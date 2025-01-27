@@ -10,7 +10,10 @@ import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 
-const WritingTestSubmitted = ({ navigation }: any) => {
+const TestSubmitted = ({ navigation, route }: any) => {
+  // Extract mediaType from params
+  const { mediaType } = route.params; // Expect 'video', 'photo', or 'quiz'
+
   // State that determines if the Lottie animation has finished
   const [animationFinished, setAnimationFinished] = useState(false);
 
@@ -73,13 +76,38 @@ const WritingTestSubmitted = ({ navigation }: any) => {
     );
   }
 
+  // Conditional text and animation based on mediaType
+  let successText = '';
+  let animationSource: any = require('../../../assets/success.json'); // Default animation
+
+  switch (mediaType) {
+    case 'video':
+      successText = 'Your video has been submitted!';
+      // Optionally, use a different animation for video
+      animationSource = require('../../../assets/success.json');
+      break;
+    case 'photo':
+      successText = 'Your photo has been submitted!';
+      // Optionally, use a different animation for photo
+      animationSource = require('../../../assets/success.json');
+      break;
+    case 'quiz':
+      successText = 'Your quiz has been submitted!';
+      // Use a different animation for quiz
+      animationSource = require('../../../assets/success.json'); // Ensure this file exists
+      break;
+    default:
+      successText = 'Submission successful!';
+      break;
+  }
+
   return (
     <View style={styles.container}>
       {/* Animation Container */}
       <View style={styles.animationContainer}>
         <LottieView
           ref={lottieRef}
-          source={require('../../../assets/success.json')}
+          source={animationSource}
           autoPlay
           loop={false}
           style={styles.lottieAnimation}
@@ -96,17 +124,27 @@ const WritingTestSubmitted = ({ navigation }: any) => {
             { opacity: textOpacity },
           ]}
         >
-          Your photo has been submitted!
+          {successText}
         </Animated.Text>
 
         {/* Animated Button */}
         <Animated.View style={{ opacity: buttonOpacity }}>
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={() => navigation.navigate('HandWritingTestInstructions')}
+            onPress={() => {
+              // Navigate based on mediaType or provide a generic next step
+              if (mediaType === 'quiz') {
+                navigation.navigate('QuizResults'); // Replace with your actual results screen
+              } else if (mediaType === 'photo'){
+                navigation.navigate('DyslexiaQuiz');
+              }
+              else {
+                  navigation.navigate('HandWritingTestInstructions');
+              }
+            }}
           >
             <Text style={styles.nextButtonText}>
-              Proceed to next test
+              {mediaType === 'quiz' ? 'View Results' : 'Proceed to next test'}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -115,7 +153,7 @@ const WritingTestSubmitted = ({ navigation }: any) => {
   );
 };
 
-export default WritingTestSubmitted;
+export default TestSubmitted;
 
 const styles = StyleSheet.create({
   // Overall screen container
