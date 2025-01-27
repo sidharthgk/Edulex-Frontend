@@ -31,13 +31,9 @@ const DyslexiaQuizInstructions = ({ navigation }: any) => {
         {'\n\n'}
         1. Find a quiet place free from distractions.
         {'\n'}
-        2. Ensure you have a stable internet connection.
+        2. Read each question carefully and select the best answer.
         {'\n'}
-        3. Read each question carefully and select the best answer.
-        {'\n'}
-        4. You can navigate between questions using the Next and Previous buttons.
-        {'\n'}
-        5. Once you have completed all questions, click the Finish button to submit your quiz.
+        3. Once you have completed all questions, click the Finish button.
       </Text>
 
       {/* Continue Button */}
@@ -60,16 +56,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   icon: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
+    width: 300,
+    height: 340,
+    marginTop: -50,
   },
   title: {
     fontSize: 24,
     color: '#3DB2FF', // Blue color for the title
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
-    marginBottom: 20,
+    marginTop: -30,
   },
   instructions: {
     fontSize: 16,

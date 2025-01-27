@@ -70,11 +70,11 @@ const AppNavigator = () => {
         <Stack.Screen name="PhotoCamera" component={PhotoCamera} />
         <Stack.Screen name="DyslexiaQuiz" component={DyslexiaQuiz} />
         <Stack.Screen name="TestSubmitted" component={TestSubmitted} />
-      </Stack.Navigator>
+        {/* Move DyslexiaQuizInstructions inside Stack.Navigator */}
         <Stack.Screen name="DyslexiaQuizInstructions" component={DyslexiaQuizInstructions} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
-
 
 export default AppNavigator;

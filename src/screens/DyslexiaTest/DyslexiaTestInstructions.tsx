@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: 400,
-    height: 400,
+    height: 420,
     position: 'absolute',
     top: 10,
     left: 40,

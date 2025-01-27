@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     color: '#3DB2FF', // Blue color for the title
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
-    marginBottom: 20,
+    marginTop: -20,
   },
   instructions: {
     fontSize: 16,

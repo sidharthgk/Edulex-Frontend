@@ -54,10 +54,10 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: 300,
-    height: 300,
+    height: 340,
     position: 'absolute',
-    top: 30,
-    left: 40,
+    top: 10,
+    left: 45,
   },
   title: {
     fontSize: 24,
