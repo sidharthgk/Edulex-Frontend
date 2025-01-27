@@ -60,7 +60,7 @@ const PhotoCamera = ({ navigation, route }: any) => {
   // Submit the photo
   const submitPhoto = () => {
     setPhotoUri(photoUri);
-    navigation.navigate('EyeTrackingTestSubmitted');
+    navigation.navigate('WritingTestSubmitted');
   };
 
   return (
