@@ -34,13 +34,13 @@ const DyslexiaQuiz: React.FC<{ navigation: any }> = ({ navigation }) => {
       title: 'Picture Naming',
       description:
         'Look at the picture below and name what you see. This tests your ability to recall and name objects quickly.',
-      image: require('../../../assets/loginlogo.avif'), // Replace with your own image
-    },
+      image: require('../../../assets/images/writing_icon.png'), // Replace with your own image
+      },
     {
       title: 'Word to Picture Matching',
       description:
         'Select the picture that matches the given word. This tests how well you can associate words with visual images.',
-      image: require('../../../assets/loginlogo.avif'), // Replace with your own image
+      image: require('../../../assets/images/writing_icon.png'), // Replace with your own image
     },
     {
       title: 'Rhyme Test',

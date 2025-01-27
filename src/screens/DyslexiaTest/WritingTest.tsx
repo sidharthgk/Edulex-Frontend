@@ -27,7 +27,11 @@ const HandWritingTest = ({ navigation }: any) => {
       {/* Writing Paragraph Box */}
       <View style={styles.paragraphBox}>
         <Text style={styles.paragraph}>
-          Please write the following sentence on a piece of paper and show it to the camera:
+          Please write the following sentence on a piece of paper and take a picture of it then submit it:
+        </Text>
+      </View>
+      <View style={styles.paragraphBox}>
+        <Text style={styles.paragraph}>
           "The quick brown fox jumps over the lazy dog."
         </Text>
       </View>

@@ -83,10 +83,10 @@ const PhotoCamera = ({ navigation, route }: any) => {
         {photoUri ? (
           <>
             <TouchableOpacity
-              style={styles.captureButton}
+              style={[styles.captureButton, styles.retakeButton]}
               onPress={retakePhoto}
             >
-              <Text style={styles.captureButtonText}>Retake</Text>
+              <Text style={styles.retakeButtonText}>Retake</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.captureButton}
@@ -127,9 +127,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   captureButton: {
-    backgroundColor: '#FF8C00', // Orange
+    backgroundColor: '#3DB2FF', // Blue
     padding: 20,
     borderRadius: 50,
+    marginBottom: 15,
     marginHorizontal: 10,
   },
   captureButtonText: {
@@ -169,6 +170,15 @@ const styles = StyleSheet.create({
   permissionButtonText: {
     color: '#3DB2FF', // Blue text
     fontSize: 23,
+    fontFamily: 'OpenDyslexic-Bold',
+  },
+  // New style for the Retake button
+  retakeButton: {
+    backgroundColor: '#FFA500', // Orange color
+  },
+  retakeButtonText: {
+    color: '#FFFFFF', // White text for better contrast
+    fontSize: 20,
     fontFamily: 'OpenDyslexic-Bold',
   },
 });

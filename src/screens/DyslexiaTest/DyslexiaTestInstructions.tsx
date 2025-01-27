@@ -16,7 +16,7 @@ const DyslexiaTestInstructions = ({ navigation }: any) => {
     <View style={styles.container}>
       {/* Icon Section */}
       <Image
-        source={require('../../../assets/eye_tracking_icon.png')} // Path to the icon
+        source={require('../../../assets/images/eyetrack-model.png')} // Path to the icon
         style={styles.icon}
       />
 
@@ -54,16 +54,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   icon: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 20,
+    width: 400,
+    height: 400,
+    position: 'absolute',
+    top: 10,
+    left: 40,
+
   },
   title: {
     fontSize: 24,
     color: '#3DB2FF', // Blue color for the title
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
+    marginTop: 250,
     marginBottom: 20,
   },
   instructions: {

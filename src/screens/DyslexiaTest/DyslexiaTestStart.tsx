@@ -15,7 +15,7 @@ const DyslexiaTestStart = ({ navigation }: any) => {
     <View style={styles.container}>
       {/* Icon Section */}
       <Image
-        source={require('../../../assets/test_icon.png')} // Path to the icon
+        source={require('../../../assets/images/instructions-model.png')} // Path to the icon
         style={styles.icon}
       />
 
@@ -46,10 +46,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF', // White background
   },
   icon: {
-    width: 200,
-    height: 200,
+    width: 500,
+    height: 400,
     resizeMode: 'contain',
-    marginBottom: 30,
+    marginTop: -90,
   },
   title: {
     fontSize: 24,

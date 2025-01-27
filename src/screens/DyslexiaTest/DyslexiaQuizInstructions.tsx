@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 
-const HandWritingTestInstructions = ({ navigation }: any) => {
+const DyslexiaQuizInstructions = ({ navigation }: any) => {
+  // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
@@ -17,28 +18,34 @@ const HandWritingTestInstructions = ({ navigation }: any) => {
     <View style={styles.container}>
       {/* Icon Section */}
       <Image
-        source={require('../../../assets/images/av-model.png')} // Path to the icon
+        source={require('../../../assets/images/quiz-model2.png')} // Replace with your quiz icon path
         style={styles.icon}
       />
 
+      {/* Title */}
+      <Text style={styles.title}>Quiz Test Instructions</Text>
+
       {/* Instructions */}
-      <Text style={styles.title}>Handwriting Test Instructions</Text>
       <Text style={styles.instructions}>
-        To perform this test:
+        To perform this quiz:
         {'\n\n'}
-        1. Sit in a quiet environment with proper lighting.
+        1. Find a quiet place free from distractions.
         {'\n'}
-        2. Ensure you have a pen and paper ready.
+        2. Ensure you have a stable internet connection.
         {'\n'}
-        3. Write each word clearly and legibly.
+        3. Read each question carefully and select the best answer.
+        {'\n'}
+        4. You can navigate between questions using the Next and Previous buttons.
+        {'\n'}
+        5. Once you have completed all questions, click the Finish button to submit your quiz.
       </Text>
 
       {/* Continue Button */}
       <TouchableOpacity
         style={styles.startButton}
-        onPress={() => navigation.navigate('WritingTest')} // Navigate to the next page
+        onPress={() => navigation.navigate('DyslexiaQuiz')} // Navigate to the quiz test
       >
-        <Text style={styles.startButtonText}>Continue</Text>
+        <Text style={styles.startButtonText}>Start Quiz</Text>
       </TouchableOpacity>
     </View>
   );
@@ -53,11 +60,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   icon: {
-    width: 300,
-    height: 300,
-    position: 'absolute',
-    top: 30,
-    left: 40,
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
@@ -65,7 +70,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
     marginBottom: 20,
-    marginTop: 250,
   },
   instructions: {
     fontSize: 16,
@@ -74,6 +78,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Regular', // Dyslexic-friendly font
     marginBottom: 40,
     lineHeight: 24,
+    width: '100%',
   },
   startButton: {
     backgroundColor: '#3DB2FF', // Blue background for the button
@@ -93,4 +98,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HandWritingTestInstructions;
+export default DyslexiaQuizInstructions;

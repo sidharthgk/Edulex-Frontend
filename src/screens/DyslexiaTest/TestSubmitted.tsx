@@ -136,7 +136,7 @@ const TestSubmitted = ({ navigation, route }: any) => {
               if (mediaType === 'quiz') {
                 navigation.navigate('QuizResults'); // Replace with your actual results screen
               } else if (mediaType === 'photo'){
-                navigation.navigate('DyslexiaQuiz');
+                navigation.navigate('DyslexiaQuizInstructions');
               }
               else {
                   navigation.navigate('HandWritingTestInstructions');
