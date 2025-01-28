@@ -7,13 +7,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from '../screens/SplashScreen';
 import StarterScreen from '../screens/StarterScreen';
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import RegisterStart from '../screens/RegisterStart';
 
-// Import Register Screens
-import RegisterStart from '../screens/Register/RegisterStart';
-import RegisterAge from '../screens/Register/RegisterAge';
-import RegisterName from '../screens/Register/RegisterName';
-import RegisterEmail from '../screens/Register/RegisterEmail';
-import RegisterPassword from '../screens/Register/RegisterPassword';
 
 // Import Dyslexia Test Screens
 import DyslexiaTestStart from '../screens/DyslexiaTest/DyslexiaTestStart';
@@ -51,11 +47,9 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
 
         {/* Registration Flow */}
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="RegisterStart" component={RegisterStart} />
-        <Stack.Screen name="RegisterAge" component={RegisterAge} />
-        <Stack.Screen name="RegisterName" component={RegisterName} />
-        <Stack.Screen name="RegisterEmail" component={RegisterEmail} />
-        <Stack.Screen name="RegisterPassword" component={RegisterPassword} />
+
 
         {/* Dyslexia Test Flow */}
         <Stack.Screen name="DyslexiaTestStart" component={DyslexiaTestStart} />
