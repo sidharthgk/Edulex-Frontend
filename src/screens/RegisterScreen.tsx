@@ -15,11 +15,12 @@ import { useFonts } from 'expo-font';
 const RegisterScreen = ({ navigation }: any) => {
   const [step, setStep] = useState(0); // Track current step
   const [formData, setFormData] = useState<Record<string, string>>({
-    age: '',
     name: '',
+    age: '',
     email: '',
     password: '',
   });
+  const [isLoading] = useState(false);
 
   const steps = [
     {
@@ -56,11 +57,9 @@ const RegisterScreen = ({ navigation }: any) => {
       setStep((prev) => prev + 1);
       Keyboard.dismiss();
     } else {
-      // Finalize Registration
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'DyslexiaTestStart' }], // Adjust destination if needed
-      });
+      Keyboard.dismiss();
+      // Simulate a save to global state or local storage
+      saveLocally();
     }
   };
 
@@ -74,6 +73,15 @@ const RegisterScreen = ({ navigation }: any) => {
 
   const handleInputChange = (value: string) => {
     setFormData((prev) => ({ ...prev, [currentStep.field]: value }));
+  };
+
+  const saveLocally = () => {
+    // Simulating saving to global state or local storage
+    console.log('Form Data Saved:', formData);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'DyslexiaTestStart' }], // Adjust destination if needed
+    });
   };
 
   let [fontsLoaded] = useFonts({
@@ -95,10 +103,7 @@ const RegisterScreen = ({ navigation }: any) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.content}>
-          {/* Step Label */}
           <Text style={styles.label}>{currentStep.label}</Text>
-
-          {/* Input Field */}
           <TextInput
             style={styles.input}
             placeholder={currentStep.placeholder}
@@ -108,8 +113,6 @@ const RegisterScreen = ({ navigation }: any) => {
             value={formData[currentStep.field]}
             onChangeText={handleInputChange}
           />
-
-          {/* Navigation Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Text style={styles.backButtonText}>Back</Text>
@@ -117,7 +120,7 @@ const RegisterScreen = ({ navigation }: any) => {
             <TouchableOpacity
               style={[styles.nextButton, isNextButtonDisabled && styles.disabledButton]}
               onPress={handleNext}
-              disabled={isNextButtonDisabled}
+              disabled={isNextButtonDisabled || isLoading}
             >
               <Text
                 style={[
@@ -136,75 +139,17 @@ const RegisterScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  content: {
-    alignItems: 'center',
-    marginTop: 20, // Ensure content is visible
-  },
-  label: {
-    fontSize: 20,
-    color: '#3DB2FF',
-    fontFamily: 'OpenDyslexic-Bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    width: '100%',
-    borderWidth: 1.5,
-    borderColor: '#3DB2FF',
-    borderRadius: 50,
-    padding: 15,
-    marginBottom: 20,
-    fontFamily: 'OpenDyslexic-Regular',
-    fontSize: 14,
-    color: '#333',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginTop: 20, // Add margin to separate buttons from the input
-  },
-  backButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#3DB2FF',
-    borderRadius: 50,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    flex: 0.45,
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontFamily: 'OpenDyslexic-Bold',
-    fontSize: 14,
-    color: '#3DB2FF',
-  },
-  nextButton: {
-    backgroundColor: '#3DB2FF',
-    borderRadius: 50,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    flex: 0.45,
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    fontFamily: 'OpenDyslexic-Bold',
-    fontSize: 14,
-    color: '#FFFFFF', // Set text color to white
-  },
-  disabledButton: {
-    backgroundColor: '#D3D3D3', // Make the disabled button visible
-    borderColor: '#A0A0A0',
-  },
-  disabledButtonText: {
-    color: '#A0A0A0', // Make the text on disabled button distinguishable
-  },
+  container: { flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', paddingHorizontal: 20 },
+  content: { alignItems: 'center', marginTop: 20 },
+  label: { fontSize: 20, color: '#3DB2FF', fontFamily: 'OpenDyslexic-Bold', marginBottom: 20, textAlign: 'center' },
+  input: { width: '100%', borderWidth: 1.5, borderColor: '#3DB2FF', borderRadius: 50, padding: 15, marginBottom: 20, fontFamily: 'OpenDyslexic-Regular', fontSize: 14, color: '#333' },
+  buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 20 },
+  backButton: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#3DB2FF', borderRadius: 50, paddingVertical: 12, paddingHorizontal: 20, flex: 0.45, alignItems: 'center' },
+  backButtonText: { fontFamily: 'OpenDyslexic-Bold', fontSize: 14, color: '#3DB2FF' },
+  nextButton: { backgroundColor: '#3DB2FF', borderRadius: 50, paddingVertical: 12, paddingHorizontal: 20, flex: 0.45, alignItems: 'center' },
+  nextButtonText: { fontFamily: 'OpenDyslexic-Bold', fontSize: 14, color: '#FFFFFF' },
+  disabledButton: { backgroundColor: '#D3D3D3' },
+  disabledButtonText: { color: '#A0A0A0' },
 });
 
 export default RegisterScreen;
