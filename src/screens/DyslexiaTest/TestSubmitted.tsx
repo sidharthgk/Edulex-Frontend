@@ -109,11 +109,13 @@ const TestSubmitted = ({ navigation, route }: any) => {
         },
       });
 
+
       console.log('Detection API response:', response.data);
       // Handle the detection results or navigate to another screen
     } catch (error) {
       console.error('API call error:', error);
     }
+  navigation.navigate('TestResult');
   };
 
   let successText = '';

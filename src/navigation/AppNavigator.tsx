@@ -26,6 +26,7 @@ import DyslexiaQuiz from '../screens/DyslexiaTest/DyslexiaQuiz';
 import DyslexiaQuizInstructions from '../screens/DyslexiaTest/DyslexiaQuizInstructions';
 import DictationTest from '../screens/DyslexiaTest/DictationTest';
 import DictationTestInstructions from '../screens/DyslexiaTest/DictationTestInstructions';
+import TestResult from '../screens/DyslexiaTest/TestResult';
 
 const Stack = createStackNavigator();
 
@@ -70,6 +71,7 @@ const AppNavigator = () => {
         <Stack.Screen name="DyslexiaQuizInstructions" component={DyslexiaQuizInstructions} />
         <Stack.Screen name="DictationTestInstructions" component={DictationTestInstructions} />
         <Stack.Screen name="DictationTest" component={DictationTest} />
+        <Stack.Screen name="TestResult" component={TestResult} />
       </Stack.Navigator>
     </NavigationContainer>
   );
