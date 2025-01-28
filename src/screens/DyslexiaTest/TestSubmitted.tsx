@@ -147,7 +147,7 @@ const TestSubmitted = ({ navigation, route }: any) => {
                 navigation.navigate('DyslexiaQuizInstructions');
               }
               else {
-                  navigation.navigate('HandWritingTestInstructions');
+                  navigation.navigate('WritingTest');
               }
             }}
           >

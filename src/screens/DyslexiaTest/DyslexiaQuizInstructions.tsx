@@ -16,32 +16,37 @@ const DyslexiaQuizInstructions = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Icon Section */}
+      {/* Title */}
+      <Text style={styles.title}>Quiz Test</Text>
+
+      {/* Instruction Icon */}
       <Image
         source={require('../../../assets/images/quiz-model2.png')} // Replace with your quiz icon path
         style={styles.icon}
       />
 
-      {/* Title */}
-      <Text style={styles.title}>Quiz Test Instructions</Text>
+      {/* Instruction Box */}
+      <View style={styles.instructionsBox}>
+        <Text style={styles.instructionsText}>
+          Please follow the instructions below:
+        </Text>
+        <Text style={styles.bulletPoint}>
+          1. Find a quiet place free from distractions.
+        </Text>
+        <Text style={styles.bulletPoint}>
+          2. Read each question carefully and select the best answer.
+        </Text>
+        <Text style={styles.bulletPoint}>
+          3. Once you have completed all questions, click the Finish button.
+        </Text>
+      </View>
 
-      {/* Instructions */}
-      <Text style={styles.instructions}>
-        To perform this quiz:
-        {'\n\n'}
-        1. Find a quiet place free from distractions.
-        {'\n'}
-        2. Read each question carefully and select the best answer.
-        {'\n'}
-        3. Once you have completed all questions, click the Finish button.
-      </Text>
-
-      {/* Continue Button */}
+      {/* Start Button */}
       <TouchableOpacity
-        style={styles.startButton}
+        style={styles.continueButton}
         onPress={() => navigation.navigate('DyslexiaQuiz')} // Navigate to the quiz test
       >
-        <Text style={styles.startButtonText}>Start Quiz</Text>
+        <Text style={styles.continueButtonText}>Start Quiz</Text>
       </TouchableOpacity>
     </View>
   );
@@ -49,35 +54,51 @@ const DyslexiaQuizInstructions = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    flexGrow: 1,
     backgroundColor: '#FFFFFF',
-  },
-  icon: {
-    width: 300,
-    height: 340,
-    marginTop: -50,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
-    color: '#3DB2FF', // Blue color for the title
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 20,
     textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
-    marginTop: -30,
   },
-  instructions: {
-    fontSize: 16,
-    color: '#6B7280', // Light gray for secondary text
-    textAlign: 'left',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexic-friendly font
-    marginBottom: 40,
-    lineHeight: 24,
+  icon: {
+    width: 300,
+    height: 290,
+    marginTop: -40,
+  },
+  instructionsBox: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF',
     width: '100%',
+    marginBottom: 30,
+    marginTop: -10,
   },
-  startButton: {
-    backgroundColor: '#3DB2FF', // Blue background for the button
+  instructionsText: {
+    fontSize: 18,
+    color: '#4B5563',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 15,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  bulletPoint: {
+    fontSize: 16,
+    color: '#6B7280',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 10,
+    lineHeight: 22,
+  },
+  continueButton: {
+    backgroundColor: '#3DB2FF',
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 30,
@@ -85,12 +106,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5, // Shadow for Android
+    elevation: 5,
   },
-  startButtonText: {
-    color: '#FFFFFF', // White text for the button
+  continueButtonText: {
+    color: '#FFFFFF',
     fontSize: 18,
-    fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

@@ -21,7 +21,6 @@ import DyslexiaTestInstructions from '../screens/DyslexiaTest/DyslexiaTestInstru
 import EyeTrackingTest from '../screens/DyslexiaTest/EyeTrackingTest';
 import WritingTest from '../screens/DyslexiaTest/WritingTest';
 import TestSubmitted from '../screens/DyslexiaTest/TestSubmitted';
-import HandWritingTestInstructions from '../screens/DyslexiaTest/HandWritingTestInstructions';
 import PhotoCamera from '../screens/DyslexiaTest/PhotoCamera';
 import DyslexiaQuiz from '../screens/DyslexiaTest/DyslexiaQuiz';
 import DyslexiaQuizInstructions from '../screens/DyslexiaTest/DyslexiaQuizInstructions';
@@ -65,10 +64,6 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="EyeTrackingTest" component={EyeTrackingTest} />
         <Stack.Screen name="WritingTest" component={WritingTest} />
-        <Stack.Screen
-          name="HandWritingTestInstructions"
-          component={HandWritingTestInstructions}
-        />
         <Stack.Screen name="PhotoCamera" component={PhotoCamera} />
         <Stack.Screen name="DyslexiaQuiz" component={DyslexiaQuiz} />
         <Stack.Screen name="TestSubmitted" component={TestSubmitted} />

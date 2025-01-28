@@ -1,45 +1,52 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useFonts } from 'expo-font';
 
 const DyslexiaTestInstructions = ({ navigation }: any) => {
+  // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
-    'OpenDyslexic-itallic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
+    'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
+
   if (!fontsLoaded) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-      {/* Icon Section */}
+      {/* Title */}
+      <Text style={styles.title}>Eye Tracking Test</Text>
+
+      {/* Instruction Icon */}
       <Image
-        source={require('../../../assets/images/eyetrack-model.png')} // Path to the icon
+        source={require('../../../assets/images/eyetrack-model.png')} // Replace with your image path
         style={styles.icon}
       />
 
-      {/* Instructions */}
-      <Text style={styles.title}>Eye Tracking Test Instructions</Text>
-      <Text style={styles.instructions}>
-        To perform this test:
-        {'\n\n'}
-        1. Sit in a quiet environment and ensure proper lighting.
-        {'\n'}
-        2. Look directly at the camera during the test.
-        {'\n'}
-        3. Read the displayed text slowly and carefully.
-        {'\n'}
-        4. Try to focus on each word for accurate tracking.
-      </Text>
+      {/* Instruction Box */}
+      <View style={styles.instructionsBox}>
+        <Text style={styles.instructionsText}>
+          Please follow the instructions below:
+        </Text>
+        <Text style={styles.bulletPoint}>
+          1. Sit in a quiet environment with proper lighting.
+        </Text>
+        <Text style={styles.bulletPoint}>
+          2. Look directly at the camera during the test.
+        </Text>
+        <Text style={styles.bulletPoint}>
+          3. Read the displayed text slowly and carefully.
+        </Text>
+      </View>
 
       {/* Start Button */}
       <TouchableOpacity
-        style={styles.startButton}
-        onPress={() => navigation.navigate('EyeTrackingTest')} // Navigate to the next page
+        style={styles.continueButton}
+        onPress={() => navigation.navigate('EyeTrackingTest')} // Navigate to the test
       >
-        <Text style={styles.startButtonText}>Start Test</Text>
+        <Text style={styles.continueButtonText}>Start Test</Text>
       </TouchableOpacity>
     </View>
   );
@@ -47,38 +54,53 @@ const DyslexiaTestInstructions = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    flexGrow: 1,
     backgroundColor: '#FFFFFF',
-  },
-  icon: {
-    width: 400,
-    height: 420,
-    position: 'absolute',
-    top: 10,
-    left: 40,
-
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
-    color: '#3DB2FF', // Blue color for the title
-    textAlign: 'center',
-    fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
-    marginTop: 250,
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
-  instructions: {
-    fontSize: 16,
-    color: '#6B7280', // Light gray for secondary text
-    textAlign: 'left',
-    fontFamily: 'OpenDyslexic-Regular', // Dyslexic-friendly font
-    marginBottom: 40,
+  icon: {
+    width: 400,
+    height: 400,
+    marginTop: -40,
+    left: 40,
+    marginBottom: -100,
+  },
+  instructionsBox: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#3DB2FF',
+    width: '100%',
+    marginBottom: 30,
+    marginTop: -10,
+  },
+  instructionsText: {
+    fontSize: 18,
+    color: '#4B5563',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 15,
+    textAlign: 'center',
     lineHeight: 24,
   },
-  startButton: {
-    backgroundColor: '#3DB2FF', // Blue background for the button
+  bulletPoint: {
+    fontSize: 16,
+    color: '#6B7280',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 10,
+    lineHeight: 22,
+  },
+  continueButton: {
+    backgroundColor: '#3DB2FF',
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 30,
@@ -86,12 +108,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5, // Shadow for Android
+    elevation: 5,
   },
-  startButtonText: {
-    color: '#FFFFFF', // White text for the button
+  continueButtonText: {
+    color: '#FFFFFF',
     fontSize: 18,
-    fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
   Image,
 } from 'react-native';
 import { useFonts } from 'expo-font';
@@ -22,18 +21,20 @@ const HandWritingTest = ({ navigation }: any) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       {/* Title */}
       <Text style={styles.title}>Handwriting Test</Text>
+
+      {/* Instruction Icon */}
       <Image
-              source={require('../../../assets/images/av-model.png')} // Path to the icon
-              style={styles.icon}
+        source={require('../../../assets/images/av-model.png')} // Path to your image
+        style={styles.icon}
       />
 
       {/* Instruction Box */}
       <View style={styles.instructionsBox}>
         <Text style={styles.instructionsText}>
-          Please follow the instructions below for the handwriting test:
+          Please follow the instructions below:
         </Text>
         <Text style={styles.bulletPoint}>
           1. Take a blank sheet of paper and a pen.
@@ -53,7 +54,7 @@ const HandWritingTest = ({ navigation }: any) => {
       >
         <Text style={styles.continueButtonText}>Continue</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -74,10 +75,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: 300,
-    height: 300,
-    position: 'absolute',
-    top: 65,
-    left: 45,
+    height: 290,
+    marginTop: -40,
   },
   instructionsBox: {
     backgroundColor: '#F9FAFB',
@@ -87,7 +86,7 @@ const styles = StyleSheet.create({
     borderColor: '#3DB2FF',
     width: '100%',
     marginBottom: 30,
-    marginTop: 230,
+    marginTop: -10,
   },
   instructionsText: {
     fontSize: 18,
@@ -105,10 +104,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   sampleSentence: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
-    marginBottom: 15,
+    marginBottom: 10,
     marginTop: 10,
     textAlign: 'center',
   },

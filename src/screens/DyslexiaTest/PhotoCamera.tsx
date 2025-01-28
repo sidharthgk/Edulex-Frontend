@@ -3,39 +3,32 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { CameraView, useCameraPermissions, PermissionStatus } from 'expo-camera';
 
 const PhotoCamera = ({ navigation, route }: any) => {
-  const { setPhotoUri } = route.params;
+  const setPhotoUri = route.params?.setPhotoUri; // Optional chaining to avoid crashes
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [photoUri, setLocalPhotoUri] = useState<string | null>(null);
   const cameraRef = useRef<CameraView | null>(null);
 
-  // 1. Permissions are still loading
   if (!cameraPermission) {
     return <View />;
   }
 
-  // 2. If camera permission not granted, show UI to request it
   if (cameraPermission.status !== PermissionStatus.GRANTED) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.message}>
           We need Camera permission to take a photo.
         </Text>
-        <View style={styles.permissionButtonContainer}>
-          <TouchableOpacity
-            onPress={async () => {
-              await requestCameraPermission();
-            }}
-            style={styles.permissionButton}
-          >
-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={async () => await requestCameraPermission()}
+          style={styles.permissionButton}
+        >
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
-  // Take a photo
   const takePhoto = async () => {
     if (!isCameraReady) {
       console.warn('CameraView is not ready yet.');
@@ -52,14 +45,16 @@ const PhotoCamera = ({ navigation, route }: any) => {
     }
   };
 
-  // Retake a photo
   const retakePhoto = () => {
     setLocalPhotoUri(null);
   };
 
-  // Submit the photo
   const submitPhoto = () => {
-    setPhotoUri(photoUri);
+    if (setPhotoUri) {
+      setPhotoUri(photoUri); // Call the function if it's defined
+    } else {
+      console.warn('setPhotoUri function is not defined.');
+    }
     navigation.navigate('TestSubmitted', { mediaType: 'photo' });
   };
 
@@ -71,12 +66,9 @@ const PhotoCamera = ({ navigation, route }: any) => {
         <CameraView
           ref={cameraRef}
           style={styles.camera}
-          facing="back" // Correct usage of CameraType
-          mode="picture" // Correct mode for taking pictures
-          onCameraReady={() => {
-            console.log('CameraView is ready');
-            setIsCameraReady(true);
-          }}
+          facing="back"
+          mode="picture"
+          onCameraReady={() => setIsCameraReady(true)}
         />
       )}
       <View style={styles.buttonContainer}>
@@ -184,3 +176,4 @@ const styles = StyleSheet.create({
 });
 
 export default PhotoCamera;
+
