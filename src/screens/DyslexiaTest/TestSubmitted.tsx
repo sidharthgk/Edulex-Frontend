@@ -13,30 +13,21 @@ import axios from 'axios';
 import { GlobalContext } from '../../../src/GlobalState';
 
 const TestSubmitted = ({ navigation, route }: any) => {
-  // Extract the mediaType param
   const { mediaType } = route.params;
-
-  // State that determines if the Lottie animation has finished
   const [animationFinished, setAnimationFinished] = useState(false);
-
-  // Refs for Lottie and Animated values
   const lottieRef = useRef<LottieView | null>(null);
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
-  // Destructure state from the global context
   const { state } = useContext(GlobalContext);
-  // Pull out the specific properties from state
   const { photoUri, videoUri, dictationScore, quizScore } = state;
 
-  // Load custom fonts
   const [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
     'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
-  // Reset animation and states whenever this screen is focused
   useFocusEffect(
     React.useCallback(() => {
       setAnimationFinished(false);
@@ -50,16 +41,13 @@ const TestSubmitted = ({ navigation, route }: any) => {
     }, [buttonOpacity, textOpacity])
   );
 
-  // Fade in text & button after Lottie animation finishes
   useEffect(() => {
     if (animationFinished) {
-      // Fade in the text
       Animated.timing(textOpacity, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        // Fade in the button after the text
         Animated.timing(buttonOpacity, {
           toValue: 1,
           duration: 500,
@@ -70,7 +58,6 @@ const TestSubmitted = ({ navigation, route }: any) => {
     }
   }, [animationFinished, textOpacity, buttonOpacity]);
 
-  // Return early if fonts are not loaded yet
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -79,7 +66,6 @@ const TestSubmitted = ({ navigation, route }: any) => {
     );
   }
 
-  // Function to handle navigation to the next test
   const handleNextTest = () => {
     if (mediaType === 'video') {
       navigation.navigate('WritingTest');
@@ -90,25 +76,48 @@ const TestSubmitted = ({ navigation, route }: any) => {
     }
   };
 
-  // Function to handle final submission
+  // Example function to handle final submission to /detect/ endpoint
   const handleFinalSubmit = async () => {
     try {
-      const response = await axios.post('YOUR_API_ENDPOINT', {
-        videoUri,
-        photoUri,
-        dictationScore,
-        quizScore,
+      // Construct a FormData object for multipart/form-data
+      const formData = new FormData();
+      formData.append('user_id', 1); // Replace with actual user ID
+      // Convert the video URI to a form data field if available
+      if (videoUri) {
+        formData.append('video', {
+          uri: videoUri,
+          // Provide the appropriate MIME type and file name
+          type: 'video/mov',
+          name: 'video.mov',
+        });
+      }
+      // Convert the photo URI to a form data field if available
+      if (photoUri) {
+        formData.append('handwriting_image', {
+          uri: photoUri,
+          type: 'image/jpeg',
+          name: 'handwriting.jpg',
+        });
+      }
+      // The text for phonetics
+      formData.append('phonetics_text', 'Sample phonetics text');
+
+      // Example Axios POST request to /detect/ (replace with your actual API base)
+      const response = await axios.post('https://detection.albinvar.in/detect/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-      console.log('API response:', response.data);
-      // Navigate to the next screen or show a success message
+
+      console.log('Detection API response:', response.data);
+      // Handle the detection results or navigate to another screen
     } catch (error) {
       console.error('API call error:', error);
     }
   };
 
-  // Conditional text and animation based on mediaType
   let successText = '';
-  let animationSource: any = require('../../../assets/success.json'); // Default animation
+  let animationSource: any = require('../../../assets/success.json');
   let buttonText = '';
 
   switch (mediaType) {
@@ -136,7 +145,6 @@ const TestSubmitted = ({ navigation, route }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Animation Container */}
       <View style={styles.animationContainer}>
         <LottieView
           ref={lottieRef}
@@ -148,14 +156,10 @@ const TestSubmitted = ({ navigation, route }: any) => {
         />
       </View>
 
-      {/* Content Container */}
       <View style={styles.contentContainer}>
-        {/* Animated Text */}
         <Animated.Text style={[styles.successText, { opacity: textOpacity }]}>
           {successText}
         </Animated.Text>
-
-        {/* Animated Button */}
         <Animated.View style={{ opacity: buttonOpacity }}>
           <TouchableOpacity
             style={styles.nextButton}
