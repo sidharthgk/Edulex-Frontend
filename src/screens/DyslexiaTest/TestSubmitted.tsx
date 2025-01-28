@@ -91,6 +91,11 @@ const TestSubmitted = ({ navigation, route }: any) => {
       // Optionally, use a different animation for photo
       animationSource = require('../../../assets/success.json');
       break;
+    case 'dictation':
+      successText = 'Your response has been submitted!';
+      // Use a different animation for quiz
+      animationSource = require('../../../assets/success.json'); // Ensure this file exists
+      break;
     case 'quiz':
       successText = 'Your quiz has been submitted!';
       // Use a different animation for quiz
@@ -136,6 +141,9 @@ const TestSubmitted = ({ navigation, route }: any) => {
               if (mediaType === 'quiz') {
                 navigation.navigate('QuizResults'); // Replace with your actual results screen
               } else if (mediaType === 'photo'){
+                navigation.navigate('DictationTestInstructions');
+              }
+              else if (mediaType === 'dictation') {
                 navigation.navigate('DyslexiaQuizInstructions');
               }
               else {

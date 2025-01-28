@@ -25,6 +25,8 @@ import HandWritingTestInstructions from '../screens/DyslexiaTest/HandWritingTest
 import PhotoCamera from '../screens/DyslexiaTest/PhotoCamera';
 import DyslexiaQuiz from '../screens/DyslexiaTest/DyslexiaQuiz';
 import DyslexiaQuizInstructions from '../screens/DyslexiaTest/DyslexiaQuizInstructions';
+import DictationTest from '../screens/DyslexiaTest/DictationTest';
+import DictationTestInstructions from '../screens/DyslexiaTest/DictationTestInstructions';
 
 const Stack = createStackNavigator();
 
@@ -70,8 +72,9 @@ const AppNavigator = () => {
         <Stack.Screen name="PhotoCamera" component={PhotoCamera} />
         <Stack.Screen name="DyslexiaQuiz" component={DyslexiaQuiz} />
         <Stack.Screen name="TestSubmitted" component={TestSubmitted} />
-        {/* Move DyslexiaQuizInstructions inside Stack.Navigator */}
         <Stack.Screen name="DyslexiaQuizInstructions" component={DyslexiaQuizInstructions} />
+        <Stack.Screen name="DictationTestInstructions" component={DictationTestInstructions} />
+        <Stack.Screen name="DictationTest" component={DictationTest} />
       </Stack.Navigator>
     </NavigationContainer>
   );
