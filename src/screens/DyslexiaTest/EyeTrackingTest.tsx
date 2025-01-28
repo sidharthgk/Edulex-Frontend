@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,6 +6,7 @@ import {
   View,
   ScrollView,
 } from 'react-native';
+import { GlobalContext } from '../../GlobalState';
 import {
   CameraView,
   useCameraPermissions,
@@ -24,6 +25,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
 
   const cameraRef = useRef<CameraView | null>(null);
   const videoRef = useRef<Video | null>(null);
+  const {state, setState} = useContext(GlobalContext);
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -107,7 +109,12 @@ const EyeTrackingTest = ({ navigation }: any) => {
   };
 
   const submit = () => {
-    navigation.navigate('TestSubmitted', { mediaType: 'video' });
+    if (videoUri) {
+      setState({ ...state, videoUri: videoUri });
+    }
+    navigation.navigate('TestSubmitted', {
+      mediaType: 'video',
+      videoUri: videoUri});
     console.log('Video submitted:', videoUri);
   };
 

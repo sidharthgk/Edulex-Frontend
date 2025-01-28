@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { GlobalContext } from '../../GlobalState';
 import {
   View,
   Text,
@@ -18,6 +19,7 @@ const DictationTest = ({ navigation }: any) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [score, setScore] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const {state, setState} = useContext(GlobalContext);
 
   // The texts to dictate
   const dictationTexts = [
@@ -54,7 +56,6 @@ const DictationTest = ({ navigation }: any) => {
 
   // Handle submission
   const handleSubmit = () => {
-    // Compare input with the correct answer
     const isCorrect =
       userInput.trim().toLowerCase() === currentText.toLowerCase();
 
@@ -67,11 +68,19 @@ const DictationTest = ({ navigation }: any) => {
       setUserInput('');
       setIsButtonDisabled(true);
     } else {
-      // Log the final score and navigate to the next page
-      console.log('Final Score:', score + (isCorrect ? 1 : 0));
+      // Capture final score including the last question
+      const finalScore = score + (isCorrect ? 1 : 0);
+
+      // Update global state with final score
+      setState({...state, dictationScore: finalScore });
+
+      // Log for debugging
+      console.log('Final Score:', finalScore);
+
+      // Pass finalScore in route params
       navigation.navigate('TestSubmitted', {
         mediaType: 'dictation',
-        score: score + (isCorrect ? 1 : 0),
+        dictationScore: finalScore,
       });
     }
   };

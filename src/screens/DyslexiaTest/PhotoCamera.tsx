@@ -1,13 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext} from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { CameraView, useCameraPermissions, PermissionStatus } from 'expo-camera';
-
-const PhotoCamera = ({ navigation, route }: any) => {
-  const setPhotoUri = route.params?.setPhotoUri; // Optional chaining to avoid crashes
+import { GlobalContext } from '../../GlobalState';
+const PhotoCamera = ({ navigation }: any) => {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const [photoUri, setLocalPhotoUri] = useState<string | null>(null);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const cameraRef = useRef<CameraView | null>(null);
+  const { state, setState } = useContext(GlobalContext);
 
   if (!cameraPermission) {
     return <View />;
@@ -38,7 +38,7 @@ const PhotoCamera = ({ navigation, route }: any) => {
     try {
       const photo = await cameraRef.current?.takePictureAsync();
       if (photo?.uri) {
-        setLocalPhotoUri(photo.uri);
+        setPhotoUri(photo.uri);
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -46,16 +46,18 @@ const PhotoCamera = ({ navigation, route }: any) => {
   };
 
   const retakePhoto = () => {
-    setLocalPhotoUri(null);
+    setPhotoUri(null);
   };
 
   const submitPhoto = () => {
-    if (setPhotoUri) {
-      setPhotoUri(photoUri); // Call the function if it's defined
-    } else {
-      console.warn('setPhotoUri function is not defined.');
+    console.log(photoUri);
+    if (photoUri) {
+      setState({ ...state, photoUri: photoUri });
     }
-    navigation.navigate('TestSubmitted', { mediaType: 'photo' });
+    navigation.navigate('TestSubmitted', {
+      mediaType: 'photo',
+      photoUri: photoUri,
+    });
   };
 
   return (
@@ -144,12 +146,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF', // White text against blue background
   },
-  permissionButtonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 100,
-  },
   permissionButton: {
     backgroundColor: '#FFFFFF', // White button with blue text
     padding: 9,
@@ -176,4 +172,3 @@ const styles = StyleSheet.create({
 });
 
 export default PhotoCamera;
-

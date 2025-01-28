@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,12 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { GlobalContext } from '../../GlobalState';
 import { useFonts } from 'expo-font';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {
-  TestSubmitted: { mediaType: string; score: number };
+  TestSubmitted: { mediaType: string; quizScore: number };
   Home: undefined;
 };
 
@@ -67,21 +68,20 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
+  const {state, setState} = useContext(GlobalContext);
 
   const quizSteps: QuizStep[] = [
     {
       type: 'input',
       title: 'Picture Naming',
-      description:
-        'Look at the picture below and name what you see.',
+      description: 'Look at the picture below and name what you see.',
       image: require('../../../assets/images/airplane.jpg'),
       correctAnswers: ['airplane', 'flight', 'plane'],
     },
     {
       type: 'multipleChoice',
       title: 'Word to Picture Matching',
-      description:
-        'Select the option that matches the given word.',
+      description: 'Select the option that matches the given word.',
       image: require('../../../assets/images/cat.jpg'),
       options: ['Cat', 'Dog', 'Bird'],
       correctOption: 'Cat',
@@ -125,14 +125,14 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (e) => {
         setKeyboardHeight(e.endCoordinates.height / 3); // Reduced to one-third
-      },
+      }
     );
 
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
         setKeyboardHeight(0);
-      },
+      }
     );
 
     return () => {
@@ -163,7 +163,7 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
       const answer = userInput.trim().toLowerCase();
       const correct =
         currentStep.correctAnswers?.some(
-          (ans) => ans.toLowerCase() === answer,
+          (ans) => ans.toLowerCase() === answer
         ) ||
         (currentStep.correctAnswer &&
           currentStep.correctAnswer.toLowerCase() === answer);
@@ -197,16 +197,20 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
     if (step < quizSteps.length - 1) {
       setStep((prevStep) => prevStep + 1);
     } else {
-      navigation.navigate('TestSubmitted', { mediaType: 'quiz', score });
+      navigation.navigate('TestSubmitted', { mediaType: 'quiz', quizScore: score });
       console.log(score);
+      if (score) {
+        setState({ ...state, quizScore: score });
+      }
     }
   };
 
-  const getContainerStyle = (kbHeight: number) => StyleSheet.create({
-    dynamicContainer: {
-      marginBottom: kbHeight,
-    },
-  }).dynamicContainer;
+  const getContainerStyle = (kbHeight: number) =>
+    StyleSheet.create({
+      dynamicContainer: {
+        marginBottom: kbHeight,
+      },
+    }).dynamicContainer;
 
   const renderStepContent = () => {
     switch (currentStep.type) {
@@ -272,8 +276,7 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
                   <Text
                     style={[
                       styles.optionButtonText,
-                      selectedOption === option &&
-                        styles.optionButtonTextSelected,
+                      selectedOption === option && styles.optionButtonTextSelected,
                     ]}
                   >
                     {option}
@@ -318,12 +321,7 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
         style={styles.container}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <View
-          style={[
-            styles.quizContainer,
-            getContainerStyle(keyboardHeight),
-          ]}
-        >
+        <View style={[styles.quizContainer, getContainerStyle(keyboardHeight)]}>
           <Text style={styles.title}>{currentStep.title}</Text>
           <Text style={styles.description}>{currentStep.description}</Text>
           {renderStepContent()}

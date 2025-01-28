@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,12 @@ import {
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import axios from 'axios';
+import { GlobalContext } from '../../../src/GlobalState';
 
 const TestSubmitted = ({ navigation, route }: any) => {
-  // Extract mediaType from params
-  const { mediaType } = route.params; // Expect 'video', 'photo', or 'quiz'
+  // Extract the mediaType param
+  const { mediaType } = route.params;
 
   // State that determines if the Lottie animation has finished
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -21,6 +23,11 @@ const TestSubmitted = ({ navigation, route }: any) => {
   const lottieRef = useRef<LottieView | null>(null);
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
+
+  // Destructure state from the global context
+  const { state } = useContext(GlobalContext);
+  // Pull out the specific properties from state
+  const { photoUri, videoUri, dictationScore, quizScore } = state;
 
   // Load custom fonts
   const [fontsLoaded] = useFonts({
@@ -32,14 +39,10 @@ const TestSubmitted = ({ navigation, route }: any) => {
   // Reset animation and states whenever this screen is focused
   useFocusEffect(
     React.useCallback(() => {
-      // 1. Reset state so that fade-in can happen again
       setAnimationFinished(false);
-
-      // 2. Reset Animated values for text/button
       textOpacity.setValue(0);
       buttonOpacity.setValue(0);
 
-      // 3. Reset and replay the Lottie animation
       if (lottieRef.current) {
         lottieRef.current.reset();
         lottieRef.current.play();
@@ -56,7 +59,7 @@ const TestSubmitted = ({ navigation, route }: any) => {
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        // Once text is visible, fade in the button (with a short delay)
+        // Fade in the button after the text
         Animated.timing(buttonOpacity, {
           toValue: 1,
           duration: 500,
@@ -76,30 +79,55 @@ const TestSubmitted = ({ navigation, route }: any) => {
     );
   }
 
+  // Function to handle navigation to the next test
+  const handleNextTest = () => {
+    if (mediaType === 'video') {
+      navigation.navigate('WritingTest');
+    } else if (mediaType === 'photo') {
+      navigation.navigate('DictationTest');
+    } else if (mediaType === 'dictation') {
+      navigation.navigate('DyslexiaQuiz');
+    }
+  };
+
+  // Function to handle final submission
+  const handleFinalSubmit = async () => {
+    try {
+      const response = await axios.post('YOUR_API_ENDPOINT', {
+        videoUri,
+        photoUri,
+        dictationScore,
+        quizScore,
+      });
+      console.log('API response:', response.data);
+      // Navigate to the next screen or show a success message
+    } catch (error) {
+      console.error('API call error:', error);
+    }
+  };
+
   // Conditional text and animation based on mediaType
   let successText = '';
   let animationSource: any = require('../../../assets/success.json'); // Default animation
+  let buttonText = '';
 
   switch (mediaType) {
     case 'video':
       successText = 'Your video has been submitted!';
-      // Optionally, use a different animation for video
-      animationSource = require('../../../assets/success.json');
+      buttonText = 'Proceed to next test';
       break;
     case 'photo':
       successText = 'Your photo has been submitted!';
-      // Optionally, use a different animation for photo
-      animationSource = require('../../../assets/success.json');
+      buttonText = 'Proceed to next test';
       break;
     case 'dictation':
       successText = 'Your response has been submitted!';
-      // Use a different animation for quiz
-      animationSource = require('../../../assets/success.json'); // Ensure this file exists
+      buttonText = 'Proceed to next test';
       break;
     case 'quiz':
       successText = 'Your quiz has been submitted!';
-      // Use a different animation for quiz
-      animationSource = require('../../../assets/success.json'); // Ensure this file exists
+      buttonText = 'Final Submit';
+      console.log('Final output:', videoUri, photoUri, dictationScore, quizScore);
       break;
     default:
       successText = 'Submission successful!';
@@ -123,12 +151,7 @@ const TestSubmitted = ({ navigation, route }: any) => {
       {/* Content Container */}
       <View style={styles.contentContainer}>
         {/* Animated Text */}
-        <Animated.Text
-          style={[
-            styles.successText,
-            { opacity: textOpacity },
-          ]}
-        >
+        <Animated.Text style={[styles.successText, { opacity: textOpacity }]}>
           {successText}
         </Animated.Text>
 
@@ -136,24 +159,9 @@ const TestSubmitted = ({ navigation, route }: any) => {
         <Animated.View style={{ opacity: buttonOpacity }}>
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={() => {
-              // Navigate based on mediaType or provide a generic next step
-              if (mediaType === 'quiz') {
-                navigation.navigate('QuizResults'); // Replace with your actual results screen
-              } else if (mediaType === 'photo'){
-                navigation.navigate('DictationTestInstructions');
-              }
-              else if (mediaType === 'dictation') {
-                navigation.navigate('DyslexiaQuizInstructions');
-              }
-              else {
-                  navigation.navigate('WritingTest');
-              }
-            }}
+            onPress={mediaType === 'quiz' ? handleFinalSubmit : handleNextTest}
           >
-            <Text style={styles.nextButtonText}>
-              {mediaType === 'quiz' ? 'View Results' : 'Proceed to next test'}
-            </Text>
+            <Text style={styles.nextButtonText}>{buttonText}</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -164,13 +172,10 @@ const TestSubmitted = ({ navigation, route }: any) => {
 export default TestSubmitted;
 
 const styles = StyleSheet.create({
-  // Overall screen container
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
-
-  // Loading screen
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -180,8 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'OpenDyslexic-Regular',
   },
-
-  // Animation container (e.g., ~60% of the screen)
   animationContainer: {
     flex: 0.6,
     justifyContent: 'center',
@@ -191,15 +194,11 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
   },
-
-  // Content container (e.g., ~40% of the screen)
   contentContainer: {
     flex: 0.4,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  // Success text
   successText: {
     fontSize: 22,
     marginTop: -300,
@@ -209,8 +208,6 @@ const styles = StyleSheet.create({
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
   },
-
-  // Next button styling
   nextButton: {
     backgroundColor: '#3DB2FF',
     paddingVertical: 12,
@@ -220,7 +217,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 3, // For Android shadow
+    elevation: 3,
   },
   nextButtonText: {
     fontSize: 17,
