@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,51 +10,49 @@ import {
 import { useFonts } from 'expo-font';
 
 const HandWritingTest = ({ navigation }: any) => {
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-
   // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
     'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
+
   if (!fontsLoaded) {
     return null;
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Writing Paragraph Box */}
-      <View style={styles.paragraphBox}>
-        <Text style={styles.paragraph}>
-          Please write the following sentence on a piece of paper and take a picture of it then submit it:
+      {/* Title */}
+      <Text style={styles.title}>Handwriting Test</Text>
+      <Image
+              source={require('../../../assets/images/av-model.png')} // Path to the icon
+              style={styles.icon}
+      />
+
+      {/* Instruction Box */}
+      <View style={styles.instructionsBox}>
+        <Text style={styles.instructionsText}>
+          Please follow the instructions below for the handwriting test:
         </Text>
-      </View>
-      <View style={styles.paragraphBox}>
-        <Text style={styles.paragraph}>
+        <Text style={styles.bulletPoint}>
+          1. Take a blank sheet of paper and a pen.
+        </Text>
+        <Text style={styles.bulletPoint}>
+          2. Write the following sentence clearly and legibly:
+        </Text>
+        <Text style={styles.sampleSentence}>
           "The quick brown fox jumps over the lazy dog."
         </Text>
       </View>
 
-      {/* Show photo if available */}
-      {photoUri && (
-        <View style={styles.cameraPlaceholder}>
-          <Image
-            style={styles.camera}
-            source={{ uri: photoUri }}
-          />
-        </View>
-      )}
-
-      {/* Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.actionButtonTakePhoto]}
-          onPress={() => navigation.navigate('PhotoCamera', { setPhotoUri })}
-        >
-          <Text style={styles.actionButtonText}>Take Photo</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Continue Button */}
+      <TouchableOpacity
+        style={styles.continueButton}
+        onPress={() => navigation.navigate('PhotoCamera')}
+      >
+        <Text style={styles.continueButtonText}>Continue</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -62,65 +60,72 @@ const HandWritingTest = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#FFFFFF', // Match the background color
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
     paddingVertical: 40,
     alignItems: 'center',
   },
-  cameraPlaceholder: {
+  title: {
+    fontSize: 24,
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  icon: {
     width: 300,
     height: 300,
-    borderRadius: 150, // Circle (half of 300)
-    backgroundColor: '#FFFFFF', // White background for the camera area
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#3DB2FF', // Blue border
-    overflow: 'hidden',
-    marginBottom: 20,
+    position: 'absolute',
+    top: 65,
+    left: 45,
   },
-  camera: {
-    width: '100%',
-    height: '100%',
-  },
-  paragraphBox: {
-    backgroundColor: '#FFFFFF',
+  instructionsBox: {
+    backgroundColor: '#F9FAFB',
     borderRadius: 12,
     padding: 20,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '90%',
     borderWidth: 1.5,
-    borderColor: '#3DB2FF', // Blue border
-    marginBottom: 20,
+    borderColor: '#3DB2FF',
+    width: '100%',
+    marginBottom: 30,
+    marginTop: 230,
   },
-  paragraph: {
-    fontSize: 20,
-    lineHeight: 28,
-    color: '#333333', // Dark text for readability
-    textAlign: 'center',
+  instructionsText: {
+    fontSize: 18,
+    color: '#4B5563',
     fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 15,
+    textAlign: 'center',
+    lineHeight: 24,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    marginBottom: 20,
+  bulletPoint: {
+    fontSize: 16,
+    color: '#6B7280',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 10,
+    lineHeight: 22,
   },
-  actionButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    alignItems: 'center',
+  sampleSentence: {
+    fontSize: 18,
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 15,
+    marginTop: 10,
+    textAlign: 'center',
   },
-  actionButtonTakePhoto: {
-    backgroundColor: '#3DB2FF', // Orange
+  continueButton: {
+    backgroundColor: '#3DB2FF',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  actionButtonText: {
+  continueButtonText: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'OpenDyslexic-Bold',
   },
 });

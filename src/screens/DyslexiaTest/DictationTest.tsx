@@ -15,10 +15,20 @@ import { useFonts } from 'expo-font';
 
 const DictationTest = ({ navigation }: any) => {
   const [userInput, setUserInput] = useState('');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [score, setScore] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
-  // The text to dictate
-  const thingToSay = 'The quick brown fox jumps over the lazy dog.';
+  // The texts to dictate
+  const dictationTexts = [
+    // 'The quick brown fox jumps over the lazy dog',
+    // 'A journey of a thousand miles begins with a single step',
+    // 'All that glitters is not gold',
+    'Actions speak louder than words',
+    'Practice makes perfect',
+  ];
+
+  const currentText = dictationTexts[currentStep];
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -31,9 +41,9 @@ const DictationTest = ({ navigation }: any) => {
     return null;
   }
 
-  // Speak the audio
+  // Speak the current text
   const speak = () => {
-    Speech.speak(thingToSay, { rate: 0.9 });
+    Speech.speak(currentText, { rate: 0.9 });
   };
 
   // Handle input changes
@@ -45,14 +55,25 @@ const DictationTest = ({ navigation }: any) => {
   // Handle submission
   const handleSubmit = () => {
     // Compare input with the correct answer
-    const isCorrect = userInput.trim().toLowerCase() === thingToSay.toLowerCase();
-    console.log('User Input:', userInput, 'Correct:', isCorrect);
+    const isCorrect =
+      userInput.trim().toLowerCase() === currentText.toLowerCase();
 
-    // Navigate to TestSubmitted or display results
-    navigation.navigate('TestSubmitted', {
-      mediaType: 'dictation',
-      score: isCorrect ? 1 : 0,
-    });
+    if (isCorrect) {
+      setScore((prevScore) => prevScore + 1);
+    }
+
+    if (currentStep < dictationTexts.length - 1) {
+      setCurrentStep((prevStep) => prevStep + 1);
+      setUserInput('');
+      setIsButtonDisabled(true);
+    } else {
+      // Log the final score and navigate to the next page
+      console.log('Final Score:', score + (isCorrect ? 1 : 0));
+      navigation.navigate('TestSubmitted', {
+        mediaType: 'dictation',
+        score: score + (isCorrect ? 1 : 0),
+      });
+    }
   };
 
   return (
@@ -64,7 +85,8 @@ const DictationTest = ({ navigation }: any) => {
         <View style={styles.quizContainer}>
           <Text style={styles.title}>Dictation Test</Text>
           <Text style={styles.description}>
-            Tap the button below to hear the sentence. Type what you hear in the box provided.
+            Tap the button below to hear the sentence. Type what you hear in the
+            box provided.
           </Text>
 
           {/* Audio Button */}
@@ -74,7 +96,7 @@ const DictationTest = ({ navigation }: any) => {
 
           {/* Input Field */}
           <TextInput
-            style={styles.input}
+            style={[styles.input]} // Fixed height
             placeholder="Type what you hear"
             placeholderTextColor="#888"
             value={userInput}
@@ -82,6 +104,7 @@ const DictationTest = ({ navigation }: any) => {
             returnKeyType="done"
             accessible={true}
             accessibilityLabel="Answer input field"
+            multiline={false} // Ensures single-line input
           />
 
           {/* Submit Button */}
@@ -90,7 +113,9 @@ const DictationTest = ({ navigation }: any) => {
             onPress={handleSubmit}
             disabled={isButtonDisabled}
           >
-            <Text style={styles.buttonText}>Submit</Text>
+            <Text style={styles.buttonText}>
+              {currentStep < dictationTexts.length - 1 ? 'Next' : 'Submit'}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -142,15 +167,17 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '80%',
+    height: 50,
     borderWidth: 1,
     borderColor: '#3DB2FF',
     borderRadius: 8,
-    padding: 10,
+    paddingHorizontal: 10,
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Regular',
     marginBottom: 20,
     backgroundColor: '#F9F9F9',
     color: '#333',
+    textAlignVertical: 'center', // Keeps content vertically aligned
   },
   button: {
     backgroundColor: '#3DB2FF',
