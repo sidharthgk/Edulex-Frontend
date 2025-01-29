@@ -14,6 +14,7 @@ interface GlobalState {
     dictationScore: number;
     quizScore: number;
     register: Array<RegistrationDetails>;
+    taskID: number;
 }
 
 interface GlobalContextProps {
@@ -28,6 +29,7 @@ const initialState: GlobalState = {
     dictationScore: 0,
     quizScore: 0,
     register: [],
+    taskID: 0,
 };
 
 export const GlobalContext = createContext<GlobalContextProps>({

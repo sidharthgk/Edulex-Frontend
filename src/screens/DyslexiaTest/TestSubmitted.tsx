@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,11 +16,13 @@ import { GlobalContext } from '../../../src/GlobalState';
 const TestSubmitted = ({ navigation, route }: any) => {
   const { mediaType } = route.params;
   const [animationFinished, setAnimationFinished] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Added state for loading button
+
   const lottieRef = useRef<LottieView | null>(null);
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
-  const { state } = useContext(GlobalContext);
+  const { state, setState } = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
 
   const [fontsLoaded] = useFonts({
@@ -33,6 +36,7 @@ const TestSubmitted = ({ navigation, route }: any) => {
       setAnimationFinished(false);
       textOpacity.setValue(0);
       buttonOpacity.setValue(0);
+      setIsSubmitting(false); // Reset submitting state when re-entering screen
 
       if (lottieRef.current) {
         lottieRef.current.reset();
@@ -76,22 +80,20 @@ const TestSubmitted = ({ navigation, route }: any) => {
     }
   };
 
-  // Example function to handle final submission to /detect/ endpoint
   const handleFinalSubmit = async () => {
+    setIsSubmitting(true); // Start loading state
     try {
-      // Construct a FormData object for multipart/form-data
       const formData = new FormData();
       formData.append('user_id', 1); // Replace with actual user ID
-      // Convert the video URI to a form data field if available
+
       if (videoUri) {
         formData.append('video', {
           uri: videoUri,
-          // Provide the appropriate MIME type and file name
           type: 'video/mov',
           name: 'video.mov',
         });
       }
-      // Convert the photo URI to a form data field if available
+
       if (photoUri) {
         formData.append('handwriting_image', {
           uri: photoUri,
@@ -99,23 +101,35 @@ const TestSubmitted = ({ navigation, route }: any) => {
           name: 'handwriting.jpg',
         });
       }
-      // The text for phonetics
+
       formData.append('phonetics_text', 'Sample phonetics text');
 
-      // Example Axios POST request to /detect/ (replace with your actual API base)
-      const response = await axios.post('https://detection.albinvar.in/detect/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        'https://detection.albinvar.in/detect/',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
+      if (response.data.task_id) {
+        setState((prevState) => {
+          const updatedState = { ...prevState, taskID: response.data.task_id };
+          console.log('Updated Task ID:', updatedState.taskID);
+          return updatedState;
+        });
+      }
 
-      console.log('Detection API response:', response.data);
-      // Handle the detection results or navigate to another screen
+      setTimeout(() => {
+        setIsSubmitting(false); // Stop loading before navigation
+        navigation.navigate('TestResult');
+      }, 500);
     } catch (error) {
       console.error('API call error:', error);
+      setIsSubmitting(false); // Stop loading in case of an error
     }
-  navigation.navigate('TestResult');
   };
 
   let successText = '';
@@ -166,8 +180,13 @@ const TestSubmitted = ({ navigation, route }: any) => {
           <TouchableOpacity
             style={styles.nextButton}
             onPress={mediaType === 'quiz' ? handleFinalSubmit : handleNextTest}
+            disabled={isSubmitting}
           >
-            <Text style={styles.nextButtonText}>{buttonText}</Text>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.nextButtonText}>{buttonText}</Text>
+            )}
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -224,11 +243,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+    alignItems: 'center',
   },
   nextButtonText: {
     fontSize: 16,
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
-    margin:10,
+    margin: 10,
   },
 });
