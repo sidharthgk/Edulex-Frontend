@@ -125,15 +125,15 @@ const TestSubmitted = ({ navigation, route }: any) => {
   switch (mediaType) {
     case 'video':
       successText = 'Your video has been submitted!';
-      buttonText = 'Proceed to next test';
+      buttonText = 'Next Test';
       break;
     case 'photo':
       successText = 'Your photo has been submitted!';
-      buttonText = 'Proceed to next test';
+      buttonText = 'Next Test';
       break;
     case 'dictation':
       successText = 'Your response has been submitted!';
-      buttonText = 'Proceed to next test';
+      buttonText = 'Next Test';
       break;
     case 'quiz':
       successText = 'Your quiz has been submitted!';

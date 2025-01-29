@@ -15,7 +15,6 @@ const TestResults = () => {
   const { state } = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
   const [showResults, setShowResults] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
 
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -31,58 +30,64 @@ const TestResults = () => {
     );
   }
 
-  // Steps for the slideshow preview
-  const previewSteps = [
-    { label: '📸 Handwriting Photo', content: photoUri ? <Image source={{ uri: photoUri }} style={styles.mediaPreview} /> : <Text style={styles.placeholderText}>No photo uploaded</Text> },
-    { label: '🎥 Eye Tracking Video', content: videoUri ? <Video source={{ uri: videoUri }} style={styles.videoPreview} resizeMode={ResizeMode.CONTAIN} shouldPlay isLooping useNativeControls /> : <Text style={styles.placeholderText}>No video recorded</Text> },
-    { label: '📝 Dictation Test', content: <Text style={styles.scoreText}>Score: {dictationScore} / 2</Text> },
-    { label: '🧠 Dyslexia Quiz', content: <Text style={styles.scoreText}>Score: {quizScore} / 5</Text> },
-  ];
-
-  // When user clicks "Get Results"
-  if (showResults) {
-    return (
-      <View style={styles.resultContainer}>
-        <Text style={styles.resultTitle}>📊 Final Diagnosis</Text>
-        <Text style={styles.resultText}>
-          {quizScore >= 3 && dictationScore >= 1
-            ? 'Mild Dyslexia Detected. Consider further evaluation.'
-            : 'No significant dyslexia indicators detected.'}
-        </Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => setShowResults(false)}>
-          <Text style={styles.backButtonText}>Back to Summary</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Test Summary</Text>
 
-      {/* Slideshow Content */}
-      <View style={styles.section}>
-        <Text style={styles.label}>{previewSteps[currentStep].label}</Text>
-        {previewSteps[currentStep].content}
+      {/* Photo Preview */}
+      <View style={[styles.section, styles.boxContainer]}>
+        <Text style={styles.label}>📸 Handwriting Photo</Text>
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} style={styles.mediaPreview} />
+        ) : (
+          <Text style={styles.placeholderText}>No photo uploaded</Text>
+        )}
       </View>
 
-      {/* Navigation Buttons */}
-      <View style={styles.buttonContainer}>
-        {currentStep > 0 && (
-          <TouchableOpacity style={styles.navButton} onPress={() => setCurrentStep(currentStep - 1)}>
-            <Text style={styles.navButtonText}>Previous</Text>
-          </TouchableOpacity>
-        )}
-        {currentStep < previewSteps.length - 1 ? (
-          <TouchableOpacity style={styles.navButton} onPress={() => setCurrentStep(currentStep + 1)}>
-            <Text style={styles.navButtonText}>Next</Text>
-          </TouchableOpacity>
+      {/* Video Preview */}
+      <View style={[styles.section, styles.boxContainer]}>
+        <Text style={styles.label}>🎥 Eye Tracking Video</Text>
+        {videoUri ? (
+          <Video
+            source={{ uri: videoUri }}
+            style={styles.videoPreview}
+            resizeMode={ResizeMode.CONTAIN}
+            shouldPlay
+            isLooping
+            useNativeControls
+            isMuted={false}
+          />
         ) : (
-          <TouchableOpacity style={styles.getResultButton} onPress={() => setShowResults(true)}>
-            <Text style={styles.getResultButtonText}>Get Results</Text>
-          </TouchableOpacity>
+          <Text style={styles.placeholderText}>No video recorded</Text>
         )}
       </View>
+
+      {/* Dictation Score */}
+      <View style={[styles.section, styles.boxContainer]}>
+        <Text style={styles.label}>📝 Dictation Test</Text>
+        <Text style={styles.scoreText}>Score: {dictationScore} / 2</Text>
+      </View>
+
+      {/* Quiz Score */}
+      <View style={[styles.section, styles.boxContainer]}>
+        <Text style={styles.label}>🧠 Dyslexia Quiz</Text>
+        <Text style={styles.scoreText}>Score: {quizScore} / 5</Text>
+      </View>
+
+      {!showResults ? (
+        <TouchableOpacity style={styles.getResultButton} onPress={() => setShowResults(true)}>
+          <Text style={styles.getResultButtonText}>Get Results</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={[styles.resultContainer, styles.boxContainer]}>
+          <Text style={styles.resultTitle}>📊 Final Diagnosis</Text>
+          <Text style={styles.resultText}>
+            {quizScore >= 3 && dictationScore >= 1
+              ? 'Mild Dyslexia Detected. Consider further evaluation.'
+              : 'No significant dyslexia indicators detected.'}
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -91,7 +96,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 40,
     alignItems: 'center',
   },
@@ -105,10 +110,11 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Regular',
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
     marginBottom: 20,
+    marginTop: 15,
   },
   section: {
     width: '100%',
@@ -142,29 +148,17 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Bold',
     color: '#3DB2FF',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    justifyContent: 'center',
-  },
-  navButton: {
-    backgroundColor: '#3DB2FF',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginHorizontal: 10,
-  },
-  navButtonText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontFamily: 'OpenDyslexic-Bold',
-  },
   getResultButton: {
-    backgroundColor: '#FF8C00',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    backgroundColor: '#3DB2FF',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
     borderRadius: 30,
-    marginHorizontal: 10,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   getResultButtonText: {
     fontSize: 18,
@@ -172,10 +166,8 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Bold',
   },
   resultContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    marginTop: 20,
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
   resultTitle: {
     fontSize: 22,
@@ -187,19 +179,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'OpenDyslexic-Regular',
     textAlign: 'center',
-    marginBottom: 20,
   },
-  backButton: {
-    backgroundColor: '#3DB2FF',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-  },
-  backButtonText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontFamily: 'OpenDyslexic-Bold',
+  // New style for boxes around each result
+  boxContainer: {
+    borderWidth: 2,        // Increased by 1px
+    borderColor: '#3DB2FF', // Updated to match the text color
+    borderRadius: 10,
+    padding: 10,
   },
 });
-
 export default TestResults;
