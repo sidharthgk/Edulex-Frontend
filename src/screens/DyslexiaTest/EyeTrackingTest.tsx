@@ -124,9 +124,10 @@ const EyeTrackingTest = ({ navigation }: any) => {
         {videoUri ? (
           <Video
             ref={videoRef}
-            style={styles.camera}
+            style={styles.videoPreview}
             source={{ uri: videoUri }}
             resizeMode={ResizeMode.CONTAIN}
+            shouldPlay
             useNativeControls
             isLooping
           />
@@ -345,6 +346,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 20,
     fontFamily: 'OpenDyslexic-Bold',
+  },
+  videoPreview: {
+    width: '100%',
+    height: '100%',
+    transform: [{ scaleX: -1 }], // MIRROR EFFECT
   },
 });
 

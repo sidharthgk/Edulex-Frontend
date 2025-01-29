@@ -226,8 +226,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   nextButtonText: {
-    fontSize: 17,
+    fontSize: 16,
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
+    margin:10,
   },
 });

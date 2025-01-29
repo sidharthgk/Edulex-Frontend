@@ -74,9 +74,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   icon: {
-    width: 300,
-    height: 290,
-    marginTop: -40,
+    width: 250,
+    height: 270,
+    marginTop: -50,
   },
   instructionsBox: {
     backgroundColor: '#F9FAFB',
