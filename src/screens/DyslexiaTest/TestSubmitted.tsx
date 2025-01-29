@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -16,14 +16,14 @@ import { GlobalContext } from '../../../src/GlobalState';
 const TestSubmitted = ({ navigation, route }: any) => {
   const { mediaType } = route.params;
   const [animationFinished, setAnimationFinished] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Added state for loading button
-
   const lottieRef = useRef<LottieView | null>(null);
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
   const { state, setState } = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -36,7 +36,6 @@ const TestSubmitted = ({ navigation, route }: any) => {
       setAnimationFinished(false);
       textOpacity.setValue(0);
       buttonOpacity.setValue(0);
-      setIsSubmitting(false); // Reset submitting state when re-entering screen
 
       if (lottieRef.current) {
         lottieRef.current.reset();
@@ -81,8 +80,8 @@ const TestSubmitted = ({ navigation, route }: any) => {
   };
 
   const handleFinalSubmit = async () => {
-    setIsSubmitting(true); // Start loading state
     try {
+      setIsSubmitting(true);
       const formData = new FormData();
       formData.append('user_id', 1); // Replace with actual user ID
 
@@ -104,15 +103,9 @@ const TestSubmitted = ({ navigation, route }: any) => {
 
       formData.append('phonetics_text', 'Sample phonetics text');
 
-      const response = await axios.post(
-        'https://detection.albinvar.in/detect/',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      const response = await axios.post('https://detection.albinvar.in/detect/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       if (response.data.task_id) {
         setState((prevState) => {
@@ -123,12 +116,11 @@ const TestSubmitted = ({ navigation, route }: any) => {
       }
 
       setTimeout(() => {
-        setIsSubmitting(false); // Stop loading before navigation
         navigation.navigate('TestResult');
       }, 500);
     } catch (error) {
       console.error('API call error:', error);
-      setIsSubmitting(false); // Stop loading in case of an error
+      setIsSubmitting(false);
     }
   };
 
@@ -177,17 +169,21 @@ const TestSubmitted = ({ navigation, route }: any) => {
           {successText}
         </Animated.Text>
         <Animated.View style={{ opacity: buttonOpacity }}>
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={mediaType === 'quiz' ? handleFinalSubmit : handleNextTest}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
+          {mediaType === 'quiz' && isSubmitting ? (
+            // Moved 10 px down by adding marginTop
+            <ActivityIndicator
+              size="large"
+              color="#3DB2FF"
+              style={styles.loader}
+            />
+          ) : (
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={mediaType === 'quiz' ? handleFinalSubmit : handleNextTest}
+            >
               <Text style={styles.nextButtonText}>{buttonText}</Text>
-            )}
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
         </Animated.View>
       </View>
     </View>
@@ -243,7 +239,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    alignItems: 'center',
   },
   nextButtonText: {
     fontSize: 16,
@@ -251,4 +246,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Bold',
     margin: 10,
   },
+  loader: {
+    transform: [{ scale: 2 }],
+    marginTop: 10 },
 });

@@ -137,7 +137,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
             style={styles.camera}
             facing="front"
             mode="video"
-            mute={false}
+            mute={true}
             onCameraReady={() => {
               console.log('CameraView is ready');
               setIsCameraReady(true);
