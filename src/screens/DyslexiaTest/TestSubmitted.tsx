@@ -73,9 +73,9 @@ const TestSubmitted = ({ navigation, route }: any) => {
     if (mediaType === 'video') {
       navigation.navigate('WritingTest');
     } else if (mediaType === 'photo') {
-      navigation.navigate('DictationTest');
+      navigation.navigate('DictationTestInstructions');
     } else if (mediaType === 'dictation') {
-      navigation.navigate('DyslexiaQuiz');
+      navigation.navigate('DyslexiaQuizInstructions');
     }
   };
 
