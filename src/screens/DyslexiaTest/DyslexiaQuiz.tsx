@@ -105,7 +105,7 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
       type: 'fillInTheBlank',
       title: 'Fill in the Blank',
       description: 'Complete the sentence by filling in the missing word.',
-      question: 'The sky is _____.',
+      question: 'The sky is ____.',
       correctAnswer: 'blue',
     },
     {
@@ -232,6 +232,7 @@ const DyslexiaQuiz: React.FC<DyslexiaQuizProps> = ({ navigation }) => {
               onSubmitEditing={handleInputSubmit}
               returnKeyType="done"
               accessible={true}
+              placeholderTextColor="#A9A9A9"
               accessibilityLabel="Answer input field"
             />
             <TouchableOpacity

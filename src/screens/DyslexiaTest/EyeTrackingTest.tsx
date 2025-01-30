@@ -126,10 +126,10 @@ const EyeTrackingTest = ({ navigation }: any) => {
             ref={videoRef}
             style={styles.videoPreview}
             source={{ uri: videoUri }}
-            resizeMode={ResizeMode.CONTAIN}
+            resizeMode={ResizeMode.COVER}
             shouldPlay
-            useNativeControls
             isLooping
+            isMuted={true}
           />
         ) : (
           <CameraView
@@ -137,7 +137,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
             style={styles.camera}
             facing="front"
             mode="video"
-            mute={true}
+            mute={false}
             onCameraReady={() => {
               console.log('CameraView is ready');
               setIsCameraReady(true);

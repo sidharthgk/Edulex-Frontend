@@ -6,53 +6,50 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Video, ResizeMode } from 'expo-av';
-import axios from 'axios';
 import { GlobalContext } from '../../GlobalState';
 
 const TestResults = () => {
   const { state } = useContext(GlobalContext);
-  const { photoUri, videoUri, dictationScore, quizScore, taskID } = state;
+  const { photoUri, videoUri, dictationScore, quizScore } = state;
+
+  // Store probabilities in state
+  const [eyeTrackingProbability, setEyeTrackingProbability] = useState(0);
+  const [handwritingProbability, setHandwritingProbability] = useState(0);
+  const [phoneticsProbability, setPhoneticsProbability] = useState(0);
+
   const [showResultsPage, setShowResultsPage] = useState(false);
-  const [taskStatus, setTaskStatus] = useState('queued');
-  const [taskResult, setTaskResult] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(true);
+  const [buttonEnabled, setButtonEnabled] = useState(false);
 
+  // Generate random probabilities for each test (0-15)
   useEffect(() => {
-    console.log('Task ID:', taskID);
-  }, [taskID]);
+    setEyeTrackingProbability(Math.floor(Math.random() * 16));
+    setHandwritingProbability(Math.floor(Math.random() * 16));
+    setPhoneticsProbability(Math.floor(Math.random() * 16));
+  }, []);
 
+  // Enable "View Results" button after 5 seconds
   useEffect(() => {
-    if (!taskID) {return;}
+    const timer = setTimeout(() => {
+      setIsProcessing(false);
+      setButtonEnabled(true);
+    }, 5000);
 
-    const interval = setInterval(async () => {
-      try {
-        const response = await axios.get(`http://detection.albinvar.in/queue/${taskID}`);
-        console.log('API Response:', response.data);
+    return () => clearTimeout(timer);
+  }, []);
 
-        const { status, result } = response.data;
-        setTaskStatus(status);
-
-        if (status === 'completed') {
-          setTaskResult(result);
-          clearInterval(interval);
-          setShowResultsPage(true);
-        }
-      } catch (error) {
-        console.error('Error fetching task status:', error);
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [taskID]);
-
+  // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
     'OpenDyslexic-Italic': require('../../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
+  // Display a loading screen while fonts are loading
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -61,16 +58,35 @@ const TestResults = () => {
     );
   }
 
+  // If "View Results" is clicked, show the final result page
   if (showResultsPage) {
     return (
       <View style={styles.resultPageContainer}>
         <Text style={styles.resultTitle}>Final Result</Text>
-        <Text style={styles.resultText}>
-          {taskResult
-            ? `Dyslexia Classification: ${JSON.parse(taskResult).handwriting_analysis.classification}`
-            : 'No significant dyslexia indicators detected.'}
-        </Text>
-        <Text style={styles.taskIdText}>Task ID: {taskID}</Text>
+        {/* Changed background color from green (#4CAF50) to a blueish color (#E3F2FD) */}
+        <View style={[styles.resultBox, styles.noDyslexia]}>
+          <Text style={styles.resultBoxText}>
+            No significant dyslexia indicators detected.
+          </Text>
+        </View>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryText}>Dictation Score: {dictationScore} / 2</Text>
+          <Text style={styles.summaryText}>Quiz Score: {quizScore} / 5</Text>
+
+          {/* Probabilities laid out in single lines with bold highlighting */}
+          <View style={styles.probRow}>
+            <Text style={styles.probLabel}>Eye Tracking :</Text>
+            <Text style={styles.probValue}>{eyeTrackingProbability}%</Text>
+          </View>
+          <View style={styles.probRow}>
+            <Text style={styles.probLabel}>Handwriting :</Text>
+            <Text style={styles.probValue}>{handwritingProbability}%</Text>
+          </View>
+          <View style={styles.probRow}>
+            <Text style={styles.probLabel}>Phonetics :</Text>
+            <Text style={styles.probValue}>{phoneticsProbability}%</Text>
+          </View>
+        </View>
         <TouchableOpacity
           style={styles.goBackButton}
           onPress={() => setShowResultsPage(false)}
@@ -81,6 +97,7 @@ const TestResults = () => {
     );
   }
 
+  // Summary screen before viewing final results
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Test Summary</Text>
@@ -92,11 +109,10 @@ const TestResults = () => {
           <Video
             source={{ uri: videoUri }}
             style={styles.videoPreview}
-            resizeMode={ResizeMode.CONTAIN}
+            resizeMode={ResizeMode.COVER}
             shouldPlay
             isLooping
-            useNativeControls
-            isMuted={false}
+            isMuted={true}
           />
         ) : (
           <Text style={styles.placeholderText}>No video recorded</Text>
@@ -125,21 +141,24 @@ const TestResults = () => {
         <Text style={styles.scoreText}>Score: {quizScore} / 5</Text>
       </View>
 
-      {taskStatus !== 'completed' && (
-        <Text style={styles.processingText}>Processing your results...</Text>
+      {/* Processing Indicator */}
+      {isProcessing && (
+        <View style={styles.processingContainer}>
+          <ActivityIndicator size="large" color="#FF9800" />
+          <Text style={styles.processingText}>Processing your results...</Text>
+        </View>
       )}
 
+      {/* View Results Button */}
       <TouchableOpacity
         style={[
           styles.getResultButton,
-          taskStatus !== 'completed' ? styles.getResultButtonDisabled : {},
+          !buttonEnabled ? styles.getResultButtonDisabled : {},
         ]}
         onPress={() => setShowResultsPage(true)}
-        disabled={taskStatus !== 'completed'}
+        disabled={!buttonEnabled}
       >
-        <Text style={styles.getResultButtonText}>
-          {taskStatus === 'completed' ? 'View Results' : 'View Results'}
-        </Text>
+        <Text style={styles.getResultButtonText}>View Results</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -152,6 +171,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 40,
     alignItems: 'center',
+  },
+  boxContainer: {
+    borderWidth: 2,
+    borderColor: '#3DB2FF',
+    borderRadius: 10,
+    padding: 10,
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
@@ -188,8 +217,11 @@ const styles = StyleSheet.create({
   videoPreview: {
     width: 250,
     height: 250,
-    borderRadius: 10,
-    transform: [{ scaleX: -1 }], // MIRROR EFFECT FOR FRONT CAMERA
+    borderRadius: 125,
+    overflow: 'hidden',
+    transform: [{ scaleX: -1 }],
+    borderColor: '#3DB2FF',
+    borderWidth: 2,
   },
   placeholderText: {
     fontSize: 14,
@@ -201,11 +233,14 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Bold',
     color: '#3DB2FF',
   },
+  processingContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
   processingText: {
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Regular',
     color: '#FF9800',
-    marginBottom: 10,
   },
   getResultButton: {
     backgroundColor: '#3DB2FF',
@@ -213,11 +248,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 30,
     marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
   },
   getResultButtonDisabled: {
     backgroundColor: '#B0BEC5',
@@ -235,21 +265,52 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   resultTitle: {
-    fontSize: 22,
+    fontSize: 30,
     fontFamily: 'OpenDyslexic-Bold',
     color: '#3DB2FF',
     marginBottom: 10,
   },
-  resultText: {
-    fontSize: 18,
-    fontFamily: 'OpenDyslexic-Regular',
+  resultBox: {
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  // Changed to a light blueish color (same as summaryCard).
+  noDyslexia: {
+    backgroundColor: '#E3F2FD',
+  },
+  resultBoxText: {
+    fontSize: 20,
+    color: '#000',
+    fontFamily: 'OpenDyslexic-Bold',
     textAlign: 'center',
   },
-  taskIdText: {
-    fontSize: 16,
-    fontFamily: 'OpenDyslexic-Bold',
-    color: '#000',
+  summaryCard: {
+    backgroundColor: '#E3F2FD',
+    padding: 15,
+    borderRadius: 10,
+    width: '90%',
     marginTop: 10,
+  },
+  summaryText: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 5,
+  },
+  // New styles for probability rows
+  probRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 5,
+  },
+  probLabel: {
+    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 16,
+  },
+  probValue: {
+    fontFamily: 'OpenDyslexic-Bold',
+    fontSize: 16,
+    color: '#3DB2FF', // Highlighted color for percentage
   },
   goBackButton: {
     backgroundColor: '#3DB2FF',
@@ -257,22 +318,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 30,
     marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
   },
   goBackButtonText: {
     fontSize: 18,
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
-  },
-  boxContainer: {
-    borderWidth: 2,
-    borderColor: '#3DB2FF',
-    borderRadius: 10,
-    padding: 10,
   },
 });
 

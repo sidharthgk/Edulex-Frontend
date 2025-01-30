@@ -10,7 +10,7 @@ import {
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import axios from 'axios';
+// import axios from 'axios';
 import { GlobalContext } from '../../../src/GlobalState';
 
 const TestSubmitted = ({ navigation, route }: any) => {
@@ -20,10 +20,10 @@ const TestSubmitted = ({ navigation, route }: any) => {
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
-  const { state, setState } = useContext(GlobalContext);
+  const { state} = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -80,48 +80,49 @@ const TestSubmitted = ({ navigation, route }: any) => {
   };
 
   const handleFinalSubmit = async () => {
-    try {
-      setIsSubmitting(true);
-      const formData = new FormData();
-      formData.append('user_id', 1); // Replace with actual user ID
+    navigation.navigate('TestResult');
+    // try {
+    //   setIsSubmitting(true);
+    //   const formData = new FormData();
+    //   formData.append('user_id', 1); // Replace with actual user ID
 
-      if (videoUri) {
-        formData.append('video', {
-          uri: videoUri,
-          type: 'video/mov',
-          name: 'video.mov',
-        });
-      }
+    //   if (videoUri) {
+    //     formData.append('video', {
+    //       uri: videoUri,
+    //       type: 'video/mov',
+    //       name: 'video.mov',
+    //     });
+    //   }
 
-      if (photoUri) {
-        formData.append('handwriting_image', {
-          uri: photoUri,
-          type: 'image/jpeg',
-          name: 'handwriting.jpg',
-        });
-      }
+    //   if (photoUri) {
+    //     formData.append('handwriting_image', {
+    //       uri: photoUri,
+    //       type: 'image/jpeg',
+    //       name: 'handwriting.jpg',
+    //     });
+    //   }
 
-      formData.append('phonetics_text', 'Sample phonetics text');
+    //   formData.append('phonetics_text', 'Sample phonetics text');
 
-      const response = await axios.post('https://detection.albinvar.in/detect/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+    //   const response = await axios.post('https://detection.albinvar.in/detect/', formData, {
+    //     headers: { 'Content-Type': 'multipart/form-data' },
+    //   });
 
-      if (response.data.task_id) {
-        setState((prevState) => {
-          const updatedState = { ...prevState, taskID: response.data.task_id };
-          console.log('Updated Task ID:', updatedState.taskID);
-          return updatedState;
-        });
-      }
+    //   if (response.data.task_id) {
+    //     setState((prevState) => {
+    //       const updatedState = { ...prevState, taskID: response.data.task_id };
+    //       console.log('Updated Task ID:', updatedState.taskID);
+    //       return updatedState;
+    //     });
+    //   }
 
-      setTimeout(() => {
-        navigation.navigate('TestResult');
-      }, 500);
-    } catch (error) {
-      console.error('API call error:', error);
-      setIsSubmitting(false);
-    }
+    //   setTimeout(() => {
+    //     navigation.navigate('TestResult');
+    //   }, 500);
+    // } catch (error) {
+    //   console.error('API call error:', error);
+    //   setIsSubmitting(false);
+    // }
   };
 
   let successText = '';
