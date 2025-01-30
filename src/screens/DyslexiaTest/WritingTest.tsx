@@ -70,12 +70,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
-    marginBottom: 20,
+    marginBottom: 30,
     textAlign: 'center',
   },
   icon: {
     width: 250,
-    height: 270,
+    height: 250,
     marginTop: -50,
   },
   instructionsBox: {
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#3DB2FF',
     width: '100%',
-    marginBottom: 30,
+    marginBottom: 20,
     marginTop: -10,
   },
   instructionsText: {
