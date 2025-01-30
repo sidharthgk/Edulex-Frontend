@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     position: 'absolute',
-    bottom: 160,
+    bottom: 155,
   },
   paginationDot: {
     width: 10,

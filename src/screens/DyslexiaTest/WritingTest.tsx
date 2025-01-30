@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
-    marginBottom: 10,
     marginTop: 10,
     textAlign: 'center',
   },

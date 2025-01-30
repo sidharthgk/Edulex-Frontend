@@ -110,9 +110,13 @@ const RegisterScreen = ({ navigation }: any) => {
             placeholderTextColor="#888"
             keyboardType={currentStep.keyboardType}
             secureTextEntry={currentStep.secureTextEntry || false}
+            textContentType={currentStep.field === 'password' ? 'password' : 'none'} // Ensure correct text type
+            autoCorrect={false} // Disable auto-correction
+            autoCapitalize="none" // Prevent auto-capitalization
             value={formData[currentStep.field]}
             onChangeText={handleInputChange}
           />
+          {/* handwriting test fix + register start page */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Text style={styles.backButtonText}>Back</Text>
