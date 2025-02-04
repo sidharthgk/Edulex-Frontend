@@ -25,7 +25,7 @@ const Chatbot: React.FC = () => {
 
     const handleSend = () => {
         if (inputText.trim()) {
-            const newMessage: Message = { id: Date.now().toString(), text: inputText, isBot: false };
+            const newMessage: Message = { id: `${Date.now()}-${Math.random()}`, text: inputText, isBot: false };
             setMessages([...messages, newMessage]);
             setInputText('');
             generateBotResponse(inputText);
@@ -37,7 +37,7 @@ const Chatbot: React.FC = () => {
         if (userInput.toLowerCase().includes('hello') || userInput.toLowerCase().includes('hi')) {
             botResponseText = 'Hello there!';
         }
-        const botResponse: Message = { id: Date.now().toString(), text: botResponseText, isBot: true };
+        const botResponse: Message = { id: `${Date.now()}-${Math.random()}`, text: botResponseText, isBot: true };
         setTimeout(() => {
             setMessages((prevMessages) => [...prevMessages, botResponse]);
         }, 1000);
@@ -62,6 +62,7 @@ const Chatbot: React.FC = () => {
                     ref={scrollViewRef}
                     onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
                     style={styles.messagesContainer}
+                    keyboardShouldPersistTaps="handled"
                 >
                     {messages.map(renderMessage)}
                 </ScrollView>
@@ -73,6 +74,7 @@ const Chatbot: React.FC = () => {
                         placeholder="Type a message"
                         placeholderTextColor={'#888'}
                         accessibilityLabel="Message input"
+                        onPress={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
                     />
                     <TouchableOpacity style={styles.sendButton} onPress={handleSend} accessibilityLabel="Send button">
                         <Text style={styles.sendButtonText}>Send</Text>
