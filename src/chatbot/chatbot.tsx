@@ -29,6 +29,7 @@ const Chatbot: React.FC = () => {
             setMessages([...messages, newMessage]);
             setInputText('');
             generateBotResponse(inputText);
+            scrollToBottom();
         }
     };
 
@@ -40,13 +41,18 @@ const Chatbot: React.FC = () => {
         const botResponse: Message = { id: `${Date.now()}-${Math.random()}`, text: botResponseText, isBot: true };
         setTimeout(() => {
             setMessages((prevMessages) => [...prevMessages, botResponse]);
+            scrollToBottom();
         }, 1000);
     };
 
+    const scrollToBottom = () => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+    };
+
     const renderMessage = (message: Message) => (
-        <Text key={message.id} style={message.isBot ? styles.botMessage : styles.userMessage}>
-            {message.text}
-        </Text>
+        <View key={message.id} style={[styles.messageBubble, message.isBot ? styles.botMessage : styles.userMessage]}>
+            <Text style={styles.messageText}>{message.text}</Text>
+        </View>
     );
 
     return (
@@ -55,12 +61,12 @@ const Chatbot: React.FC = () => {
                 style={styles.container}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <View style={styles.boxContainer}>
+                <View style={styles.header}>
                     <Text style={styles.welcomeMessage}>AI Chatbot</Text>
                 </View>
                 <ScrollView
                     ref={scrollViewRef}
-                    onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+                    onContentSizeChange={scrollToBottom}
                     style={styles.messagesContainer}
                     keyboardShouldPersistTaps="handled"
                 >
@@ -71,10 +77,10 @@ const Chatbot: React.FC = () => {
                         style={styles.input}
                         value={inputText}
                         onChangeText={setInputText}
-                        placeholder="Type a message"
+                        placeholder="Type a message..."
                         placeholderTextColor={'#888'}
                         accessibilityLabel="Message input"
-                        onPress={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+                        onFocus={scrollToBottom}
                     />
                     <TouchableOpacity style={styles.sendButton} onPress={handleSend} accessibilityLabel="Send button">
                         <Text style={styles.sendButtonText}>Send</Text>
@@ -88,73 +94,79 @@ const Chatbot: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#F7F7F7',
     },
     messagesContainer: {
         flex: 1,
-        padding: 25,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
     },
-    userMessage: {
-        padding: 10,
-        backgroundColor: '#f1f1f1',
+    messageBubble: {
+        maxWidth: '75%',
+        padding: 12,
         borderRadius: 20,
         marginVertical: 5,
-        fontFamily: 'OpenDyslexic-Regular',
-        fontSize: 20,
-        color: '#3DB2FF',
+    },
+    userMessage: {
+        backgroundColor: '#3DB2FF',
         alignSelf: 'flex-end',
     },
     botMessage: {
-        padding: 10,
-        backgroundColor: '#e1e1e1',
-        borderRadius: 20,
-        marginVertical: 5,
-        fontFamily: 'OpenDyslexic-Regular',
-        fontSize: 20,
-        color: '#FF5733',
+        backgroundColor: '#FFA500',
         alignSelf: 'flex-start',
+    },
+    messageText: {
+        fontFamily: 'OpenDyslexic-Regular',
+        fontSize: 18,
+        color: '#fff',
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
-        borderTopWidth: 1,
-        borderColor: '#ccc',
-        marginBottom: 10,
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 30,
+        marginHorizontal: 15,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
     },
     input: {
         flex: 1,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        borderRadius: 5,
+        padding: 12,
+        fontSize: 18,
         fontFamily: 'OpenDyslexic-Regular',
-        fontSize: 20,
     },
     sendButton: {
-        padding: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
         backgroundColor: '#3DB2FF',
-        borderRadius: 15,
-        alignItems: 'center',
-        marginLeft: 10,
+        borderRadius: 20,
     },
     sendButtonText: {
         color: '#FFFFFF',
         fontFamily: 'OpenDyslexic-Bold',
-        fontSize: 20,
+        fontSize: 18,
     },
-    boxContainer: {
-        backgroundColor: '#f9f9f9',
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
+    header: {
+        backgroundColor: '#3DB2FF',
+        paddingVertical: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
     },
     welcomeMessage: {
         fontFamily: 'OpenDyslexic-Bold',
-        fontSize: 24,
-        textAlign: 'center',
-        marginVertical: 5,
-        marginTop: 40,
-        color: '#3DB2FF',
+        fontSize: 22,
+        color: '#fff',
+        marginTop: 20,
     },
 });
 
