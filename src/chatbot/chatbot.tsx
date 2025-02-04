@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, TextInput, ScrollView, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useFonts } from 'expo-font';
 
-const Chatbot = () => {
-    const [messages, setMessages] = useState<{ id: string; text: string; isBot: boolean }[]>([]);
-    const [inputText, setInputText] = useState('');
+interface Message {
+    id: string;
+    text: string;
+    isBot: boolean;
+}
 
-    let [fontsLoaded] = useFonts({
+const Chatbot: React.FC = () => {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [inputText, setInputText] = useState('');
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    const [fontsLoaded] = useFonts({
         'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
         'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
         'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
@@ -18,48 +25,77 @@ const Chatbot = () => {
 
     const handleSend = () => {
         if (inputText.trim()) {
-            const newMessage = { id: Date.now().toString(), text: inputText, isBot: false };
+            const newMessage: Message = { id: Date.now().toString(), text: inputText, isBot: false };
             setMessages([...messages, newMessage]);
             setInputText('');
-            setTimeout(() => {
-                const botResponse = { id: Date.now().toString(), text: 'This is a response from the bot.', isBot: true };
-                setMessages((prevMessages) => [...prevMessages, botResponse]);
-            }, 1000);
+            generateBotResponse(inputText);
         }
     };
 
+    const generateBotResponse = (userInput: string) => {
+        let botResponseText = 'This is a response from the bot.';
+        if (userInput.toLowerCase().includes('hello') || userInput.toLowerCase().includes('hi')) {
+            botResponseText = 'Hello there!';
+        }
+        const botResponse: Message = { id: Date.now().toString(), text: botResponseText, isBot: true };
+        setTimeout(() => {
+            setMessages((prevMessages) => [...prevMessages, botResponse]);
+        }, 1000);
+    };
+
+    const renderMessage = (message: Message) => (
+        <Text key={message.id} style={message.isBot ? styles.botMessage : styles.userMessage}>
+            {message.text}
+        </Text>
+    );
+
     return (
-        <View style={styles.container}>
-            <FlatList
-                data={messages}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Text style={item.isBot ? styles.botMessage : styles.userMessage}>{item.text}</Text>
-                )}
-            />
-            <TextInput
-                style={styles.input}
-                value={inputText}
-                onChangeText={setInputText}
-                placeholder="Type a message"
-            />
-            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                <Text style={styles.sendButtonText}>Send</Text>
-            </TouchableOpacity>
-        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView
+                style={styles.container}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            >
+                <View style={styles.boxContainer}>
+                    <Text style={styles.welcomeMessage}>AI Chatbot</Text>
+                </View>
+                <ScrollView
+                    ref={scrollViewRef}
+                    onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+                    style={styles.messagesContainer}
+                >
+                    {messages.map(renderMessage)}
+                </ScrollView>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        value={inputText}
+                        onChangeText={setInputText}
+                        placeholder="Type a message"
+                        placeholderTextColor={'#888'}
+                        accessibilityLabel="Message input"
+                    />
+                    <TouchableOpacity style={styles.sendButton} onPress={handleSend} accessibilityLabel="Send button">
+                        <Text style={styles.sendButtonText}>Send</Text>
+                    </TouchableOpacity>
+                </View>
+            </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 25,
         backgroundColor: '#fff',
+    },
+    messagesContainer: {
+        flex: 1,
+        padding: 25,
     },
     userMessage: {
         padding: 10,
         backgroundColor: '#f1f1f1',
-        borderRadius: 5,
+        borderRadius: 20,
         marginVertical: 5,
         fontFamily: 'OpenDyslexic-Regular',
         fontSize: 20,
@@ -69,32 +105,54 @@ const styles = StyleSheet.create({
     botMessage: {
         padding: 10,
         backgroundColor: '#e1e1e1',
-        borderRadius: 5,
+        borderRadius: 20,
         marginVertical: 5,
         fontFamily: 'OpenDyslexic-Regular',
         fontSize: 20,
         color: '#FF5733',
         alignSelf: 'flex-start',
     },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        borderTopWidth: 1,
+        borderColor: '#ccc',
+        marginBottom: 10,
+    },
     input: {
+        flex: 1,
         borderWidth: 1,
         borderColor: '#ccc',
         padding: 10,
         borderRadius: 5,
-        marginBottom: 10,
         fontFamily: 'OpenDyslexic-Regular',
         fontSize: 20,
     },
     sendButton: {
         padding: 12,
         backgroundColor: '#3DB2FF',
-        borderRadius: 50,
+        borderRadius: 15,
         alignItems: 'center',
+        marginLeft: 10,
     },
     sendButtonText: {
         color: '#FFFFFF',
         fontFamily: 'OpenDyslexic-Bold',
         fontSize: 20,
+    },
+    boxContainer: {
+        backgroundColor: '#f9f9f9',
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
+    },
+    welcomeMessage: {
+        fontFamily: 'OpenDyslexic-Bold',
+        fontSize: 24,
+        textAlign: 'center',
+        marginVertical: 5,
+        marginTop: 40,
+        color: '#3DB2FF',
     },
 });
 
