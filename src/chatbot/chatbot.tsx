@@ -10,6 +10,8 @@ import {
     Platform,
     TouchableWithoutFeedback,
     Keyboard,
+    Modal,
+    Alert,
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
@@ -25,6 +27,8 @@ interface Message {
 const Chatbot: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [darkMode, setDarkMode] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [fontsLoaded] = useFonts({
@@ -73,6 +77,36 @@ const Chatbot: React.FC = () => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     };
 
+    const handleMenu = () => {
+        setMenuVisible(true);
+    };
+
+    const closeMenu = () => {
+        setMenuVisible(false);
+    };
+
+    const clearChat = () => {
+        Alert.alert(
+            'Clear Chat',
+            'Are you sure you want to delete all messages?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Yes, Clear', onPress: () => setMessages([]) },
+            ]
+        );
+        closeMenu();
+    };
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+        closeMenu();
+    };
+
+    const exportChat = () => {
+        Alert.alert('Export Chat', 'Chat history has been saved (Mocked Feature)');
+        closeMenu();
+    };
+
     const renderMessage = (message: Message) => (
         <View key={message.id} style={[styles.messageBubble, message.isBot ? styles.botMessage : styles.userMessage]}>
             <Text style={styles.messageText}>{message.text}</Text>
@@ -87,17 +121,15 @@ const Chatbot: React.FC = () => {
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView
-                style={styles.container}
+                style={[styles.container, darkMode && styles.darkContainer]}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
                 <StatusBar style="light" />
-                <View style={styles.header}>
+                <View style={[styles.header, darkMode && styles.darkHeader]}>
                     <View style={styles.headerContent}>
-                        <View style={styles.headerLeft}>
-                            <TouchableOpacity style={styles.backButton}>
-                                <Ionicons name="chevron-back" size={24} color="#fff" />
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity style={styles.backButton}>
+                            <Ionicons name="chevron-back" size={24} color="#fff" />
+                        </TouchableOpacity>
                         <View style={styles.headerCenter}>
                             <Text style={styles.headerTitle}>AI Assistant</Text>
                             <View style={styles.statusContainer}>
@@ -105,11 +137,9 @@ const Chatbot: React.FC = () => {
                                 <Text style={styles.statusText}>Online</Text>
                             </View>
                         </View>
-                        <View style={styles.headerRight}>
-                            <TouchableOpacity style={styles.menuButton}>
-                                <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity style={styles.menuButton} onPress={handleMenu}>
+                            <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -140,6 +170,33 @@ const Chatbot: React.FC = () => {
                         <Text style={styles.sendButtonText}>Send</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Menu Modal */}
+                <Modal
+                    transparent={true}
+                    visible={menuVisible}
+                    animationType="slide"
+                    onRequestClose={closeMenu}
+                >
+                    <TouchableWithoutFeedback onPress={closeMenu}>
+                        <View style={styles.modalBackground}>
+                            <View style={styles.menuContainer}>
+                                <TouchableOpacity style={styles.menuItem} onPress={clearChat}>
+                                    <Text style={styles.menuText}>Clear Chat</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.menuItem} onPress={exportChat}>
+                                    <Text style={styles.menuText}>Export Chat</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.menuItem} onPress={toggleDarkMode}>
+                                    <Text style={styles.menuText}>{darkMode ? 'Light Mode' : 'Dark Mode'}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.menuItem} onPress={closeMenu}>
+                                    <Text style={styles.menuText}>Close</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </Modal>
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
@@ -150,18 +207,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F7F7F7',
     },
+    darkContainer: {
+        backgroundColor: '#1E1E1E',
+    },
     header: {
         backgroundColor: '#2C3E50',
         paddingTop: Platform.OS === 'ios' ? 50 : 40,
         paddingBottom: 15,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
         elevation: 5,
+    },
+    darkHeader: {
+        backgroundColor: '#333',
     },
     headerContent: {
         flexDirection: 'row',
@@ -169,16 +225,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 15,
     },
-    headerLeft: {
-        width: 40,
+    backButton: {
+        padding: 8,
     },
     headerCenter: {
         flex: 1,
         alignItems: 'center',
-    },
-    headerRight: {
-        width: 40,
-        alignItems: 'flex-end',
     },
     headerTitle: {
         fontFamily: 'OpenDyslexic-Bold',
@@ -201,9 +253,6 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenDyslexic-Regular',
         fontSize: 14,
         color: '#E8E8E8',
-    },
-    backButton: {
-        padding: 8,
     },
     menuButton: {
         padding: 8,
@@ -268,6 +317,25 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontFamily: 'OpenDyslexic-Bold',
         fontSize: 16,
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    menuContainer: {
+        backgroundColor: '#fff',
+        marginHorizontal: 50,
+        borderRadius: 10,
+        padding: 15,
+    },
+    menuItem: {
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    menuText: {
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 
