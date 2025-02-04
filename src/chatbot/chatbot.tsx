@@ -1,11 +1,25 @@
 import React, { useState, useRef } from 'react';
-import { View, TextInput, ScrollView, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import {
+    View,
+    TextInput,
+    ScrollView,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    KeyboardAvoidingView,
+    Platform,
+    TouchableWithoutFeedback,
+    Keyboard,
+} from 'react-native';
 import { useFonts } from 'expo-font';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Message {
     id: string;
     text: string;
     isBot: boolean;
+    timestamp?: string;
 }
 
 const Chatbot: React.FC = () => {
@@ -25,7 +39,12 @@ const Chatbot: React.FC = () => {
 
     const handleSend = () => {
         if (inputText.trim()) {
-            const newMessage: Message = { id: `${Date.now()}-${Math.random()}`, text: inputText, isBot: false };
+            const newMessage: Message = {
+                id: `${Date.now()}-${Math.random()}`,
+                text: inputText,
+                isBot: false,
+                timestamp: new Date().toISOString(),
+            };
             setMessages([...messages, newMessage]);
             setInputText('');
             generateBotResponse(inputText);
@@ -38,7 +57,12 @@ const Chatbot: React.FC = () => {
         if (userInput.toLowerCase().includes('hello') || userInput.toLowerCase().includes('hi')) {
             botResponseText = 'Hello there!';
         }
-        const botResponse: Message = { id: `${Date.now()}-${Math.random()}`, text: botResponseText, isBot: true };
+        const botResponse: Message = {
+            id: `${Date.now()}-${Math.random()}`,
+            text: botResponseText,
+            isBot: true,
+            timestamp: new Date().toISOString(),
+        };
         setTimeout(() => {
             setMessages((prevMessages) => [...prevMessages, botResponse]);
             scrollToBottom();
@@ -52,6 +76,11 @@ const Chatbot: React.FC = () => {
     const renderMessage = (message: Message) => (
         <View key={message.id} style={[styles.messageBubble, message.isBot ? styles.botMessage : styles.userMessage]}>
             <Text style={styles.messageText}>{message.text}</Text>
+            {message.timestamp && (
+                <Text style={styles.timestampText}>
+                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+            )}
         </View>
     );
 
@@ -61,9 +90,29 @@ const Chatbot: React.FC = () => {
                 style={styles.container}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
+                <StatusBar style="light" />
                 <View style={styles.header}>
-                    <Text style={styles.welcomeMessage}>AI Chatbot</Text>
+                    <View style={styles.headerContent}>
+                        <View style={styles.headerLeft}>
+                            <TouchableOpacity style={styles.backButton}>
+                                <Ionicons name="chevron-back" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.headerCenter}>
+                            <Text style={styles.headerTitle}>AI Assistant</Text>
+                            <View style={styles.statusContainer}>
+                                <View style={styles.statusDot} />
+                                <Text style={styles.statusText}>Online</Text>
+                            </View>
+                        </View>
+                        <View style={styles.headerRight}>
+                            <TouchableOpacity style={styles.menuButton}>
+                                <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
+
                 <ScrollView
                     ref={scrollViewRef}
                     onContentSizeChange={scrollToBottom}
@@ -72,6 +121,7 @@ const Chatbot: React.FC = () => {
                 >
                     {messages.map(renderMessage)}
                 </ScrollView>
+
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
@@ -82,7 +132,11 @@ const Chatbot: React.FC = () => {
                         accessibilityLabel="Message input"
                         onFocus={scrollToBottom}
                     />
-                    <TouchableOpacity style={styles.sendButton} onPress={handleSend} accessibilityLabel="Send button">
+                    <TouchableOpacity
+                        style={styles.sendButton}
+                        onPress={handleSend}
+                        accessibilityLabel="Send button"
+                    >
                         <Text style={styles.sendButtonText}>Send</Text>
                     </TouchableOpacity>
                 </View>
@@ -95,6 +149,64 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+    },
+    header: {
+        backgroundColor: '#2C3E50',
+        paddingTop: Platform.OS === 'ios' ? 50 : 40,
+        paddingBottom: 15,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    headerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15,
+    },
+    headerLeft: {
+        width: 40,
+    },
+    headerCenter: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    headerRight: {
+        width: 40,
+        alignItems: 'flex-end',
+    },
+    headerTitle: {
+        fontFamily: 'OpenDyslexic-Bold',
+        fontSize: 24,
+        color: '#fff',
+        marginBottom: 4,
+    },
+    statusContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    statusDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#2ECC71',
+        marginRight: 6,
+    },
+    statusText: {
+        fontFamily: 'OpenDyslexic-Regular',
+        fontSize: 14,
+        color: '#E8E8E8',
+    },
+    backButton: {
+        padding: 8,
+    },
+    menuButton: {
+        padding: 8,
     },
     messagesContainer: {
         flex: 1,
@@ -112,13 +224,20 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
     },
     botMessage: {
-        backgroundColor: '#FFA500',
+        backgroundColor: '#2C3E50',
         alignSelf: 'flex-start',
     },
     messageText: {
         fontFamily: 'OpenDyslexic-Regular',
-        fontSize: 18,
+        fontSize: 16,
         color: '#fff',
+        marginBottom: 4,
+    },
+    timestampText: {
+        fontFamily: 'OpenDyslexic-Regular',
+        fontSize: 12,
+        color: 'rgba(255, 255, 255, 0.7)',
+        alignSelf: 'flex-end',
     },
     inputContainer: {
         flexDirection: 'row',
@@ -136,37 +255,19 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         padding: 12,
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: 'OpenDyslexic-Regular',
     },
     sendButton: {
         paddingVertical: 10,
         paddingHorizontal: 15,
-        backgroundColor: '#3DB2FF',
+        backgroundColor: '#2C3E50',
         borderRadius: 20,
     },
     sendButtonText: {
         color: '#FFFFFF',
         fontFamily: 'OpenDyslexic-Bold',
-        fontSize: 18,
-    },
-    header: {
-        backgroundColor: '#3DB2FF',
-        paddingVertical: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
-    },
-    welcomeMessage: {
-        fontFamily: 'OpenDyslexic-Bold',
-        fontSize: 22,
-        color: '#fff',
-        marginTop: 20,
+        fontSize: 16,
     },
 });
 
