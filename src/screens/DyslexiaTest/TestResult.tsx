@@ -12,7 +12,7 @@ import { useFonts } from 'expo-font';
 import { Video, ResizeMode } from 'expo-av';
 import { GlobalContext } from '../../GlobalState';
 
-const TestResults = () => {
+const TestResults = ({navigation}: any) => {
   const { state } = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
 
@@ -92,6 +92,12 @@ const TestResults = () => {
           onPress={() => setShowResultsPage(false)}
         >
           <Text style={styles.goBackButtonText}>Go Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.goBackButton}
+          onPress={() => navigation.navigate('chatbot')}
+        >
+          <Text style={styles.goBackButtonText}>Talk to our AI bot</Text>
         </TouchableOpacity>
       </View>
     );
