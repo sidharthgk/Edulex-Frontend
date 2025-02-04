@@ -10,6 +10,8 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import RegisterStart from '../screens/RegisterStart';
 
+import chatbot from '../chatbot/chatbot';
+
 
 // Import Dyslexia Test Screens
 import DyslexiaTestStart from '../screens/DyslexiaTest/DyslexiaTestStart';
@@ -66,6 +68,7 @@ const AppNavigator = () => {
         <Stack.Screen name="DictationTestInstructions" component={DictationTestInstructions} />
         <Stack.Screen name="DictationTest" component={DictationTest} />
         <Stack.Screen name="TestResult" component={TestResult} />
+        <Stack.Screen name="chatbot" component={chatbot} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -71,6 +71,13 @@ const StarterScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           ))}
         </View>
+        {/* test for the chatbot */}
+        <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('chatbot')}
+          >
+            <Text style={styles.loginText}>Test</Text>
+          </TouchableOpacity>
 
         {/* Buttons */}
         <View style={styles.buttonsContainer}>
