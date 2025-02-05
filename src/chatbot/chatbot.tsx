@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     },
     header: {
         backgroundColor: '#2C3E50',
-        paddingTop: Platform.OS === 'ios' ? 50 : 40,
+        paddingTop: Platform.OS === 'ios' ? 40 : 30,
         paddingBottom: 15,
         elevation: 5,
     },
@@ -260,13 +260,14 @@ const styles = StyleSheet.create({
     messagesContainer: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: 20,
     },
     messageBubble: {
         maxWidth: '75%',
         padding: 12,
         borderRadius: 20,
         marginVertical: 5,
+        marginBottom: 15,
     },
     userMessage: {
         backgroundColor: '#3DB2FF',
@@ -280,7 +281,6 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenDyslexic-Regular',
         fontSize: 16,
         color: '#fff',
-        marginBottom: 4,
     },
     timestampText: {
         fontFamily: 'OpenDyslexic-Regular',
