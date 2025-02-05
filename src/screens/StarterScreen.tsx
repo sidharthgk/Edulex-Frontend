@@ -1,28 +1,45 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { useFonts } from 'expo-font';
 import SvgImage from '../../assets/Logo-Starter.svg';
 
 const StarterScreen = ({ navigation }: any) => {
-  const [activePage, setActivePage] = useState(0); // Manage active page state
-  const scrollViewRef = useRef<ScrollView>(null); // Ref for ScrollView
+  const [activePage, setActivePage] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // The texts to display in the horizontal slider
   const descriptions = [
     'Discover the joy of learning with EDULEX AI, your personalized AR/AI teacher.',
     'Explore topics interactively and make learning engaging with fun AR games.',
     'Bridge the gap in education with AI-driven tools and personalized guidance.',
   ];
 
+  // Access the chatbot toggle from global context
+
+  // Handle horizontal scroll to detect which "page" is active
   const handleScroll = (event: any) => {
     const scrollX = event.nativeEvent.contentOffset.x;
-    const page = Math.round(scrollX / Dimensions.get('window').width); // Calculate active page
+    const page = Math.round(scrollX / Dimensions.get('window').width);
     setActivePage(page);
   };
 
+  // Jump to a specific page when a dot is pressed
   const handleDotPress = (index: number) => {
     setActivePage(index);
-    scrollViewRef.current?.scrollTo({ x: index * Dimensions.get('window').width, animated: true });
+    scrollViewRef.current?.scrollTo({
+      x: index * Dimensions.get('window').width,
+      animated: true,
+    });
   };
 
+  // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
@@ -37,7 +54,7 @@ const StarterScreen = ({ navigation }: any) => {
     <View style={styles.container}>
       {/* Logo Section */}
       <View style={styles.logoContainer}>
-      <SvgImage height={350} width={600} style={styles.logo} />
+        <SvgImage height={350} width={600} style={styles.logo} />
         <Text style={styles.title}>EDULEX AI</Text>
       </View>
 
@@ -48,7 +65,7 @@ const StarterScreen = ({ navigation }: any) => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onScroll={handleScroll}
-          scrollEventThrottle={16} // To optimize scroll event handling
+          scrollEventThrottle={16}
           ref={scrollViewRef}
         >
           {descriptions.map((description, index) => (
@@ -65,21 +82,16 @@ const StarterScreen = ({ navigation }: any) => {
               <View
                 style={[
                   styles.paginationDot,
-                  activePage === index && styles.activeDot, // Highlight the active dot
+                  activePage === index && styles.activeDot,
                 ]}
               />
             </TouchableOpacity>
           ))}
         </View>
-        {/* test for the chatbot */}
-        <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => navigation.navigate('chatbot')}
-          >
-            <Text style={styles.loginText}>Test</Text>
-          </TouchableOpacity>
 
-        {/* Buttons */}
+        {/* --- EXAMPLE BUTTON TO OPEN CHATBOT --- */}
+
+        {/* Buttons: Register / Login */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.registerButton}
@@ -99,6 +111,9 @@ const StarterScreen = ({ navigation }: any) => {
   );
 };
 
+export default StarterScreen;
+
+// ------------------- STYLES -------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -110,15 +125,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginTop: 130,
-    height: 200, // Adjust the height of the logo
-    width: 'auto', // Maintain aspect ratio or adjust as needed
+    marginTop: 110, // Reduced by 20
+    height: 200,
+    width: 'auto',
   },
   title: {
-    fontSize: 35, // Decreased font size
+    fontSize: 35,
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
-    marginTop: -30,
+    marginTop: -50, // Reduced by 20
   },
   descriptionContainer: {
     flex: 1.5,
@@ -126,22 +141,22 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     alignItems: 'center',
-    marginTop: 130,
+    marginTop: 110, // Reduced by 20
   },
   descriptionSlide: {
-    width: Dimensions.get('window').width, // Full width for each slide
+    width: Dimensions.get('window').width,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
   mainDescription: {
-    fontSize: 20, // Decreased font size
+    fontSize: 20,
     textAlign: 'center',
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
     marginHorizontal: 20,
     marginBottom: 50,
-    marginTop: -120,
+    marginTop: -140, // Reduced by 20
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -149,7 +164,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     position: 'absolute',
-    bottom: 155,
+    bottom: 175, // Increased by 20
   },
   paginationDot: {
     width: 10,
@@ -166,10 +181,9 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 80,
+    bottom: 110, // Increased by 20
     width: '100%',
     paddingHorizontal: 10,
-    marginTop: 30,
     paddingLeft: 16,
     paddingRight: 15,
   },
@@ -187,7 +201,7 @@ const styles = StyleSheet.create({
   },
   registerText: {
     color: '#FFFFFF',
-    fontSize: 18, // Decreased font size
+    fontSize: 18,
     fontFamily: 'OpenDyslexic-Bold',
   },
   loginButton: {
@@ -204,9 +218,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: '#3DB2FF',
-    fontSize: 18, // Decreased font size
+    fontSize: 18,
     fontFamily: 'OpenDyslexic-Bold',
   },
 });
-
-export default StarterScreen;
