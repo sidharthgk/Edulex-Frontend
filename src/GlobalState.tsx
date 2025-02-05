@@ -1,3 +1,4 @@
+// src/GlobalState.tsx
 import React, { createContext, useState, ReactNode } from 'react';
 
 interface RegistrationDetails {
@@ -14,8 +15,8 @@ interface GlobalState {
   quizScore: number;
   register: Array<RegistrationDetails>;
   taskID: number;
-  /** New: track if chatbot is visible */
   isChatbotVisible: boolean;
+  currentRoute: string; // new field
 }
 
 interface GlobalContextProps {
@@ -33,6 +34,7 @@ const initialState: GlobalState = {
   register: [],
   taskID: 0,
   isChatbotVisible: false,
+  currentRoute: '', // start empty or 'SplashScreen'
 };
 
 export const GlobalContext = createContext<GlobalContextProps>({

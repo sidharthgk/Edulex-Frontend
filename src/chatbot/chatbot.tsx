@@ -1,169 +1,245 @@
-import React, { useState, useRef } from 'react';
+// src/chatbot/chatbot.tsx
+
+import React, { useState, useRef, useContext } from 'react';
 import {
-    View,
-    TextInput,
-    ScrollView,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-    Platform,
-    TouchableWithoutFeedback,
-    Keyboard,
-    Modal,
-    Alert,
+  View,
+  TextInput,
+  ScrollView,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useFonts } from 'expo-font';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { GlobalContext } from '../GlobalState';
 
 interface ChatbotProps {
-    /** onClose callback to hide the chatbot */
-    onClose: () => void;
+  onClose: () => void;
 }
 
 interface Message {
-    id: string;
-    text: string;
-    isBot: boolean;
-    timestamp?: string;
+  id: string;
+  text: string;
+  isBot: boolean;
+  timestamp?: string;
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [inputText, setInputText] = useState('');
-    const [menuVisible, setMenuVisible] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
-    const scrollViewRef = useRef<ScrollView>(null);
+  const { state } = useContext(GlobalContext);
+  // e.g. state.currentRoute = 'DictationTestInstructions' or 'EyeTrackingTest', etc.
 
-    const [fontsLoaded] = useFonts({
-        'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
-        'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
-        'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
-    });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-    if (!fontsLoaded) {
-        return null;
+  const [fontsLoaded] = useFonts({
+    'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
+    'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
+    'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  // Convert local messages to structure the server expects
+  function buildChatHistory(msgs: Message[]) {
+    return msgs.map((m) => ({
+      role: m.isBot ? 'assistant' : 'user',
+      content: m.text,
+    }));
+  }
+
+  // Decide which testType based on route
+  function mapRouteNameToTestType(routeName: string) {
+    // 1) DyslexiaTestInstructions or EyeTrackingTest => "eye-tracking"
+    if (['DyslexiaTestInstructions', 'EyeTrackingTest'].includes(routeName)) {
+      return 'eye-tracking';
+    }
+    // 2) WritingTest or PhotoCamera => "handwriting"
+    if (['WritingTest', 'PhotoCamera'].includes(routeName)) {
+      return 'handwriting';
+    }
+    // 3) DictationTestInstructions or DictationTest => "dictation"
+    if (['DictationTestInstructions', 'DictationTest'].includes(routeName)) {
+      return 'dictation';
+    }
+    // 4) DyslexiaQuizInstructions or DyslexiaQuiz => "quiz"
+    if (['DyslexiaQuizInstructions', 'DyslexiaQuiz'].includes(routeName)) {
+      return 'quiz';
+    }
+    // 5) Everything else => "ask"
+    return 'ask';
+  }
+
+  // Return the correct endpoint
+  function getEndpoint(testType: string) {
+    switch (testType) {
+      case 'eye-tracking':
+        return 'https://chatbot.edulex.space/eye-tracking';
+      case 'handwriting':
+        return 'https://chatbot.edulex.space/handwriting';
+      case 'dictation':
+        return 'https://chatbot.edulex.space/dictation';
+      case 'quiz':
+        return 'https://chatbot.edulex.space/quiz';
+      default:
+        return 'https://chatbot.edulex.space/ask'; // fallback for general
+    }
+  }
+
+  const handleSend = async () => {
+    if (!inputText.trim()) {
+      return;
     }
 
-    const handleSend = () => {
-        if (inputText.trim()) {
-            const newMessage: Message = {
-                id: `${Date.now()}-${Math.random()}`,
-                text: inputText,
-                isBot: false,
-                timestamp: new Date().toISOString(),
-            };
-            setMessages((prev) => [...prev, newMessage]);
-            setInputText('');
-            generateBotResponse(inputText);
-            scrollToBottom();
-        }
+    // Add user message to local state
+    const newMessage: Message = {
+      id: `${Date.now()}-${Math.random()}`,
+      text: inputText,
+      isBot: false,
+      timestamp: new Date().toISOString(),
     };
+    setMessages((prev) => [...prev, newMessage]);
+    const userText = inputText;
+    setInputText('');
+    scrollToBottom();
 
-    const generateBotResponse = (userInput: string) => {
-        let botResponseText = 'This is a response from the bot.';
-        if (userInput.toLowerCase().includes('hello')) {
-            botResponseText = 'Hello! How can I assist you today?';
-        }
-        const botResponse: Message = {
-            id: `${Date.now()}-${Math.random()}`,
-            text: botResponseText,
-            isBot: true,
-            timestamp: new Date().toISOString(),
-        };
-        setTimeout(() => {
-            setMessages((prevMessages) => [...prevMessages, botResponse]);
-            scrollToBottom();
-        }, 1000);
-    };
+    // Then fetch from server
+    try {
+      const testType = mapRouteNameToTestType(state.currentRoute);
+      const endpoint = getEndpoint(testType);
 
-    const scrollToBottom = () => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-    };
+      const requestBody = {
+        chat_history: buildChatHistory([...messages, newMessage]),
+        user_input: userText,
+      };
 
-    const handleMenu = () => {
-        setMenuVisible(true);
-    };
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
-    const closeMenu = () => {
-        setMenuVisible(false);
-    };
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
 
-    const clearChat = () => {
-        Alert.alert(
-            'Clear Chat',
-            'Are you sure you want to delete all messages?',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Yes, Clear', onPress: () => setMessages([]) },
-            ]
-        );
-        closeMenu();
-    };
+      const data = await response.json();
+      if (!data.chat_history || !Array.isArray(data.chat_history)) {
+        throw new Error('Server response missing chat_history array');
+      }
 
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        closeMenu();
-    };
+      const lastItem = data.chat_history[data.chat_history.length - 1];
+      if (lastItem?.role !== 'assistant') {
+        throw new Error('No assistant reply in chat_history');
+      }
 
-    const exportChat = () => {
-        Alert.alert('Export Chat', 'Chat history has been saved (Mocked Feature)');
-        closeMenu();
-    };
+      // Add the bot's message to local state
+      const botReply: Message = {
+        id: `${Date.now()}-${Math.random()}`,
+        text: lastItem.content,
+        isBot: true,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, botReply]);
+      scrollToBottom();
+    } catch (err) {
+      console.error('Error fetching chatbot reply:', err);
+      const errorMsg: Message = {
+        id: `${Date.now()}-${Math.random()}`,
+        text: 'Sorry, something went wrong. Please try again later.',
+        isBot: true,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+      scrollToBottom();
+    }
+  };
 
-    const renderMessage = (message: Message) => (
-        <View
-            key={message.id}
-            style={[
-                styles.messageBubble,
-                message.isBot ? styles.botMessage : styles.userMessage,
-            ]}
+  function scrollToBottom() {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }
+
+  // UI actions
+  const handleMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  const clearChat = () => {
+    Alert.alert('Clear Chat', 'Are you sure you want to delete all messages?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Yes, Clear', onPress: () => setMessages([]) },
+    ]);
+    closeMenu();
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    closeMenu();
+  };
+
+  const exportChat = () => {
+    Alert.alert('Export Chat', 'Chat history has been saved (Mocked Feature)');
+    closeMenu();
+  };
+
+  const renderMessage = (msg: Message) => (
+    <View
+      key={msg.id}
+      style={[
+        styles.messageBubble,
+        msg.isBot ? styles.botMessage : styles.userMessage,
+      ]}
+    >
+      <Text style={styles.messageText}>{msg.text}</Text>
+      {msg.timestamp && (
+        <Text style={styles.timestampText}>
+          {new Date(msg.timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </Text>
+      )}
+    </View>
+  );
+
+  return (
+    <Modal
+      visible
+      animationType="slide"
+      transparent={false}
+      onRequestClose={onClose}
+    >
+      {/* Top-level wrapper to ensure flex layout */}
+      <View style={{ flex: 1 }}>
+        {/* KeyboardAvoidingView helps the UI adjust when the keyboard shows */}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <Text style={styles.messageText}>{message.text}</Text>
-            {message.timestamp && (
-                <Text style={styles.timestampText}>
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    })}
-                </Text>
-            )}
-        </View>
-    );
-
-    return (
-      <Modal
-        visible={true}
-        animationType="slide"
-        transparent={false}
-        onRequestClose={onClose}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            style={[styles.container, darkMode && styles.darkContainer]}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          >
-            <StatusBar style="light" />
+          <View style={[styles.container, darkMode && styles.darkContainer]}>
+            <StatusBar />
 
             {/* Header */}
             <View style={[styles.header, darkMode && styles.darkHeader]}>
               <View style={styles.headerContent}>
-                {/* Back/Close button */}
                 <TouchableOpacity style={styles.backButton} onPress={onClose}>
                   <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
-
-                {/* Center Title */}
                 <View style={styles.headerCenter}>
-                  <Text style={styles.headerTitle}>AI Assistant</Text>
+                  <Text style={styles.headerTitle}>AI Mentor</Text>
                   <View style={styles.statusContainer}>
                     <View style={styles.statusDot} />
                     <Text style={styles.statusText}>Online</Text>
                   </View>
                 </View>
-
-                {/* Menu Button */}
                 <TouchableOpacity style={styles.menuButton} onPress={handleMenu}>
                   <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
                 </TouchableOpacity>
@@ -175,12 +251,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
               ref={scrollViewRef}
               onContentSizeChange={scrollToBottom}
               style={styles.messagesContainer}
+              contentContainerStyle={styles.messagesContentContainer}
               keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
               {messages.map(renderMessage)}
             </ScrollView>
 
-            {/* Input Field */}
+            {/* Input */}
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
@@ -188,187 +266,213 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
                 onChangeText={setInputText}
                 placeholder="Type a message..."
                 placeholderTextColor="#888"
-                accessibilityLabel="Message input"
                 onFocus={scrollToBottom}
               />
               <TouchableOpacity
                 style={styles.sendButton}
                 onPress={handleSend}
-                accessibilityLabel="Send button"
+                activeOpacity={0.7}
               >
                 <Text style={styles.sendButtonText}>Send</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </KeyboardAvoidingView>
 
-            {/* Menu Modal */}
-            <Modal
-              transparent={true}
-              visible={menuVisible}
-              animationType="slide"
-              onRequestClose={closeMenu}
-            >
-              <TouchableWithoutFeedback onPress={closeMenu}>
-                <View style={styles.modalBackground}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={clearChat}>
-                      <Text style={styles.menuText}>Clear Chat</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={exportChat}>
-                      <Text style={styles.menuText}>Export Chat</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={toggleDarkMode}>
-                      <Text style={styles.menuText}>
-                        {darkMode ? 'Light Mode' : 'Dark Mode'}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={closeMenu}>
-                      <Text style={styles.menuText}>Close</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            </Modal>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      </Modal>
-    );
+        {/* Menu Modal */}
+        <Modal
+          transparent
+          visible={menuVisible}
+          animationType="slide"
+          onRequestClose={closeMenu}
+        >
+          <TouchableOpacity
+            style={styles.modalBackground}
+            onPress={closeMenu}
+            activeOpacity={1}
+          >
+            <View style={styles.menuContainer}>
+              <TouchableOpacity style={styles.menuItem} onPress={clearChat}>
+                <Text style={styles.menuText}>Clear Chat</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={exportChat}>
+                <Text style={styles.menuText}>Export Chat</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={toggleDarkMode}>
+                <Text style={styles.menuText}>
+                  {darkMode ? 'Light Mode' : 'Dark Mode'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={closeMenu}>
+                <Text style={styles.menuText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </View>
+    </Modal>
+  );
 };
 
 export default Chatbot;
 
+/* ---- STYLES ---- */
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#F7F7F7',
-    },
-    darkContainer: {
-      backgroundColor: '#1E1E1E',
-    },
-    header: {
-      backgroundColor: '#2C3E50',
-      paddingTop: Platform.OS === 'ios' ? 40 : 30,
-      paddingBottom: 15,
-      elevation: 5,
-    },
-    darkHeader: {
-      backgroundColor: '#333',
-    },
-    headerContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: 15,
-    },
-    backButton: {
-      padding: 8,
-    },
-    headerCenter: {
-      flex: 1,
-      alignItems: 'center',
-    },
-    headerTitle: {
-      fontFamily: 'OpenDyslexic-Bold',
-      fontSize: 24,
-      color: '#fff',
-      marginBottom: 4,
-    },
-    statusContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    statusDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: '#2ECC71',
-      marginRight: 6,
-    },
-    statusText: {
-      fontFamily: 'OpenDyslexic-Regular',
-      fontSize: 14,
-      color: '#E8E8E8',
-    },
-    menuButton: {
-      padding: 8,
-    },
-    messagesContainer: {
-      flex: 1,
-      paddingHorizontal: 20,
-      paddingVertical: 20,
-    },
-    messageBubble: {
-      maxWidth: '75%',
-      padding: 12,
-      borderRadius: 20,
-      marginVertical: 5,
-      marginBottom: 15,
-    },
-    userMessage: {
-      backgroundColor: '#3DB2FF',
-      alignSelf: 'flex-end',
-    },
-    botMessage: {
-      backgroundColor: '#2C3E50',
-      alignSelf: 'flex-start',
-    },
-    messageText: {
-      fontFamily: 'OpenDyslexic-Regular',
-      fontSize: 16,
-      color: '#fff',
-    },
-    timestampText: {
-      fontFamily: 'OpenDyslexic-Regular',
-      fontSize: 12,
-      color: 'rgba(255, 255, 255, 0.7)',
-      alignSelf: 'flex-end',
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#fff',
-      padding: 12,
-      borderRadius: 30,
-      marginHorizontal: 15,
-      marginBottom: 20,
-      shadowColor: '#000',
-      shadowOpacity: 0.1,
-      shadowRadius: 10,
-      elevation: 5,
-    },
-    input: {
-      flex: 1,
-      padding: 12,
-      fontSize: 16,
-      fontFamily: 'OpenDyslexic-Regular',
-    },
-    sendButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 15,
-      backgroundColor: '#2C3E50',
-      borderRadius: 20,
-    },
-    sendButtonText: {
-      color: '#FFFFFF',
-      fontFamily: 'OpenDyslexic-Bold',
-      fontSize: 16,
-    },
-    modalBackground: {
-      flex: 1,
-      justifyContent: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    menuContainer: {
-      backgroundColor: '#fff',
-      marginHorizontal: 50,
-      borderRadius: 10,
-      padding: 15,
-    },
-    menuItem: {
-      paddingVertical: 10,
-      alignItems: 'center',
-    },
-    menuText: {
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F7F7',
+  },
+  darkContainer: {
+    backgroundColor: '#1E1E1E',
+  },
+
+  header: {
+    backgroundColor: '#2C3E50',
+    paddingTop: Platform.OS === 'ios' ? 35 : 20,
+    paddingBottom: 12,
+    elevation: 5,
+  },
+  darkHeader: {
+    backgroundColor: '#333',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontFamily: 'OpenDyslexic-Bold',
+    fontSize: 22,
+    color: '#fff',
+    marginBottom: 4,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#2ECC71',
+    marginRight: 6,
+  },
+  statusText: {
+    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 14,
+    color: '#E8E8E8',
+  },
+  menuButton: {
+    padding: 8,
+  },
+
+  messagesContainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+    paddingTop: 5,
+  },
+  messagesContentContainer: {
+    // Reduced bottom padding for less gap above input
+    paddingBottom: 15,
+  },
+
+  messageBubble: {
+    maxWidth: '80%',
+    padding: 10,
+    borderRadius: 12,
+    marginVertical: 5,
+    paddingHorizontal: 20,
+    // Minimal or no shadow for a cleaner look:
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  userMessage: {
+    backgroundColor: '#3DB2FF',
+    alignSelf: 'flex-end',
+    borderBottomRightRadius: 3, // Slightly sharper corner
+  },
+  botMessage: {
+    backgroundColor: '#2C3E50',
+    alignSelf: 'flex-start',
+    borderBottomLeftRadius: 3, // Slightly sharper corner
+  },
+  messageText: {
+    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 16,
+    color: '#fff',
+  },
+  timestampText: {
+    fontFamily: 'OpenDyslexic-Regular',
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    marginHorizontal: 10,
+    marginBottom: Platform.OS === 'ios' ? 20 : 10,
+    borderRadius: 25,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    // Light shadow for input container
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  input: {
+    flex: 1,
+    padding: 8,
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  sendButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: '#2C3E50',
+    borderRadius: 20,
+    marginLeft: 6,
+  },
+  sendButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'OpenDyslexic-Bold',
+    fontSize: 16,
+  },
+
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  menuContainer: {
+    backgroundColor: '#fff',
+    marginHorizontal: 50,
+    borderRadius: 10,
+    padding: 15,
+    elevation: 5,
+  },
+  menuItem: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  menuText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

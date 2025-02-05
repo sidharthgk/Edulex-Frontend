@@ -1,7 +1,9 @@
-import React from 'react';
+// src/navigation/AppNavigator.tsx
+import React, { useContext } from 'react';
 import { TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { GlobalContext } from '../GlobalState';
 
 // Import Screens
 import SplashScreen from '../screens/SplashScreen';
@@ -10,8 +12,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import RegisterStart from '../screens/RegisterStart';
 
-
-// Import Dyslexia Test Screens
+// Dyslexia Test Screens
 import DyslexiaTestStart from '../screens/DyslexiaTest/DyslexiaTestStart';
 import DyslexiaTestInstructions from '../screens/DyslexiaTest/DyslexiaTestInstructions';
 import EyeTrackingTest from '../screens/DyslexiaTest/EyeTrackingTest';
@@ -26,37 +27,53 @@ import TestResult from '../screens/DyslexiaTest/TestResult';
 
 const Stack = createStackNavigator();
 
+// Helper: recursively get the active route name
+function getActiveRouteName(state: any): string {
+  const route = state.routes[state.index];
+  if (route.state) {
+    return getActiveRouteName(route.state);
+  }
+  return route.name;
+}
+
 const AppNavigator = () => {
+  const { setState } = useContext(GlobalContext);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      onStateChange={(state) => {
+        if (state) {
+          const currentRouteName = getActiveRouteName(state);
+          // Store the route in global state
+          setState((prev) => ({
+            ...prev,
+            currentRoute: currentRouteName,
+          }));
+        }
+      }}
+    >
       <Stack.Navigator
         screenOptions={{
-          headerShown: false, // Hide header globally
-          gestureEnabled: true, // Enable swipe gestures
-          gestureDirection: 'horizontal', // Default gesture direction
+          headerShown: false,
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
           transitionSpec: {
-            open: TransitionSpecs.TransitionIOSSpec, // Use iOS-like smooth transition
+            open: TransitionSpecs.TransitionIOSSpec,
             close: TransitionSpecs.TransitionIOSSpec,
           },
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, // Smooth horizontal transitions
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }}
       >
-        {/* Onboarding and Login Screens */}
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="StarterScreen" component={StarterScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
-
-        {/* Registration Flow */}
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="RegisterStart" component={RegisterStart} />
 
-
         {/* Dyslexia Test Flow */}
         <Stack.Screen name="DyslexiaTestStart" component={DyslexiaTestStart} />
-        <Stack.Screen
-          name="DyslexiaTestInstructions"
-          component={DyslexiaTestInstructions}
-        />
+        <Stack.Screen name="DyslexiaTestInstructions" component={DyslexiaTestInstructions} />
+
         <Stack.Screen name="EyeTrackingTest" component={EyeTrackingTest} />
         <Stack.Screen name="WritingTest" component={WritingTest} />
         <Stack.Screen name="PhotoCamera" component={PhotoCamera} />
