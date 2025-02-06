@@ -59,23 +59,18 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
 
   // Decide which testType based on route
   function mapRouteNameToTestType(routeName: string) {
-    // 1) DyslexiaTestInstructions or EyeTrackingTest => "eye-tracking"
     if (['DyslexiaTestInstructions', 'EyeTrackingTest'].includes(routeName)) {
       return 'eye-tracking';
     }
-    // 2) WritingTest or PhotoCamera => "handwriting"
     if (['WritingTest', 'PhotoCamera'].includes(routeName)) {
       return 'handwriting';
     }
-    // 3) DictationTestInstructions or DictationTest => "dictation"
     if (['DictationTestInstructions', 'DictationTest'].includes(routeName)) {
       return 'dictation';
     }
-    // 4) DyslexiaQuizInstructions or DyslexiaQuiz => "quiz"
     if (['DyslexiaQuizInstructions', 'DyslexiaQuiz'].includes(routeName)) {
       return 'quiz';
     }
-    // 5) Everything else => "ask"
     return 'ask';
   }
 
@@ -190,25 +185,31 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     closeMenu();
   };
 
-  const renderMessage = (msg: Message) => (
-    <View
-      key={msg.id}
-      style={[
-        styles.messageBubble,
-        msg.isBot ? styles.botMessage : styles.userMessage,
-      ]}
-    >
-      <Text style={styles.messageText}>{msg.text}</Text>
-      {msg.timestamp && (
-        <Text style={styles.timestampText}>
-          {new Date(msg.timestamp).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+  const renderMessage = (msg: Message) => {
+    const isBot = msg.isBot;
+    return (
+      <View
+        key={msg.id}
+        style={[
+          styles.messageBubble,
+          isBot ? styles.botMessage : styles.userMessage,
+          darkMode && (isBot ? styles.darkBotBubble : styles.darkUserBubble),
+        ]}
+      >
+        <Text style={[styles.messageText, isBot && styles.botMessageText]}>
+          {msg.text}
         </Text>
-      )}
-    </View>
-  );
+        {msg.timestamp && (
+          <Text style={[styles.timestampText, isBot && styles.botTimestampText]}>
+            {new Date(msg.timestamp).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        )}
+      </View>
+    );
+  };
 
   return (
     <Modal
@@ -225,7 +226,10 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={[styles.container, darkMode && styles.darkContainer]}>
-            <StatusBar />
+            <StatusBar
+              barStyle={darkMode ? 'light-content' : 'dark-content'}
+              backgroundColor={darkMode ? '#333' : '#2C3E50'}
+            />
 
             {/* Header */}
             <View style={[styles.header, darkMode && styles.darkHeader]}>
@@ -259,17 +263,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
             </ScrollView>
 
             {/* Input */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, darkMode && styles.darkInput]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, darkMode && styles.darkInputText]}
                 value={inputText}
                 onChangeText={setInputText}
                 placeholder="Type a message..."
-                placeholderTextColor="#888"
+                placeholderTextColor={darkMode ? '#aaa' : '#888'}
                 onFocus={scrollToBottom}
               />
               <TouchableOpacity
-                style={styles.sendButton}
+                style={[styles.sendButton, darkMode && styles.darkSendButton]}
                 onPress={handleSend}
                 activeOpacity={0.7}
               >
@@ -318,14 +322,16 @@ export default Chatbot;
 
 /* ---- STYLES ---- */
 const styles = StyleSheet.create({
+  /* Container / General */
   container: {
     flex: 1,
-    backgroundColor: '#F7F7F7',
+    backgroundColor: '#F7F7F7', // Soft light background
   },
   darkContainer: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#1E1E1E', // Dark background for dark mode
   },
 
+  /* Header */
   header: {
     backgroundColor: '#2C3E50',
     paddingTop: Platform.OS === 'ios' ? 35 : 20,
@@ -374,60 +380,78 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 
+  /* Messages List */
   messagesContainer: {
     flex: 1,
     paddingHorizontal: 15,
     paddingTop: 5,
   },
   messagesContentContainer: {
-    // Reduced bottom padding for less gap above input
-    paddingBottom: 15,
+    paddingBottom: 16, // Slight bottom gap
   },
 
+  /* Message Bubble */
   messageBubble: {
     maxWidth: '80%',
-    padding: 10,
-    borderRadius: 12,
+    padding: 12,
     marginVertical: 5,
-    paddingHorizontal: 20,
-    // Minimal or no shadow for a cleaner look:
+    borderRadius: 16,
+    // Subtle shadow for each bubble (light mode)
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 1,
   },
   userMessage: {
-    backgroundColor: '#3DB2FF',
     alignSelf: 'flex-end',
-    borderBottomRightRadius: 3, // Slightly sharper corner
+    backgroundColor: '#007AFF', // Classic iOS blue for user
+    borderTopRightRadius: 4, // Slightly different corner
   },
   botMessage: {
-    backgroundColor: '#2C3E50',
     alignSelf: 'flex-start',
-    borderBottomLeftRadius: 3, // Slightly sharper corner
+    backgroundColor: '#2C3E50', // Dark bubble for bot in light mode
+    borderTopLeftRadius: 4,
   },
+  darkUserBubble: {
+    backgroundColor: '#0352C7', // Slightly darker blue for dark mode
+  },
+  darkBotBubble: {
+    backgroundColor: '#444', // Darker bubble for dark mode
+  },
+
+  /* Message Text */
   messageText: {
     fontFamily: 'OpenDyslexic-Regular',
     fontSize: 16,
-    color: '#fff',
+    color: '#fff', // Default text color on dark-ish backgrounds
   },
+  botMessageText: {
+    // For bot's bubble in light mode, it's already set to white text
+    // If you prefer white bubble for bot, adjust colors accordingly
+  },
+
+  /* Timestamps */
   timestampText: {
     fontFamily: 'OpenDyslexic-Regular',
     fontSize: 12,
     color: 'rgba(255,255,255,0.7)',
     alignSelf: 'flex-end',
-    marginTop: 4,
+    marginTop: 3,
+  },
+  botTimestampText: {
+    // same color for bot; you can change if you prefer a different shade
   },
 
+  /* Input Section */
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     marginHorizontal: 10,
-    marginBottom: Platform.OS === 'ios' ? 20 : 10,
+    marginBottom: Platform.OS === 'ios' ? 16 : 10,
     borderRadius: 25,
-    paddingHorizontal: 18,
+    paddingHorizontal: 15,
     paddingVertical: 6,
     // Light shadow for input container
     shadowColor: '#000',
@@ -436,18 +460,30 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     elevation: 2,
   },
+  darkInput: {
+    backgroundColor: '#2A2A2A',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+  },
   input: {
     flex: 1,
-    padding: 8,
+    paddingHorizontal: 8,
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Regular',
+    color: '#333', // Dark text in light mode
+  },
+  darkInputText: {
+    color: '#EEE', // Light text in dark mode
   },
   sendButton: {
     paddingVertical: 8,
     paddingHorizontal: 14,
     backgroundColor: '#2C3E50',
     borderRadius: 20,
-    marginLeft: 6,
+    marginLeft: 8,
+  },
+  darkSendButton: {
+    backgroundColor: '#555',
   },
   sendButtonText: {
     color: '#FFFFFF',
@@ -455,6 +491,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  /* Menu Modal */
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
@@ -474,5 +511,6 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
   },
 });
