@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     position: 'absolute',
-    bottom: 175, // Increased by 20
+    bottom: 165, // Increased by 20
   },
   paginationDot: {
     width: 10,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 110, // Increased by 20
+    bottom: 100, // Increased by 20
     width: '100%',
     paddingHorizontal: 10,
     paddingLeft: 16,

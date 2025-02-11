@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingVertical: 40,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   title: {
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     borderColor: '#3DB2FF',
     width: '100%',
     marginBottom: 30,
-    marginTop: -10,
+    marginTop: -20,
   },
   instructionsText: {
     fontSize: 18,

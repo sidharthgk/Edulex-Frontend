@@ -106,6 +106,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     const userText = inputText;
     setInputText('');
     scrollToBottom();
+    console.log(userText);
 
     // Then fetch from server
     try {
@@ -136,6 +137,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
       if (lastItem?.role !== 'assistant') {
         throw new Error('No assistant reply in chat_history');
       }
+      console.log(lastItem.content);
 
       // Add the bot's message to local state
       const botReply: Message = {
