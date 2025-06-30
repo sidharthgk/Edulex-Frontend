@@ -80,7 +80,7 @@ const RegisterScreen = ({ navigation }: any) => {
     console.log('Form Data Saved:', formData);
     navigation.reset({
       index: 0,
-      routes: [{ name: 'DyslexiaTestStart' }], // Adjust destination if needed
+      routes: [{ name: 'DyslexiaTestStart' }], // Navigate to assessment after registration
     });
   };
 

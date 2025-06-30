@@ -26,13 +26,22 @@ const DyslexiaTestStart = ({ navigation }: any) => {
         instructions carefully, and make sure you're in a quiet environment.
       </Text>
 
-      {/* Start Button */}
-      <TouchableOpacity
-        style={styles.startButton}
-        onPress={() => navigation.navigate('DyslexiaTestInstructions')} // Navigate to the next page
-      >
-        <Text style={styles.startButtonText}>Start</Text>
-      </TouchableOpacity>
+      {/* Action Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => navigation.navigate('DyslexiaTestInstructions')} // Navigate to the next page
+        >
+          <Text style={styles.startButtonText}>Start Assessment</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={styles.skipButton}
+          onPress={() => navigation.navigate('SkipAssessmentConfirmation')} // Navigate to confirmation
+        >
+          <Text style={styles.skipButtonText}>Skip for Now</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -66,6 +75,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     lineHeight: 24,
   },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 15,
+  },
   startButton: {
     backgroundColor: '#3DB2FF', // Blue background for the button
     paddingVertical: 15,
@@ -76,11 +90,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5, // Shadow for Android
+    width: '80%',
+    alignItems: 'center',
   },
   startButtonText: {
     color: '#FFFFFF', // White text for the button
     fontSize: 18,
     fontFamily: 'OpenDyslexic-Bold', // Dyslexic-friendly font
+  },
+  skipButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#3DB2FF',
+    paddingVertical: 12,
+    paddingHorizontal: 35,
+    borderRadius: 30,
+    width: '80%',
+    alignItems: 'center',
+  },
+  skipButtonText: {
+    color: '#3DB2FF',
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
   },
 });
 

@@ -19,10 +19,12 @@ const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Placeholder login handler
+  // Login handler - navigate to dashboard
   const handleLogin = () => {
     console.log('Email:', email, 'Password:', password);
-    // Implement authentication logic here
+    // For now, navigate directly to dashboard
+    // TODO: Add authentication logic when backend is ready
+    navigation.navigate('Dashboard');
   };
 
   let [fontsLoaded] = useFonts({

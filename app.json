@@ -1,17 +1,20 @@
 {
-  "name": "frontend",
-  "slug": "frontend",
-  "newArchEnabled": true,
-  "plugins": [
-    "expo-font",
-    [
-      "expo-camera",
-      {
-        "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-        "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-        "recordAudioAndroid": true
-      }
-    ],
-    "expo-asset"
-  ]
+  "expo": {
+    "name": "frontend",
+    "slug": "frontend",
+    "newArchEnabled": true,
+    "sdkVersion": "53.0.0",
+    "plugins": [
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ],
+      "expo-asset"
+    ]
+  }
 }

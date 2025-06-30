@@ -11,6 +11,8 @@ import StarterScreen from '../screens/StarterScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import RegisterStart from '../screens/RegisterStart';
+import Dashboard from '../screens/Dashboard';
+import SkipAssessmentConfirmation from '../screens/SkipAssessmentConfirmation';
 
 // Dyslexia Test Screens
 import DyslexiaTestStart from '../screens/DyslexiaTest/DyslexiaTestStart';
@@ -69,6 +71,8 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="RegisterStart" component={RegisterStart} />
+        <Stack.Screen name="Dashboard" component={Dashboard} />
+        <Stack.Screen name="SkipAssessmentConfirmation" component={SkipAssessmentConfirmation} />
 
         {/* Dyslexia Test Flow */}
         <Stack.Screen name="DyslexiaTestStart" component={DyslexiaTestStart} />

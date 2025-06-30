@@ -41,13 +41,22 @@ const DyslexiaTestInstructions = ({ navigation }: any) => {
         </Text>
       </View>
 
-      {/* Start Button */}
-      <TouchableOpacity
-        style={styles.continueButton}
-        onPress={() => navigation.navigate('EyeTrackingTest')} // Navigate to the test
-      >
-        <Text style={styles.continueButtonText}>Start Test</Text>
-      </TouchableOpacity>
+      {/* Action Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={() => navigation.navigate('EyeTrackingTest')} // Navigate to the test
+        >
+          <Text style={styles.continueButtonText}>Start Test</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={styles.skipButton}
+          onPress={() => navigation.navigate('SkipAssessmentConfirmation')} // Navigate to confirmation
+        >
+          <Text style={styles.skipButtonText}>Skip for Now</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -99,6 +108,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     lineHeight: 22,
   },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 15,
+  },
   continueButton: {
     backgroundColor: '#3DB2FF',
     paddingVertical: 15,
@@ -109,11 +123,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+    width: '80%',
+    alignItems: 'center',
   },
   continueButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontFamily: 'OpenDyslexic-Bold',
+  },
+  skipButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#3DB2FF',
+    paddingVertical: 12,
+    paddingHorizontal: 35,
+    borderRadius: 30,
+    width: '80%',
+    alignItems: 'center',
+  },
+  skipButtonText: {
+    color: '#3DB2FF',
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
   },
 });
 
