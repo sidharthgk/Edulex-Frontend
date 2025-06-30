@@ -22,9 +22,9 @@ const LoginScreen = ({ navigation }: any) => {
   // Login handler - navigate to dashboard
   const handleLogin = () => {
     console.log('Email:', email, 'Password:', password);
-    // For now, navigate directly to dashboard
+    // For now, navigate directly to main tabs
     // TODO: Add authentication logic when backend is ready
-    navigation.navigate('Dashboard');
+    navigation.navigate('MainTabs');
   };
 
   let [fontsLoaded] = useFonts({

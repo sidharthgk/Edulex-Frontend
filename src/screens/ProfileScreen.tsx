@@ -8,8 +8,11 @@ import {
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ProfileScreen = ({ navigation }: any) => {
+  const insets = useSafeAreaInsets();
+  
   // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -18,7 +21,11 @@ const ProfileScreen = ({ navigation }: any) => {
   });
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={styles.container}>
+        <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 100 }}>Loading...</Text>
+      </View>
+    );
   }
 
   const handleTakeAssessment = () => {
@@ -26,9 +33,9 @@ const ProfileScreen = ({ navigation }: any) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <View style={styles.avatarContainer}>
           <Ionicons name="person" size={50} color="#3DB2FF" />
         </View>
@@ -116,7 +123,6 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
   },

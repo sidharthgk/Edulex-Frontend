@@ -17,8 +17,13 @@ const LearnScreen = () => {
     'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
+  // Show loading indicator while fonts load
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={styles.container}>
+        <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 100 }}>Loading...</Text>
+      </View>
+    );
   }
 
   return (

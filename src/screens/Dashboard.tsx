@@ -8,11 +8,13 @@ import {
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 
 const Dashboard = ({ navigation }: any) => {
   const [hasCompletedAssessment, _setHasCompletedAssessment] = useState(false); // Hardcoded for now
+  const insets = useSafeAreaInsets();
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -30,9 +32,9 @@ const Dashboard = ({ navigation }: any) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Header Section */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.welcomeText}>Welcome to</Text>
         <Text style={styles.titleText}>EDULEX AI</Text>
         <Text style={styles.subtitleText}>Your personalized learning companion</Text>
@@ -135,9 +137,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  scrollContent: {
+    paddingBottom: 120, // Add space for tab bar
+  },
   header: {
     alignItems: 'center',
-    paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
   },

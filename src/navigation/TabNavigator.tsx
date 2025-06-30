@@ -2,10 +2,11 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Import screens
 import Dashboard from '../screens/Dashboard';
-import LearnScreen from '../screens/LearnScreen';
+import MinigamesScreen from '../screens/MinigamesScreen';
 import CameraScreen from '../screens/CameraScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -25,13 +26,15 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 );
 
 const TabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#3DB2FF',
         tabBarInactiveTintColor: '#888888',
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { paddingBottom: insets.bottom + 5 }],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
       }}
@@ -48,7 +51,7 @@ const TabNavigator = () => {
       
       <Tab.Screen
         name="Learn"
-        component={LearnScreen}
+        component={MinigamesScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="book-outline" size={size} color={color} />
@@ -63,7 +66,7 @@ const TabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <Ionicons 
               name="camera" 
-              size={28} 
+              size={35} 
               color={focused ? '#FFFFFF' : '#FFFFFF'} 
             />
           ),
@@ -105,9 +108,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: 85,
-    paddingBottom: 10,
-    paddingTop: 5,
+    height: 75,
+    paddingTop: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

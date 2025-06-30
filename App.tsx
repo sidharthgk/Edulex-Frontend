@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { GlobalProvider, GlobalContext } from './src/GlobalState';
 import AppNavigator from './src/navigation/AppNavigator';
 import Chatbot from './src/chatbot/chatbot';
 import FloatingChatbotButton from './src/components/FloatingChatbotButton';
-// ^ adjust path as needed
 
 const AppContent = () => {
   const { state, toggleChatbot } = useContext(GlobalContext);
@@ -25,9 +26,12 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <GlobalProvider>
-      <AppContent />
-    </GlobalProvider>
+    <SafeAreaProvider>
+      <StatusBar style="dark" backgroundColor="#FFFFFF" />
+      <GlobalProvider>
+        <AppContent />
+      </GlobalProvider>
+    </SafeAreaProvider>
   );
 };
 

@@ -13,12 +13,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GlobalContext } from '../GlobalState';
-import { useFonts } from 'expo-font'; // So we can load the Open Dyslexic font
+import { useFonts } from 'expo-font';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const chatbotIcon = require('../../assets/chatboticon.png');
 
 const FloatingChatbotButton: React.FC = () => {
   const { toggleChatbot } = useContext(GlobalContext);
+  const insets = useSafeAreaInsets();
 
   // Track whether the main FAB menu is open or closed
   const [menuOpen, setMenuOpen] = useState(false);
@@ -94,7 +96,7 @@ const FloatingChatbotButton: React.FC = () => {
   };
 
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View style={[styles.container, { bottom: insets.bottom + 100 }]} pointerEvents="box-none">
       {/* 
         If menu is open, show a transparent overlay behind the FAB.
         Tapping it closes the menu.
@@ -201,7 +203,6 @@ const SUB_BUTTON_SIZE = 50;
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 30,
     right: 20,
   },
   floatingButton: {

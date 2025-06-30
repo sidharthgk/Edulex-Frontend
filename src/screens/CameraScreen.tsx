@@ -7,8 +7,11 @@ import {
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CameraScreen = () => {
+  const insets = useSafeAreaInsets();
+  
   // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -17,13 +20,17 @@ const CameraScreen = () => {
   });
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={styles.container}>
+        <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 100 }}>Loading...</Text>
+      </View>
+    );
   }
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.headerTitle}>OCR Camera</Text>
         <Text style={styles.headerSubtitle}>Scan text and learn with AI assistance</Text>
       </View>
@@ -70,7 +77,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
     alignItems: 'center',

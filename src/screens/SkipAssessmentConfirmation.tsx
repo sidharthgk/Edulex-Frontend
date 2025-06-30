@@ -28,7 +28,7 @@ const SkipAssessmentConfirmation = ({ navigation }: any) => {
   const handleSkipConfirmed = () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Dashboard' }],
+      routes: [{ name: 'MainTabs' }],
     });
   };
 
