@@ -86,6 +86,26 @@ export interface ErrorResponse {
   errors?: any;
 }
 
+// Dyslexia test result interfaces
+export interface TestResult {
+  test_type: string;
+  score: number;
+  max_score: number;
+  percentage: number;
+  level: string;
+  notes: string;
+}
+
+export interface DyslexiaResultsRequest {
+  results: TestResult[];
+}
+
+export interface DyslexiaResultsResponse {
+  success: boolean;
+  message: string;
+  data: DyslexiaProfile;
+}
+
 // Token storage keys
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'user_data';
@@ -106,7 +126,7 @@ class AuthService {
       if (includeAuth) {
         const token = await this.getToken();
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+          headers.Authorization = `Bearer ${token}`;
         }
       }
 
@@ -124,7 +144,7 @@ class AuthService {
       console.log('Request body:', body);
 
       const response = await fetch(`${BASE_URL}${endpoint}`, config);
-      
+
       let data;
       try {
         data = await response.json();
@@ -141,7 +161,7 @@ class AuthService {
         const error = new Error() as any;
         error.status = response.status;
         error.statusCode = response.status;
-        
+
         // Handle different types of errors with specific messages
         if (response.status === 401) {
           error.message = 'Invalid email or password. Please check your credentials and try again.';
@@ -156,7 +176,7 @@ class AuthService {
                 allErrors.push(...messages);
               }
             });
-            
+
             // Use the first error message or fallback to general message
             error.message = allErrors[0] || data.message || 'Please check your input and try again.';
           } else {
@@ -174,7 +194,7 @@ class AuthService {
           error.message = data.message || `Request failed with status ${response.status}`;
           error.type = 'API_ERROR';
         }
-        
+
         error.data = data;
         throw error;
       }
@@ -182,14 +202,14 @@ class AuthService {
       return data;
     } catch (error: any) {
       console.error(`Error in ${method} ${endpoint}:`, error);
-      
+
       // If it's a network error, provide a friendly message
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         const networkError = new Error('Network error. Please check your internet connection.') as any;
         networkError.type = 'NETWORK_ERROR';
         throw networkError;
       }
-      
+
       throw error;
     }
   }
@@ -197,27 +217,27 @@ class AuthService {
   // Authentication methods
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await this.makeRequest('/api/login', 'POST', credentials);
-    
+
     if (response.success && response.data) {
       console.log('🔐 Login successful, storing token and user data...');
       await this.setToken(response.data.token);
       await this.setUser(response.data);
       console.log('✅ Login data stored successfully');
     }
-    
+
     return response;
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response = await this.makeRequest('/api/register', 'POST', userData);
-    
+
     if (response.success && response.data) {
       console.log('🔐 Registration successful, storing token and user data...');
       await this.setToken(response.data.token);
       await this.setUser(response.data);
       console.log('✅ Registration data stored successfully');
     }
-    
+
     return response;
   }
 
@@ -233,9 +253,9 @@ class AuthService {
         },
         body: JSON.stringify({}),
       });
-      
+
       console.log('Logout response status:', response.status);
-      
+
       // Don't try to parse JSON if response is empty or not JSON
       if (response.status === 200 || response.status === 204) {
         console.log('Logout successful on server');
@@ -258,7 +278,7 @@ class AuthService {
     }
 
     const response = await this.makeRequest('/api/refresh-token', 'POST', {
-      current_token: currentToken
+      current_token: currentToken,
     });
 
     if (response.success && response.data) {
@@ -282,14 +302,87 @@ class AuthService {
   async getUserDetails(): Promise<UserDetails> {
     console.log('📄 Fetching user details...');
     const response = await this.makeRequest('/api/user', 'GET', undefined, true);
-    
+
     // The /api/user endpoint returns user data directly, not wrapped in success/data structure
     if (response && response.id) {
       console.log('✅ User details fetched successfully');
       return response as UserDetails;
     }
-    
+
     throw new Error('Failed to fetch user details');
+  }
+
+  async submitDyslexiaResults(resultsData: DyslexiaResultsRequest): Promise<DyslexiaResultsResponse> {
+    console.log('📊 Submitting dyslexia test results...');
+    console.log('Results data:', resultsData);
+
+    const response = await this.makeRequest('/api/dyslexia-profile/results', 'POST', resultsData, true);
+
+    if (response.success) {
+      console.log('✅ Dyslexia test results submitted successfully');
+      return response as DyslexiaResultsResponse;
+    }
+
+    throw new Error(response.message || 'Failed to submit dyslexia test results');
+  }
+
+  // Utility function to format test results from GlobalState
+  formatTestResults(globalState: any): TestResult[] {
+    const results: TestResult[] = [];
+
+    // Eye Tracking Test (video-based)
+    if (globalState.videoUri) {
+      const eyeTrackingScore = globalState.eyeTrackingScore || 0;
+      results.push({
+        test_type: 'eyeTracking',
+        score: eyeTrackingScore,
+        max_score: 15,
+        percentage: Math.round((eyeTrackingScore / 15) * 100),
+        level: eyeTrackingScore >= 12 ? 'Excellent' : eyeTrackingScore >= 8 ? 'Good' : eyeTrackingScore >= 5 ? 'Fair' : 'Needs Improvement',
+        notes: `Eye tracking test completed with ${eyeTrackingScore}% indicators detected`,
+      });
+    }
+
+    // Handwriting Test (photo-based)
+    if (globalState.photoUri) {
+      const handwritingScore = globalState.handwritingScore || 0;
+      results.push({
+        test_type: 'handwriting',
+        score: handwritingScore,
+        max_score: 15,
+        percentage: Math.round((handwritingScore / 15) * 100),
+        level: handwritingScore >= 12 ? 'Excellent' : handwritingScore >= 8 ? 'Good' : handwritingScore >= 5 ? 'Fair' : 'Needs Improvement',
+        notes: `Handwriting analysis completed with ${handwritingScore}% indicators detected`,
+      });
+    }
+
+    // Dictation Test
+    if (globalState.dictationScore !== undefined) {
+      const dictationScore = globalState.dictationScore || 0;
+      results.push({
+        test_type: 'dictation',
+        score: dictationScore,
+        max_score: 2,
+        percentage: Math.round((dictationScore / 2) * 100),
+        level: dictationScore === 2 ? 'Excellent' : dictationScore === 1 ? 'Good' : 'Needs Improvement',
+        notes: `Dictation test completed with ${dictationScore} out of 2 correct responses`,
+      });
+    }
+
+    // Quiz Test
+    if (globalState.quizScore !== undefined) {
+      const quizScore = globalState.quizScore || 0;
+      results.push({
+        test_type: 'quiz',
+        score: quizScore,
+        max_score: 5,
+        percentage: Math.round((quizScore / 5) * 100),
+        level: quizScore >= 4 ? 'Excellent' : quizScore >= 3 ? 'Good' : quizScore >= 2 ? 'Fair' : 'Needs Improvement',
+        notes: `Dyslexia quiz completed with ${quizScore} out of 5 correct answers`,
+      });
+    }
+
+    return results;
   }
 
   // Token and user management
@@ -332,13 +425,13 @@ class AuthService {
     const token = await this.getToken();
     const user = await this.getUser();
     const isAuth = !!(token && user);
-    
+
     console.log('🔍 Authentication check:', {
       hasToken: !!token,
       hasUser: !!user,
-      isAuthenticated: isAuth
+      isAuthenticated: isAuth,
     });
-    
+
     return isAuth;
   }
 
@@ -367,4 +460,4 @@ class AuthService {
   }
 }
 
-export default new AuthService(); 
+export default new AuthService();

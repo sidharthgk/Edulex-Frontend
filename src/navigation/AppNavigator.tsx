@@ -35,6 +35,12 @@ import VocabularyBuilder from '../screens/VocabularyBuilder';
 import TopicDetailScreen from '../screens/TopicDetailScreen';
 import ChapterDetailScreen from '../screens/ChapterDetailScreen';
 
+// Minigames
+import RhymingPairsGame from '../screens/games/RhymingPairsGame';
+import LetterFlippingGame from '../screens/games/LetterFlippingGame';
+import SyllableCountingGame from '../screens/games/SyllableCountingGame';
+import PatternRecognitionGame from '../screens/games/PatternRecognitionGame';
+
 const Stack = createStackNavigator();
 
 // Helper: recursively get the active route name
@@ -119,6 +125,12 @@ const AppNavigator = () => {
         <Stack.Screen name="VocabularyBuilder" component={VocabularyBuilder} />
         <Stack.Screen name="TopicDetail" component={TopicDetailScreen} />
         <Stack.Screen name="ChapterDetail" component={ChapterDetailScreen} />
+
+        {/* Minigames */}
+        <Stack.Screen name="RhymingPairsGame" component={RhymingPairsGame} />
+        <Stack.Screen name="LetterFlippingGame" component={LetterFlippingGame} />
+        <Stack.Screen name="SyllableCountingGame" component={SyllableCountingGame} />
+        <Stack.Screen name="PatternRecognitionGame" component={PatternRecognitionGame} />
       </Stack.Navigator>
     </NavigationContainer>
   );

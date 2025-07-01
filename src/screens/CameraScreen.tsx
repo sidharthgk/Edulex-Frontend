@@ -16,6 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions, PermissionStatus } from 'expo-camera';
 import { Video, ResizeMode } from 'expo-av';
 import { GlobalContext } from '../GlobalState';
@@ -25,6 +26,7 @@ import { AVATAR_OPTIONS, EMOTION_OPTIONS, LANGUAGE_OPTIONS } from '../constants/
 
 const CameraScreen = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { setCameraCapturing } = useContext(GlobalContext);
   const [ocrMode, setOcrMode] = useState<'selection' | 'camera' | 'capture' | 'text_input' | 'document_upload' | 'results' | 'learning_content' | 'avatar_config' | 'video_generation' | 'learning'>('selection');
   const [scannedText, setScannedText] = useState('');
@@ -210,54 +212,11 @@ const CameraScreen = () => {
       return;
     }
 
-    setIsProcessing(true);
-    setProcessingMessage('Generating quiz and learning activities...');
-    Vibration.vibrate(100);
-
-    try {
-      console.log('🎓 Starting learning session...');
-
-      // Generate quiz from the scanned text
-      const quizResult = await ocrService.generateQuiz(scannedText);
-
-      if (quizResult.success && quizResult.data && quizResult.data.length > 0) {
-        console.log('✅ Quiz Generated');
-        setQuizData(quizResult.data);
-        setCurrentQuestionIndex(0);
-        setOcrMode('learning_content');
-
-        Alert.alert(
-          '✅ Learning Content Ready!',
-          `Generated ${quizResult.data.length} quiz questions. Let's start learning!`
-        );
-      } else {
-        console.log('⚠️ Quiz generation failed, using text content');
-        // Fallback: create a simple learning content from the text
-        const fallbackQuiz = [{
-          question: 'What is the main topic of this text?',
-          options: ['Reading comprehension', 'The content you scanned', 'Learning skills'],
-          correct_answer: 'The content you scanned',
-        }];
-        setQuizData(fallbackQuiz);
-        setCurrentQuestionIndex(0);
-        setOcrMode('learning_content');
-
-        Alert.alert('✅ Learning Content Ready!', 'Created learning content from your text!');
-      }
-
-    } catch (error) {
-      console.error('💥 Learning Error:', error);
-
-      let errorMessage = 'Failed to generate learning content. Please try again.';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      Alert.alert('❌ Learning Failed', errorMessage);
-    } finally {
-      setIsProcessing(false);
-      setProcessingMessage('');
-    }
+    console.log('🎓 Navigating to Learn tab with new topic');
+    // Reset camera state
+    resetCamera();
+    // Navigate to Learn tab
+    (navigation as any).navigate('Learn');
   };
 
   const nextQuestion = () => {
@@ -1053,28 +1012,36 @@ const CameraScreen = () => {
           {!isProcessing && (
             <>
               <Text style={styles.title}>Smart Text Recognition</Text>
-              <Text style={styles.description}>
+              <Text style={styles.subtitle}>
                 Point your camera at any text and our AI will help you learn and understand it better with personalized explanations.
               </Text>
 
-              <View style={styles.featuresContainer}>
-                <View style={styles.featureItem}>
-                  <Ionicons name="scan-outline" size={20} color="#4CAF50" />
-                  <Text style={styles.featureText}>Text Recognition</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Ionicons name="volume-high-outline" size={20} color="#4CAF50" />
-                  <Text style={styles.featureText}>Text-to-Speech</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Ionicons name="chatbubble-outline" size={20} color="#4CAF50" />
-                  <Text style={styles.featureText}>AI Explanations</Text>
-                </View>
-                <View style={styles.featureItem}>
-                  <Ionicons name="color-wand-outline" size={20} color="#4CAF50" />
-                  <Text style={styles.featureText}>Word Highlighting</Text>
-                </View>
-              </View>
+                             <View style={styles.cameraOptionsContainer}>
+                 <TouchableOpacity
+                   style={styles.cameraOptionButton}
+                   onPress={openCamera}
+                 >
+                   <Text style={styles.cameraOptionButtonText}>📸 Take Picture</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity
+                   style={styles.cameraOptionButton}
+                   onPress={openGallery}
+                 >
+                   <Text style={styles.cameraOptionButtonText}>🖼️ Upload from Gallery</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity
+                   style={styles.cameraOptionButton}
+                   onPress={() => setOcrMode('text_input')}
+                 >
+                   <Text style={styles.cameraOptionButtonText}>✍️ Write Text</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity
+                   style={styles.cameraOptionButton}
+                   onPress={processDocumentUpload}
+                 >
+                   <Text style={styles.cameraOptionButtonText}>📄 Upload Document</Text>
+                 </TouchableOpacity>
+               </View>
 
               <TouchableOpacity
                 style={styles.startButton}
@@ -1113,9 +1080,20 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
+    top: 60,
     left: 20,
-    top: 70,
-    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    padding: 12,
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 28,
@@ -1169,34 +1147,50 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   title: {
-    fontSize: 22,
-    color: '#333333',
+    fontSize: 28,
     fontFamily: 'OpenDyslexic-Bold',
+    color: '#333333',
+    textAlign: 'center',
     marginBottom: 15,
-    textAlign: 'center',
   },
-  description: {
+  subtitle: {
     fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
     color: '#666666',
-    fontFamily: 'OpenDyslexic-Regular',
     textAlign: 'center',
+    marginBottom: 40,
     lineHeight: 24,
-    marginBottom: 25,
+    paddingHorizontal: 10,
   },
-  featuresContainer: {
+  cameraOptionsContainer: {
     width: '100%',
-    marginBottom: 30,
-  },
-  featureItem: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingLeft: 20,
+    gap: 20,
   },
-  featureText: {
+  cameraOptionButton: {
+    backgroundColor: '#3DB2FF',
+    borderRadius: 15,
+    paddingVertical: 18,
+    paddingHorizontal: 25,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: 280,
+    minHeight: 60,
+    shadowColor: '#3DB2FF',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  cameraOptionButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    color: '#555555',
-    fontFamily: 'OpenDyslexic-Regular',
+    fontFamily: 'OpenDyslexic-Bold',
     marginLeft: 12,
   },
   startButton: {
@@ -1262,22 +1256,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: 25,
     flexWrap: 'wrap',
+    paddingHorizontal: 10,
+    gap: 12,
   },
   actionButton: {
     backgroundColor: '#3DB2FF',
     borderRadius: 15,
     padding: 15,
     alignItems: 'center',
-    minWidth: 90,
+    minWidth: 100,
+    minHeight: 80,
     marginHorizontal: 5,
     marginVertical: 5,
+    flex: 1,
+    maxWidth: 120,
+    shadowColor: '#3DB2FF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   actionButtonText: {
     color: '#FFFFFF',
     fontSize: 12,
     fontFamily: 'OpenDyslexic-Bold',
-    marginTop: 5,
+    marginTop: 8,
     textAlign: 'center',
+    lineHeight: 16,
   },
   tipsContainer: {
     backgroundColor: '#E8F5E8',
@@ -1413,31 +1418,42 @@ const styles = StyleSheet.create({
   },
   cameraButtonContainer: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 40,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 30,
     gap: 20,
   },
   cameraButton: {
     backgroundColor: '#3DB2FF',
     padding: 20,
     borderRadius: 50,
-    marginHorizontal: 10,
     minWidth: 80,
+    minHeight: 80,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#3DB2FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   galleryButton: {
     backgroundColor: '#9C27B0',
-    padding: 15,
+    padding: 18,
     borderRadius: 50,
-    marginHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 60,
+    minWidth: 70,
+    minHeight: 70,
+    shadowColor: '#9C27B0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   cameraButtonText: {
     color: '#FFFFFF',

@@ -11,7 +11,9 @@ import {
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { topicsService, Topic, Chapter } from '../services/topicsService';
+import { GlobalContext } from '../GlobalState';
 
 interface TopicWithChapters extends Topic {
   chapters?: Chapter[];
@@ -22,6 +24,9 @@ const LearnScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Global state for chapter completion
+  const { isChapterComplete } = React.useContext(GlobalContext);
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -51,6 +56,15 @@ const LearnScreen = ({ navigation }: any) => {
     }
   }, [fontsLoaded]);
 
+  // Refresh topics when screen is focused (e.g., when navigating from camera)
+  useFocusEffect(
+    React.useCallback(() => {
+      if (fontsLoaded) {
+        fetchTopics();
+      }
+    }, [fontsLoaded])
+  );
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchTopics();
@@ -65,10 +79,8 @@ const LearnScreen = ({ navigation }: any) => {
     return `${remainingMinutes}m`;
   };
 
-  const getProgressPercentage = (_chapters: Chapter[]): number => {
-    // For now, return a random progress between 0-100
-    // In a real app, this would be based on completed chapters
-    return Math.floor(Math.random() * 101);
+  const isChapterCompleted = (chapter: Chapter): boolean => {
+    return isChapterComplete(chapter.topic_id, chapter.id);
   };
 
   const openTopic = (topicId: number) => {
@@ -78,8 +90,6 @@ const LearnScreen = ({ navigation }: any) => {
   const renderTopicCard = (topic: TopicWithChapters) => {
     const chapters = topic.chapters || [];
     const totalChapters = chapters.length;
-    const totalDuration = topic.metadata?.total_duration_minutes || 0;
-    const progress = getProgressPercentage(chapters);
 
     return (
       <TouchableOpacity 
@@ -111,37 +121,21 @@ const LearnScreen = ({ navigation }: any) => {
             <Ionicons name="book-outline" size={16} color="#3DB2FF" />
             <Text style={styles.statText}>{totalChapters} chapters</Text>
           </View>
-          <View style={styles.statItem}>
-            <Ionicons name="time-outline" size={16} color="#3DB2FF" />
-            <Text style={styles.statText}>{formatDuration(totalDuration)}</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Ionicons name="trophy-outline" size={16} color="#3DB2FF" />
-            <Text style={styles.statText}>{progress}% complete</Text>
-          </View>
-        </View>
-
-        {/* Progress bar */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
-          </View>
-          <Text style={styles.progressText}>{progress}%</Text>
         </View>
 
         {/* Chapters preview */}
         {chapters.length > 0 && (
           <View style={styles.chaptersPreview}>
             <Text style={styles.chaptersTitle}>Chapters:</Text>
-            {chapters.slice(0, 3).map((chapter, index) => (
+            {chapters.slice(0, 3).map((chapter) => (
               <View key={chapter.id} style={styles.chapterItem}>
                 <View style={[
                   styles.chapterNumber,
-                  { backgroundColor: index < progress / (100 / chapters.length) ? '#4CAF50' : '#E0E0E0' }
+                  { backgroundColor: isChapterCompleted(chapter) ? '#4CAF50' : '#E0E0E0' }
                 ]}>
                   <Text style={[
                     styles.chapterNumberText,
-                    { color: index < progress / (100 / chapters.length) ? '#FFFFFF' : '#666666' }
+                    { color: isChapterCompleted(chapter) ? '#FFFFFF' : '#666666' }
                   ]}>
                     {chapter.chapter_order}
                   </Text>
@@ -151,10 +145,10 @@ const LearnScreen = ({ navigation }: any) => {
                     {chapter.title}
                   </Text>
                   <Text style={styles.chapterDuration}>
-                    {formatDuration(chapter.estimated_duration_minutes)} • {chapter.difficulty_level}
+                    {formatDuration(chapter.estimated_duration_minutes)}
                   </Text>
                 </View>
-                {index < progress / (100 / chapters.length) && (
+                {isChapterCompleted(chapter) && (
                   <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
                 )}
               </View>
@@ -243,6 +237,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    paddingBottom: 120,
   },
   header: {
     paddingTop: 60,
@@ -349,15 +344,19 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 20,
     marginBottom: 20,
+    marginHorizontal: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
   },
   topicHeader: {
     flexDirection: 'row',
     marginBottom: 15,
+    alignItems: 'flex-start',
   },
   topicInfo: {
     flex: 1,
@@ -368,6 +367,7 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontFamily: 'OpenDyslexic-Bold',
     marginBottom: 8,
+    lineHeight: 24,
   },
   topicDescription: {
     fontSize: 14,
@@ -376,48 +376,29 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   topicImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+    backgroundColor: '#F0F0F0',
   },
   topicStats: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 15,
+    paddingHorizontal: 5,
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    maxWidth: '30%',
   },
   statText: {
-    marginLeft: 5,
+    marginLeft: 6,
     fontSize: 12,
     color: '#666666',
     fontFamily: 'OpenDyslexic-Regular',
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  progressBar: {
     flex: 1,
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#666666',
-    fontFamily: 'OpenDyslexic-Bold',
-    minWidth: 35,
   },
   chaptersPreview: {
     marginTop: 10,

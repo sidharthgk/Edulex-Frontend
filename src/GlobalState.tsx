@@ -13,11 +13,15 @@ interface GlobalState {
   videoUri: string;
   dictationScore: number;
   quizScore: number;
+  eyeTrackingScore: number;
+  handwritingScore: number;
+  phoneticsProbability: number;
   register: Array<RegistrationDetails>;
   taskID: number;
   isChatbotVisible: boolean;
   currentRoute: string; // new field
   isCameraCapturing: boolean; // new field to track camera capture mode
+  completedChapters: Set<string>; // new field to track completed chapters
 }
 
 interface GlobalContextProps {
@@ -26,6 +30,8 @@ interface GlobalContextProps {
   addRegistration: (registrationDetails: RegistrationDetails) => void;
   toggleChatbot: (visible?: boolean) => void;
   setCameraCapturing: (capturing: boolean) => void;
+  markChapterComplete: (topicId: number, chapterId: number) => void;
+  isChapterComplete: (topicId: number, chapterId: number) => boolean;
 }
 
 const initialState: GlobalState = {
@@ -33,11 +39,15 @@ const initialState: GlobalState = {
   videoUri: '',
   dictationScore: 0,
   quizScore: 0,
+  eyeTrackingScore: 0,
+  handwritingScore: 0,
+  phoneticsProbability: 0,
   register: [],
   taskID: 0,
   isChatbotVisible: false,
   currentRoute: '', // start empty or 'SplashScreen'
   isCameraCapturing: false,
+  completedChapters: new Set(),
 };
 
 export const GlobalContext = createContext<GlobalContextProps>({
@@ -46,6 +56,8 @@ export const GlobalContext = createContext<GlobalContextProps>({
   addRegistration: () => {},
   toggleChatbot: () => {},
   setCameraCapturing: () => {},
+  markChapterComplete: () => {},
+  isChapterComplete: () => false,
 });
 
 interface GlobalProviderProps {
@@ -77,6 +89,17 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     }));
   }, []);
 
+  const markChapterComplete = useCallback((topicId: number, chapterId: number) => {
+    setState((prev) => ({
+      ...prev,
+      completedChapters: new Set(prev.completedChapters).add(`${topicId}-${chapterId}`),
+    }));
+  }, []);
+
+  const isChapterComplete = useCallback((topicId: number, chapterId: number) => {
+    return state.completedChapters.has(`${topicId}-${chapterId}`);
+  }, [state.completedChapters]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -85,6 +108,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         addRegistration,
         toggleChatbot,
         setCameraCapturing,
+        markChapterComplete,
+        isChapterComplete,
       }}
     >
       {children}

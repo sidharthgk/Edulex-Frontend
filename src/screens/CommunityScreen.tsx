@@ -157,7 +157,7 @@ const CommunityScreen = () => {
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>2nd</Text>
                 <Text style={styles.statLabel}>Your Rank</Text>
-              </View>SkipAssessmentConfirmation
+              </View>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>1,890</Text>
                 <Text style={styles.statLabel}>Points</Text>

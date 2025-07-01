@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { GlobalContext } from '../../GlobalState';
 import {
@@ -22,6 +23,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const cameraRef = useRef<CameraView | null>(null);
   const videoRef = useRef<Video | null>(null);
@@ -108,22 +110,32 @@ const EyeTrackingTest = ({ navigation }: any) => {
     console.log('Video retaken');
   };
 
-  const submit = () => {
-    if (!videoUri) {
-      console.warn('No video to submit');
+  const submit = async () => {
+    if (!videoUri || isSubmitting) {
+      console.warn('No video to submit or already submitting');
       return;
     }
     
-    // Update global state with the video URI
-    setState({ ...state, videoUri: videoUri });
+    setIsSubmitting(true);
     
-    // Navigate to TestSubmitted screen
-    navigation.navigate('TestSubmitted', {
-      mediaType: 'video',
-      videoUri: videoUri
-    });
-    
-    console.log('Video submitted:', videoUri);
+    try {
+      // Update global state with the video URI
+      setState({ ...state, videoUri: videoUri });
+      
+      // Navigate to TestSubmitted screen
+      navigation.navigate('TestSubmitted', {
+        mediaType: 'video',
+        videoUri: videoUri,
+        testType: 'eyeTracking'
+      });
+      
+      console.log('Eye tracking video submitted successfully:', videoUri);
+    } catch (error) {
+      console.error('Error submitting video:', error);
+      // Could add alert or toast notification here
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -162,7 +174,7 @@ const EyeTrackingTest = ({ navigation }: any) => {
       </View>
 
       {videoUri ? (
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, { backgroundColor: '#F0F0F0', padding: 15, borderRadius: 10 }]}>
           <TouchableOpacity
             style={[styles.actionButton, styles.actionButtonRetake]}
             onPress={retake}
@@ -171,10 +183,19 @@ const EyeTrackingTest = ({ navigation }: any) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionButton, styles.actionButtonSubmit]}
+            style={[
+              styles.actionButton, 
+              styles.actionButtonSubmit,
+              isSubmitting && styles.actionButtonDisabled
+            ]}
             onPress={submit}
+            disabled={isSubmitting}
           >
-            <Text style={styles.actionButtonText}>Submit</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.actionButtonText}>Submit</Text>
+            )}
           </TouchableOpacity>
         </View>
       ) : (
@@ -222,6 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
     paddingVertical: 40,
+    paddingBottom: 120, // Increased to ensure buttons are visible
     alignItems: 'center',
   },
   loadingContainer: {
@@ -302,15 +324,28 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: 20,
+    marginTop: 30,
     marginBottom: 20,
+    paddingHorizontal: 10,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 15,
+    backgroundColor: 'transparent', // Ensure container is visible
   },
   recordButton: {
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 50,
+    paddingVertical: 18,
+    paddingHorizontal: 30,
+    borderRadius: 25,
     alignItems: 'center',
+    justifyContent: 'center',
     width: '90%',
+    minHeight: 60,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   recordButtonDefault: {
     backgroundColor: '#FFFFFF',
@@ -319,12 +354,15 @@ const styles = StyleSheet.create({
   },
   recordButtonRecording: {
     backgroundColor: '#FF6666',
+    borderWidth: 0,
   },
   recordButtonDisabled: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#CCCCCC',
   },
   recordButtonText: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'OpenDyslexic-Bold',
   },
   recordButtonTextRecording: {
@@ -338,22 +376,35 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 50,
+    paddingVertical: 18,
+    paddingHorizontal: 25,
+    borderRadius: 15,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 60,
+    maxWidth: 150,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   actionButtonRetake: {
     backgroundColor: '#FF8C00',
+    marginRight: 10,
   },
   actionButtonSubmit: {
     backgroundColor: '#3DB2FF',
+    marginLeft: 10,
+  },
+  actionButtonDisabled: {
+    backgroundColor: '#CCCCCC',
   },
   actionButtonText: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 16,
     fontFamily: 'OpenDyslexic-Bold',
+    textAlign: 'center',
   },
   videoPreview: {
     width: '100%',

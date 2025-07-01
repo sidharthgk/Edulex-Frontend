@@ -252,17 +252,93 @@ const RegisterScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', paddingHorizontal: 20 },
-  content: { alignItems: 'center', marginTop: 20 },
-  label: { fontSize: 20, color: '#3DB2FF', fontFamily: 'OpenDyslexic-Bold', marginBottom: 20, textAlign: 'center' },
-  input: { width: '100%', borderWidth: 1.5, borderColor: '#3DB2FF', borderRadius: 50, padding: 15, marginBottom: 20, fontFamily: 'OpenDyslexic-Regular', fontSize: 14, color: '#333' },
-  buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 20 },
-  backButton: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#3DB2FF', borderRadius: 50, paddingVertical: 12, paddingHorizontal: 20, flex: 0.45, alignItems: 'center' },
-  backButtonText: { fontFamily: 'OpenDyslexic-Bold', fontSize: 14, color: '#3DB2FF' },
-  nextButton: { backgroundColor: '#3DB2FF', borderRadius: 50, paddingVertical: 12, paddingHorizontal: 20, flex: 0.45, alignItems: 'center' },
-  nextButtonText: { fontFamily: 'OpenDyslexic-Bold', fontSize: 14, color: '#FFFFFF' },
-  disabledButton: { backgroundColor: '#D3D3D3' },
-  disabledButtonText: { color: '#A0A0A0' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#FFFFFF', 
+    justifyContent: 'center', 
+    paddingHorizontal: 20,
+    paddingBottom: 40, // Extra space for tab bar
+  },
+  content: { 
+    alignItems: 'center', 
+    marginTop: 20,
+  },
+  label: { 
+    fontSize: 22, // Increased font size 
+    color: '#3DB2FF', 
+    fontFamily: 'OpenDyslexic-Bold', 
+    marginBottom: 25, // Increased spacing
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  input: { 
+    width: '100%', 
+    borderWidth: 1.5, // Thicker border for consistency
+    borderColor: '#3DB2FF', 
+    borderRadius: 12, // More rounded corners
+    padding: 16, // Increased padding
+    marginBottom: 25, // Increased spacing
+    fontFamily: 'OpenDyslexic-Regular', 
+    fontSize: 16, // Increased font size
+    color: '#333',
+    backgroundColor: '#F9F9F9', // Light background
+    minHeight: 50, // Minimum touch target
+  },
+  buttonContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    width: '100%', 
+    marginTop: 25, // Increased spacing
+    gap: 15, // Add gap between buttons
+  },
+  backButton: { 
+    backgroundColor: '#FFFFFF', 
+    borderWidth: 1.5, 
+    borderColor: '#3DB2FF', 
+    borderRadius: 12, // Match input radius
+    paddingVertical: 14, // Increased padding
+    paddingHorizontal: 20, 
+    flex: 0.45, 
+    alignItems: 'center',
+    minHeight: 50, // Consistent height
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  backButtonText: { 
+    fontFamily: 'OpenDyslexic-Bold', 
+    fontSize: 16, // Increased font size
+    color: '#3DB2FF',
+  },
+  nextButton: { 
+    backgroundColor: '#3DB2FF', 
+    borderRadius: 12, // Match other elements
+    paddingVertical: 14, // Increased padding
+    paddingHorizontal: 20, 
+    flex: 0.45, 
+    alignItems: 'center',
+    minHeight: 50, // Consistent height
+    shadowColor: '#3DB2FF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  nextButtonText: { 
+    fontFamily: 'OpenDyslexic-Bold', 
+    fontSize: 16, // Increased font size
+    color: '#FFFFFF',
+  },
+  disabledButton: { 
+    backgroundColor: '#D3D3D3',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  disabledButtonText: { 
+    color: '#A0A0A0',
+  },
 });
 
 export default RegisterScreen;

@@ -109,6 +109,20 @@ export interface ChaptersResponse {
   };
 }
 
+// Types for Video API responses
+export interface ChapterVideo {
+  video_url: string;
+  transcript: string;
+  duration_seconds: number;
+  last_generated_at: string;
+}
+
+export interface VideoResponse {
+  success: boolean;
+  message: string;
+  data: ChapterVideo;
+}
+
 class TopicsService {
   // Get all topics with pagination and filtering
   async getTopics(params?: {
@@ -179,6 +193,21 @@ class TopicsService {
       throw error;
     }
   }
+
+  // Get video for a specific chapter
+  async getChapterVideo(topicId: number, chapterId: number): Promise<VideoResponse> {
+    try {
+      return await authService.makeAuthenticatedRequest(
+        `/api/topics/${topicId}/chapters/${chapterId}/video`, 
+        'GET'
+      );
+    } catch (error) {
+      console.error(`Error fetching video for chapter ${chapterId} in topic ${topicId}:`, error);
+      throw error;
+    }
+  }
+
+
 }
 
 export const topicsService = new TopicsService(); 

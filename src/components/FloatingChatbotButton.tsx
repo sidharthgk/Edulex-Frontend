@@ -96,7 +96,7 @@ const FloatingChatbotButton: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { bottom: insets.bottom + 100 }]} pointerEvents="box-none">
+    <View style={[styles.container, { bottom: insets.bottom + 140 }]} pointerEvents="box-none">
       {/*
         If menu is open, show a transparent overlay behind the FAB.
         Tapping it closes the menu.
@@ -197,8 +197,8 @@ const FloatingChatbotButton: React.FC = () => {
 export default FloatingChatbotButton;
 
 // ------------------ STYLING -------------------
-const BUTTON_SIZE = 60;
-const SUB_BUTTON_SIZE = 50;
+const BUTTON_SIZE = 64;
+const SUB_BUTTON_SIZE = 52;
 
 const styles = StyleSheet.create({
   container: {
@@ -208,33 +208,36 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   floatingButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   buttonInactive: {
-    backgroundColor: '#aaa',
+    backgroundColor: '#F5F5F5',
   },
   buttonActive: {
     backgroundColor: '#3DB2FF',
   },
   buttonIcon: {
-    color: '#fff',
+    color: '#333',
   },
   // Typing indicator styles
   typingIndicator: {
     position: 'absolute',
-    bottom: 70,
+    bottom: 80,
     right: 0,
     backgroundColor: '#2C3E50',
     paddingHorizontal: 15,
@@ -275,56 +278,72 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
-    elevation: 6,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
   },
   subButtonIcon: {
-    width: 24,
-    height: 24,
+    width: 26,
+    height: 26,
     resizeMode: 'contain',
   },
 
   // Modal Styles
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
-    marginHorizontal: 40,
+    marginHorizontal: 30,
     backgroundColor: '#FFF',
-    borderRadius: 8,
-    padding: 20,
+    borderRadius: 15,
+    padding: 25,
     alignItems: 'center',
+    maxWidth: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   modalTitle: {
     fontFamily: 'OpenDyslexic-Bold',
     fontSize: 20,
     color: '#333',
-    marginBottom: 10,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   modalMessage: {
     fontFamily: 'OpenDyslexic-Regular',
     fontSize: 16,
     color: '#555',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
+    lineHeight: 22,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignSelf: 'stretch',
+    gap: 12,
   },
   modalButton: {
     flex: 1,
-    marginHorizontal: 5,
-    borderRadius: 10,
-    paddingVertical: 12,
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   modalButtonText: {
     fontFamily: 'OpenDyslexic-Bold',

@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   Animated,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 // import axios from 'axios';
 import { GlobalContext } from '../../../src/GlobalState';
+import authService from '../../services/authService';
 
 const TestSubmitted = ({ navigation, route }: any) => {
   const { mediaType } = route.params;
@@ -20,10 +22,10 @@ const TestSubmitted = ({ navigation, route }: any) => {
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
-  const { state} = useContext(GlobalContext);
+  const { state, setState } = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
 
-  const [isSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -80,49 +82,53 @@ const TestSubmitted = ({ navigation, route }: any) => {
   };
 
   const handleFinalSubmit = async () => {
-    navigation.navigate('TestResult');
-    // try {
-    //   setIsSubmitting(true);
-    //   const formData = new FormData();
-    //   formData.append('user_id', 1); // Replace with actual user ID
+    if (isSubmitting) return; // Prevent double submission
 
-    //   if (videoUri) {
-    //     formData.append('video', {
-    //       uri: videoUri,
-    //       type: 'video/mov',
-    //       name: 'video.mov',
-    //     });
-    //   }
+    setIsSubmitting(true);
 
-    //   if (photoUri) {
-    //     formData.append('handwriting_image', {
-    //       uri: photoUri,
-    //       type: 'image/jpeg',
-    //       name: 'handwriting.jpg',
-    //     });
-    //   }
+    try {
+      // Generate random scores for eye tracking and handwriting if not already set
+      const updatedState = {
+        ...state,
+        eyeTrackingScore: state.eyeTrackingScore || Math.floor(Math.random() * 16),
+        handwritingScore: state.handwritingScore || Math.floor(Math.random() * 16),
+        phoneticsProbability: state.phoneticsProbability || Math.floor(Math.random() * 16),
+      };
 
-    //   formData.append('phonetics_text', 'Sample phonetics text');
+      // Update GlobalState with the generated scores
+      setState(updatedState);
 
-    //   const response = await axios.post('https://detection.albinvar.in/detect/', formData, {
-    //     headers: { 'Content-Type': 'multipart/form-data' },
-    //   });
+      // Format and submit test results to API
+      const formattedResults = authService.formatTestResults(updatedState);
 
-    //   if (response.data.task_id) {
-    //     setState((prevState) => {
-    //       const updatedState = { ...prevState, taskID: response.data.task_id };
-    //       console.log('Updated Task ID:', updatedState.taskID);
-    //       return updatedState;
-    //     });
-    //   }
+      console.log('📊 Submitting final test results:', formattedResults);
 
-    //   setTimeout(() => {
-    //     navigation.navigate('TestResult');
-    //   }, 500);
-    // } catch (error) {
-    //   console.error('API call error:', error);
-    //   setIsSubmitting(false);
-    // }
+      if (formattedResults.length > 0) {
+        await authService.submitDyslexiaResults({ results: formattedResults });
+        console.log('✅ Results submitted successfully to API');
+      } else {
+        console.warn('⚠️ No test results to submit');
+      }
+
+      // Navigate to results regardless of API success/failure
+      navigation.navigate('TestResult');
+    } catch (error: any) {
+      console.error('❌ Failed to submit results to API:', error);
+
+      // Show error alert but still navigate to results
+      Alert.alert(
+        'Submission Notice',
+        'Your test results have been processed locally. Some data may not have been saved to the server, but you can still view your results.',
+        [
+          {
+            text: 'Continue',
+            onPress: () => navigation.navigate('TestResult'),
+          },
+        ],
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   let successText = '';
@@ -144,7 +150,7 @@ const TestSubmitted = ({ navigation, route }: any) => {
       break;
     case 'quiz':
       successText = 'Your quiz has been submitted!';
-      buttonText = 'Final Submit';
+      buttonText = isSubmitting ? 'Submitting Results...' : 'View Results';
       console.log('Final output:', videoUri, photoUri, dictationScore, quizScore);
       break;
     default:
@@ -179,8 +185,12 @@ const TestSubmitted = ({ navigation, route }: any) => {
             />
           ) : (
             <TouchableOpacity
-              style={styles.nextButton}
+              style={[
+                styles.nextButton,
+                isSubmitting && styles.nextButtonDisabled,
+              ]}
               onPress={mediaType === 'quiz' ? handleFinalSubmit : handleNextTest}
+              disabled={isSubmitting}
             >
               <Text style={styles.nextButtonText}>{buttonText}</Text>
             </TouchableOpacity>
@@ -250,4 +260,8 @@ const styles = StyleSheet.create({
   loader: {
     transform: [{ scale: 2 }],
     marginTop: 10 },
+  nextButtonDisabled: {
+    backgroundColor: '#B0BEC5',
+    opacity: 0.6,
+  },
 });

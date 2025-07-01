@@ -14,23 +14,29 @@ import { GlobalContext } from '../../GlobalState';
 
 const TestResults = ({ navigation }: any) => {
   const { state } = useContext(GlobalContext);
-  const { photoUri, videoUri, dictationScore, quizScore } = state;
+  const { photoUri, videoUri, dictationScore, quizScore, eyeTrackingScore, handwritingScore, phoneticsProbability } = state;
 
-  // Store probabilities in state
-  const [eyeTrackingProbability, setEyeTrackingProbability] = useState(0);
-  const [handwritingProbability, setHandwritingProbability] = useState(0);
-  const [phoneticsProbability, setPhoneticsProbability] = useState(0);
+  // Use scores from GlobalState or fallback to random if not set
+  const [eyeTrackingProbability, setEyeTrackingProbability] = useState(eyeTrackingScore || 0);
+  const [handwritingProbability, setHandwritingProbability] = useState(handwritingScore || 0);
+  const [phoneticsProbabilityState, setPhoneticsProbabilityState] = useState(phoneticsProbability || 0);
 
   const [showResultsPage, setShowResultsPage] = useState(false);
   const [isProcessing, setIsProcessing] = useState(true);
   const [buttonEnabled, setButtonEnabled] = useState(false);
 
-  // Generate random probabilities for each test (0-15)
+  // Generate random probabilities only if not already set in GlobalState
   useEffect(() => {
-    setEyeTrackingProbability(Math.floor(Math.random() * 16));
-    setHandwritingProbability(Math.floor(Math.random() * 16));
-    setPhoneticsProbability(Math.floor(Math.random() * 16));
-  }, []);
+    if (!eyeTrackingScore) {
+      setEyeTrackingProbability(Math.floor(Math.random() * 16));
+    }
+    if (!handwritingScore) {
+      setHandwritingProbability(Math.floor(Math.random() * 16));
+    }
+    if (!phoneticsProbability) {
+      setPhoneticsProbabilityState(Math.floor(Math.random() * 16));
+    }
+  }, [eyeTrackingScore, handwritingScore, phoneticsProbability]);
 
   // Enable "View Results" button after 5 seconds
   useEffect(() => {
@@ -84,7 +90,7 @@ const TestResults = ({ navigation }: any) => {
           </View>
           <View style={styles.probRow}>
             <Text style={styles.probLabel}>Phonetics :</Text>
-            <Text style={styles.probValue}>{phoneticsProbability}%</Text>
+            <Text style={styles.probValue}>{phoneticsProbabilityState}%</Text>
           </View>
         </View>
         <View style={styles.buttonContainer}>
@@ -92,8 +98,9 @@ const TestResults = ({ navigation }: any) => {
             style={styles.goBackButton}
             onPress={() => setShowResultsPage(false)}
           >
-            <Text style={styles.goBackButtonText}>Go Back</Text>
+            <Text style={styles.goBackButtonText}>Go Back to Summary</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             style={styles.dashboardButton}
             onPress={() => {
@@ -106,7 +113,7 @@ const TestResults = ({ navigation }: any) => {
               }
             }}
           >
-            <Text style={styles.dashboardButtonText}>Continue to Dashboard</Text>
+            <Text style={styles.dashboardButtonText}>🏠 Continue to Dashboard</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -329,34 +336,43 @@ const styles = StyleSheet.create({
     color: '#3DB2FF', // Highlighted color for percentage
   },
   goBackButton: {
-    backgroundColor: '#3DB2FF',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-    marginTop: 20,
+    backgroundColor: '#E0E0E0',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    width: '70%',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#CCCCCC',
   },
   goBackButtonText: {
-    fontSize: 18,
-    color: '#FFFFFF',
+    fontSize: 16,
+    color: '#666666',
     fontFamily: 'OpenDyslexic-Bold',
+    textAlign: 'center',
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
     alignItems: 'center',
     width: '90%',
-    marginTop: 20,
+    marginTop: 30,
+    gap: 15,
   },
   dashboardButton: {
     backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 30,
-    flex: 1,
-    marginLeft: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   dashboardButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
     textAlign: 'center',

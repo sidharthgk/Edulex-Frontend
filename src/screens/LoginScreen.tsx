@@ -226,7 +226,7 @@ const LoginScreen = ({ navigation }: any) => {
               onPress={() => navigation.navigate('RegisterStart')}
             >
               <Text style={styles.registerText}>
-                Don’t have an account?{' '}
+                Don't have an account?{' '}
                 <Text style={styles.registerHighlight}>Register</Text>
               </Text>
             </TouchableOpacity>
@@ -296,11 +296,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     paddingVertical: 30,
     paddingHorizontal: 25,
+    paddingBottom: 40,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 5, // For Android shadow
+    elevation: 5,
   },
   inputWrapper: {
     width: '100%',
@@ -308,26 +309,33 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    padding: 15,
-    borderWidth: 1,
+    padding: 16,
+    borderWidth: 1.5,
     borderColor: '#DDD',
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: '#F9F9F9',
-    fontSize: 14,
+    fontSize: 16,
     color: '#333',
     fontFamily: 'OpenDyslexic-Regular',
+    minHeight: 50,
   },
   button: {
     backgroundColor: '#3DB2FF',
-    paddingVertical: 15,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 12,
     width: '100%',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 15,
+    minHeight: 50,
+    shadowColor: '#3DB2FF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'OpenDyslexic-Bold',
   },
   orText: {

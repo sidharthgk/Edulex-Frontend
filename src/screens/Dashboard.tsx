@@ -179,6 +179,51 @@ const Dashboard = ({ navigation }: any) => {
           </View>
         </View>
       )}
+
+      {/* Minigames Section - New addition */}
+      {!loading && userDetails && (
+        <View style={styles.enhancedToolsContainer}>
+          <Text style={styles.sectionTitle}>🎮 Learning Games</Text>
+          <Text style={styles.sectionSubtitle}>Fun games designed for dyslexic learners</Text>
+          <View style={styles.toolsGrid}>
+            <TouchableOpacity
+              style={[styles.toolCard, styles.gameCard]}
+              onPress={() => navigation.navigate('RhymingPairsGame')}
+            >
+              <Ionicons name="musical-notes" size={32} color="#E91E63" />
+              <Text style={styles.toolTitle}>Rhyming Pairs</Text>
+              <Text style={styles.toolDescription}>Match words that sound alike</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.toolCard, styles.gameCard]}
+              onPress={() => navigation.navigate('LetterFlippingGame')}
+            >
+              <Ionicons name="build" size={32} color="#FF5722" />
+              <Text style={styles.toolTitle}>Word Builder</Text>
+              <Text style={styles.toolDescription}>Spell words from emoji clues</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.toolCard, styles.gameCard]}
+              onPress={() => navigation.navigate('SyllableCountingGame')}
+            >
+              <Ionicons name="mic" size={32} color="#00BCD4" />
+              <Text style={styles.toolTitle}>Syllable Counter</Text>
+              <Text style={styles.toolDescription}>Count word parts and sounds</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.toolCard, styles.gameCard]}
+              onPress={() => navigation.navigate('PatternRecognitionGame')}
+            >
+              <Ionicons name="eye" size={32} color="#795548" />
+              <Text style={styles.toolTitle}>Pattern Master</Text>
+              <Text style={styles.toolDescription}>Complete visual sequences</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 
@@ -265,11 +310,19 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: 'OpenDyslexic-Bold',
     color: '#333333',
+    marginBottom: 20,
+    textAlign: 'left',
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#666666',
     marginBottom: 15,
-    paddingHorizontal: 20,
+    textAlign: 'left',
+    lineHeight: 22,
   },
   goalsContainer: {
     marginBottom: 25,
@@ -498,13 +551,6 @@ const styles = StyleSheet.create({
   achievementsContainer: {
     marginBottom: 30,
   },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: '#666666',
-    fontFamily: 'OpenDyslexic-Regular',
-    marginBottom: 15,
-    paddingHorizontal: 20,
-  },
   achievementCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -644,45 +690,48 @@ const styles = StyleSheet.create({
   },
   enhancedToolsContainer: {
     marginHorizontal: 20,
-    marginBottom: 25,
-    backgroundColor: '#F0F8FF',
-    borderRadius: 15,
-    padding: 20,
+    marginBottom: 30, // Increased margin for tab bar space
   },
   toolsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 15, // Consistent gap between cards
   },
   toolCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 15,
-    width: '48%',
-    marginBottom: 15,
+    borderRadius: 15,
+    padding: 20,
     alignItems: 'center',
+    width: '47%', // Responsive width for 2 columns
+    minHeight: 140, // Consistent height for all cards
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
     borderWidth: 1,
-    borderColor: '#E3F2FD',
+    borderColor: '#F0F0F0',
   },
   toolTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'OpenDyslexic-Bold',
     color: '#333333',
-    marginTop: 8,
+    marginTop: 12,
+    marginBottom: 6,
     textAlign: 'center',
   },
   toolDescription: {
     fontSize: 12,
     fontFamily: 'OpenDyslexic-Regular',
     color: '#666666',
-    marginTop: 4,
     textAlign: 'center',
     lineHeight: 16,
+  },
+  gameCard: {
+    backgroundColor: '#FAFAFA',
+    borderColor: '#E8E8E8',
+    borderWidth: 2,
   },
   
   // Loading state styles

@@ -64,7 +64,7 @@ const TabNavigator = () => {
         tabBarInactiveTintColor: '#888888',
         tabBarStyle: state.isCameraCapturing
           ? { display: 'none' }
-          : [styles.tabBar, { paddingBottom: insets.bottom + 5 }],
+          : [styles.tabBar, { paddingBottom: insets.bottom + 15 }],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
       }}
@@ -124,8 +124,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: 75,
-    paddingTop: 8,
+    height: 85,
+    paddingTop: 12,
+    paddingBottom: 10,
+    paddingHorizontal: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -137,32 +139,36 @@ const styles = StyleSheet.create({
   },
   tabBarLabel: {
     fontFamily: 'OpenDyslexic-Regular',
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: 11,
+    marginTop: 4,
+    marginBottom: 2,
   },
   tabBarIcon: {
-    marginTop: 5,
+    marginTop: 8,
   },
   customTabButton: {
-    top: -20,
+    top: -25,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
   },
   customTabButtonInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: '#3DB2FF',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
     shadowColor: '#3DB2FF',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowRadius: 10,
+    elevation: 12,
   },
 });
 

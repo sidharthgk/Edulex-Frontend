@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,9 @@ import {
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { topicsService, Chapter } from '../services/topicsService';
+import { VideoView, useVideoPlayer } from 'expo-video';
+import { topicsService, Chapter, ChapterVideo } from '../services/topicsService';
+import { GlobalContext } from '../GlobalState';
 
 const ChapterDetailScreen = ({ route, navigation }: any) => {
   const { topicId, chapterId, topicTitle } = route.params;
@@ -18,6 +20,13 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [videoData, setVideoData] = useState<ChapterVideo | null>(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [markingComplete, setMarkingComplete] = useState(false);
+
+  // Global state for chapter completion
+  const { markChapterComplete, isChapterComplete } = useContext(GlobalContext);
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -44,38 +53,49 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
     }
   }, [topicId, chapterId]);
 
+  const fetchChapterVideo = useCallback(async () => {
+    if (!topicId || !chapterId) return;
+    
+    try {
+      setVideoLoading(true);
+      setVideoError(null);
+      const response = await topicsService.getChapterVideo(topicId, chapterId);
+      setVideoData(response.data);
+    } catch (err: any) {
+      console.error('Error fetching chapter video:', err);
+      setVideoError(err.message || 'Failed to load video');
+    } finally {
+      setVideoLoading(false);
+    }
+  }, [topicId, chapterId]);
+
+  const handleMarkChapterComplete = async () => {
+    try {
+      setMarkingComplete(true);
+      // Use global state instead of API call
+      markChapterComplete(topicId, chapterId);
+    } catch (err: any) {
+      console.error('Error marking chapter as complete:', err);
+    } finally {
+      setMarkingComplete(false);
+    }
+  };
+
+  // Check if current chapter is completed
+  const isCurrentChapterComplete = isChapterComplete(topicId, chapterId);
+
   useEffect(() => {
     if (fontsLoaded) {
       fetchChapterDetails();
+      fetchChapterVideo();
     }
-  }, [fontsLoaded, fetchChapterDetails]);
+  }, [fontsLoaded, fetchChapterDetails, fetchChapterVideo]);
 
-  const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h ${remainingMinutes}m`;
-    }
-    return `${remainingMinutes}m`;
-  };
-
-  const getDifficultyColor = (level: string): string => {
-    switch (level.toLowerCase()) {
-      case 'beginner': return '#4CAF50';
-      case 'intermediate': return '#FF9800';
-      case 'advanced': return '#F44336';
-      default: return '#2196F3';
-    }
-  };
-
-  const getDifficultyIcon = (level: string) => {
-    switch (level.toLowerCase()) {
-      case 'beginner': return 'leaf-outline' as const;
-      case 'intermediate': return 'flame-outline' as const;
-      case 'advanced': return 'flash-outline' as const;
-      default: return 'book-outline' as const;
-    }
-  };
+  // Video player setup
+  const player = useVideoPlayer(videoData?.video_url || '', player => {
+    player.loop = false;
+    player.muted = false;
+  });
 
   const parseContent = (content: string) => {
     // Simple markdown-like parsing for better display
@@ -152,29 +172,45 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
           
           <Text style={styles.chapterTitle}>{chapter.title}</Text>
           <Text style={styles.chapterDescription}>{chapter.description}</Text>
+        </View>
 
-          <View style={styles.chapterMeta}>
-            <View style={styles.metaItem}>
-              <Ionicons 
-                name={getDifficultyIcon(chapter.difficulty_level)} 
-                size={18} 
-                color={getDifficultyColor(chapter.difficulty_level)} 
+        {/* Chapter Video */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎬 Chapter Video</Text>
+          {videoLoading ? (
+            <View style={styles.videoLoadingContainer}>
+              <ActivityIndicator size="large" color="#3DB2FF" />
+              <Text style={styles.videoLoadingText}>Loading video...</Text>
+            </View>
+          ) : videoError ? (
+            <View style={styles.videoErrorContainer}>
+              <Ionicons name="videocam-off-outline" size={40} color="#FF6B6B" />
+              <Text style={styles.videoErrorText}>{videoError}</Text>
+              <TouchableOpacity style={styles.retryVideoButton} onPress={fetchChapterVideo}>
+                <Text style={styles.retryVideoButtonText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : videoData ? (
+            <View style={styles.videoContainer}>
+              <VideoView 
+                style={styles.video} 
+                player={player}
+                allowsFullscreen
+                allowsPictureInPicture
               />
-              <Text style={[styles.metaText, { color: getDifficultyColor(chapter.difficulty_level) }]}>
-                {chapter.difficulty_level}
-              </Text>
+              {videoData.transcript && (
+                <View style={styles.transcriptContainer}>
+                  <Text style={styles.transcriptTitle}>📝 Transcript</Text>
+                  <Text style={styles.transcriptText}>{videoData.transcript}</Text>
+                </View>
+              )}
             </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={18} color="#666666" />
-              <Text style={styles.metaText}>
-                {formatDuration(chapter.estimated_duration_minutes)}
-              </Text>
+          ) : (
+            <View style={styles.noVideoContainer}>
+              <Ionicons name="videocam-outline" size={40} color="#CCCCCC" />
+              <Text style={styles.noVideoText}>No video available for this chapter</Text>
             </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="checkmark-circle-outline" size={18} color="#4CAF50" />
-              <Text style={styles.metaText}>{chapter.status}</Text>
-            </View>
-          </View>
+          )}
         </View>
 
         {/* Learning Objectives */}
@@ -286,15 +322,29 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
 
         {/* Progress Actions */}
         <View style={styles.actionsSection}>
-          <TouchableOpacity style={styles.startButton}>
-            <Ionicons name="play" size={20} color="#FFFFFF" />
-            <Text style={styles.startButtonText}>Start Learning</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.markCompleteButton}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.markCompleteButtonText}>Mark as Complete</Text>
-          </TouchableOpacity>
+                     <TouchableOpacity 
+             style={[
+               styles.markCompleteButton, 
+               markingComplete && styles.markCompleteButtonDisabled,
+               isCurrentChapterComplete && styles.markCompleteButtonCompleted
+             ]} 
+             onPress={handleMarkChapterComplete}
+             disabled={markingComplete || isCurrentChapterComplete}
+           >
+             {markingComplete ? (
+               <ActivityIndicator size={20} color="#4CAF50" />
+             ) : (
+               <Ionicons 
+                 name={isCurrentChapterComplete ? "checkmark-circle" : "checkmark-circle-outline"} 
+                 size={20} 
+                 color={isCurrentChapterComplete ? "#FFFFFF" : "#4CAF50"} 
+               />
+             )}
+             <Text style={[styles.markCompleteButtonText, isCurrentChapterComplete && styles.markCompleteButtonTextCompleted]}>
+               {markingComplete ? 'Marking Complete...' : 
+                isCurrentChapterComplete ? 'Completed' : 'Mark as Complete'}
+             </Text>
+           </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -372,20 +422,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     lineHeight: 24,
   },
-  chapterMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  metaText: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontFamily: 'OpenDyslexic-Regular',
-  },
+
   section: {
     padding: 20,
     borderBottomWidth: 1,
@@ -540,21 +577,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#F8F9FA',
   },
-  startButton: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 15,
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 15,
-  },
-  startButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'OpenDyslexic-Bold',
-    marginLeft: 8,
-  },
   markCompleteButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 15,
@@ -565,11 +587,21 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#4CAF50',
   },
+  markCompleteButtonDisabled: {
+    opacity: 0.6,
+  },
+  markCompleteButtonCompleted: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
   markCompleteButtonText: {
     color: '#4CAF50',
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Bold',
     marginLeft: 8,
+  },
+  markCompleteButtonTextCompleted: {
+    color: '#FFFFFF',
   },
   errorContainer: {
     flex: 1,
@@ -601,6 +633,75 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Bold',
+  },
+  // Video styles
+  videoLoadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  videoLoadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  videoErrorContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  videoErrorText: {
+    marginTop: 15,
+    marginBottom: 20,
+    fontSize: 16,
+    color: '#FF6B6B',
+    fontFamily: 'OpenDyslexic-Regular',
+    textAlign: 'center',
+  },
+  retryVideoButton: {
+    backgroundColor: '#FF6B6B',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  retryVideoButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
+  },
+  videoContainer: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  video: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: '#000000',
+  },
+  transcriptContainer: {
+    padding: 15,
+  },
+  transcriptTitle: {
+    fontSize: 16,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 10,
+  },
+  transcriptText: {
+    fontSize: 14,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+    lineHeight: 20,
+  },
+  noVideoContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  noVideoText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#CCCCCC',
+    fontFamily: 'OpenDyslexic-Regular',
   },
 });
 
