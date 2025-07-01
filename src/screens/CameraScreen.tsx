@@ -434,7 +434,7 @@ const CameraScreen = () => {
   if (!fontsLoaded) {
     return (
       <View style={styles.container}>
-        <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 100 }}>Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
@@ -565,11 +565,52 @@ const CameraScreen = () => {
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </TouchableOpacity>
         </View>
-          );
+      );
+    }
+
+    return (
+      <View style={styles.cameraContainer}>
+        <View style={[styles.cameraHeader, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity style={styles.backButton} onPress={() => setOcrMode('selection')}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.cameraHeaderTitle}>Capture Text</Text>
+        </View>
+
+        {photoUri ? (
+          <Image style={styles.camera} source={{ uri: photoUri }} />
+        ) : (
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing="back"
+            mode="picture"
+            onCameraReady={() => setIsCameraReady(true)}
+          />
+        )}
+
+        <View style={styles.cameraButtonContainer}>
+          {photoUri ? (
+            <>
+              <TouchableOpacity style={[styles.cameraButton, styles.retakeButton]} onPress={retakePhoto}>
+                <Text style={styles.cameraButtonText}>Retake</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cameraButton} onPress={processPhoto}>
+                <Text style={styles.cameraButtonText}>Process</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
+              <Ionicons name="camera" size={30} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    );
   }
 
   // Learning Content Mode
-  if (ocrMode === 'learning_content') {
+  else if (ocrMode === 'learning_content') {
     const currentQuestion = quizData[currentQuestionIndex];
 
     return (
@@ -656,7 +697,7 @@ const CameraScreen = () => {
   }
 
   // Avatar Configuration Mode
-  if (ocrMode === 'avatar_config') {
+  else if (ocrMode === 'avatar_config') {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
@@ -728,7 +769,7 @@ const CameraScreen = () => {
   }
 
   // Video Generation Mode
-  if (ocrMode === 'video_generation') {
+  else if (ocrMode === 'video_generation') {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
@@ -753,7 +794,7 @@ const CameraScreen = () => {
   }
 
   // Learning Session Mode
-  if (ocrMode === 'learning') {
+  else if (ocrMode === 'learning') {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
@@ -828,48 +869,7 @@ const CameraScreen = () => {
     );
   }
 
-  return (
-      <View style={styles.cameraContainer}>
-        <View style={[styles.cameraHeader, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => setOcrMode('camera')}>
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.cameraHeaderTitle}>Capture Text</Text>
-        </View>
-
-        {photoUri ? (
-          <Image style={styles.camera} source={{ uri: photoUri }} />
-        ) : (
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing="back"
-            mode="picture"
-            onCameraReady={() => setIsCameraReady(true)}
-          />
-        )}
-
-        <View style={styles.cameraButtonContainer}>
-          {photoUri ? (
-            <>
-              <TouchableOpacity style={[styles.cameraButton, styles.retakeButton]} onPress={retakePhoto}>
-                <Text style={styles.cameraButtonText}>Retake</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cameraButton} onPress={processPhoto}>
-                <Text style={styles.cameraButtonText}>Process</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
-              <Ionicons name="camera" size={30} color="#FFFFFF" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    );
-  }
-
-  if (ocrMode === 'results') {
+  else if (ocrMode === 'results') {
     return (
       <View style={styles.container}>
         {/* Header */}
