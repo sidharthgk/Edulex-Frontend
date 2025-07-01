@@ -1,5 +1,5 @@
 // src/GlobalState.tsx
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useCallback } from 'react';
 
 interface RegistrationDetails {
   name: string;
@@ -17,6 +17,7 @@ interface GlobalState {
   taskID: number;
   isChatbotVisible: boolean;
   currentRoute: string; // new field
+  isCameraCapturing: boolean; // new field to track camera capture mode
 }
 
 interface GlobalContextProps {
@@ -24,6 +25,7 @@ interface GlobalContextProps {
   setState: React.Dispatch<React.SetStateAction<GlobalState>>;
   addRegistration: (registrationDetails: RegistrationDetails) => void;
   toggleChatbot: (visible?: boolean) => void;
+  setCameraCapturing: (capturing: boolean) => void;
 }
 
 const initialState: GlobalState = {
@@ -35,6 +37,7 @@ const initialState: GlobalState = {
   taskID: 0,
   isChatbotVisible: false,
   currentRoute: '', // start empty or 'SplashScreen'
+  isCameraCapturing: false,
 };
 
 export const GlobalContext = createContext<GlobalContextProps>({
@@ -42,6 +45,7 @@ export const GlobalContext = createContext<GlobalContextProps>({
   setState: () => {},
   addRegistration: () => {},
   toggleChatbot: () => {},
+  setCameraCapturing: () => {},
 });
 
 interface GlobalProviderProps {
@@ -51,20 +55,27 @@ interface GlobalProviderProps {
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const [state, setState] = useState<GlobalState>(initialState);
 
-  const addRegistration = (registrationDetails: RegistrationDetails) => {
+  const addRegistration = useCallback((registrationDetails: RegistrationDetails) => {
     setState((prev) => ({
       ...prev,
       register: [...prev.register, registrationDetails],
     }));
-  };
+  }, []);
 
-  const toggleChatbot = (visible?: boolean) => {
+  const toggleChatbot = useCallback((visible?: boolean) => {
     setState((prev) => ({
       ...prev,
       isChatbotVisible:
         typeof visible === 'boolean' ? visible : !prev.isChatbotVisible,
     }));
-  };
+  }, []);
+
+  const setCameraCapturing = useCallback((capturing: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      isCameraCapturing: capturing,
+    }));
+  }, []);
 
   return (
     <GlobalContext.Provider
@@ -73,6 +84,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         setState,
         addRegistration,
         toggleChatbot,
+        setCameraCapturing,
       }}
     >
       {children}

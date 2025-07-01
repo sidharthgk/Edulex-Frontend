@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GlobalContext } from '../GlobalState';
 
 // Import screens
 import Dashboard from '../screens/Dashboard';
@@ -27,6 +28,7 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
+  const { state } = useContext(GlobalContext);
   
   return (
     <Tab.Navigator
@@ -34,7 +36,9 @@ const TabNavigator = () => {
         headerShown: false,
         tabBarActiveTintColor: '#3DB2FF',
         tabBarInactiveTintColor: '#888888',
-        tabBarStyle: [styles.tabBar, { paddingBottom: insets.bottom + 5 }],
+        tabBarStyle: state.isCameraCapturing 
+          ? { display: 'none' } 
+          : [styles.tabBar, { paddingBottom: insets.bottom + 5 }],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
       }}
