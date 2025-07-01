@@ -29,7 +29,7 @@ const ProfileScreen = ({ navigation }: any) => {
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
   const [dyslexicFontEnabled, setDyslexicFontEnabled] = useState(true);
   const [highContrastMode, setHighContrastMode] = useState(false);
-  
+
   // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -79,7 +79,7 @@ const ProfileScreen = ({ navigation }: any) => {
         { text: 'Cancel', style: 'cancel' },
         { text: 'Clear Data', style: 'destructive', onPress: () => {
           Alert.alert('✅ Data Cleared', 'All local data has been removed.');
-        }}
+        }},
       ]
     );
   };
@@ -92,7 +92,7 @@ const ProfileScreen = ({ navigation }: any) => {
         { text: 'Cancel', style: 'cancel' },
         { text: 'Log Out', onPress: () => {
           Alert.alert('✅ Logged Out', 'You have been successfully logged out. See you soon!');
-        }}
+        }},
       ]
     );
   };
@@ -157,7 +157,7 @@ const ProfileScreen = ({ navigation }: any) => {
       {/* Assessment Section */}
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>Assessment & Learning</Text>
-        
+
         <TouchableOpacity style={styles.menuItem} onPress={handleTakeAssessment}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="analytics-outline" size={24} color="#3DB2FF" />
@@ -181,7 +181,7 @@ const ProfileScreen = ({ navigation }: any) => {
       {/* Settings Section */}
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>Accessibility Settings</Text>
-        
+
         <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="text-outline" size={24} color="#9C27B0" />
@@ -238,7 +238,7 @@ const ProfileScreen = ({ navigation }: any) => {
       {/* App Settings */}
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>App Settings</Text>
-        
+
         <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="notifications-outline" size={24} color="#3DB2FF" />
@@ -277,7 +277,7 @@ const ProfileScreen = ({ navigation }: any) => {
       {/* Data Management */}
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>Data Management</Text>
-        
+
         <TouchableOpacity style={styles.menuItem} onPress={handleExportData}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="download-outline" size={24} color="#4CAF50" />
@@ -298,7 +298,7 @@ const ProfileScreen = ({ navigation }: any) => {
       {/* Support Section */}
       <View style={styles.menuContainer}>
         <Text style={styles.sectionTitle}>Support & Info</Text>
-        
+
         <TouchableOpacity style={styles.menuItem} onPress={handleHelp}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="help-circle-outline" size={24} color="#3DB2FF" />
@@ -480,4 +480,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen; 
+export default ProfileScreen;

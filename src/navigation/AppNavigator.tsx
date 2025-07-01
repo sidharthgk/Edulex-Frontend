@@ -71,7 +71,7 @@ const AppNavigator = () => {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="RegisterStart" component={RegisterStart} />
-        <Stack.Screen name="MainTabs" component={TabNavigator} />
+        <Stack.Screen name="TabNavigator" component={TabNavigator} />
         <Stack.Screen name="SkipAssessmentConfirmation" component={SkipAssessmentConfirmation} />
 
         {/* Dyslexia Test Flow */}

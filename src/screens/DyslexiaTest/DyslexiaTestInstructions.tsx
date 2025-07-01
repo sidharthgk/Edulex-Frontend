@@ -49,7 +49,7 @@ const DyslexiaTestInstructions = ({ navigation }: any) => {
         >
           <Text style={styles.continueButtonText}>Start Test</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={styles.skipButton}
           onPress={() => navigation.navigate('SkipAssessmentConfirmation')} // Navigate to confirmation

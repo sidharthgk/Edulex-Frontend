@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
+// Move CustomTabBarButton outside of the component to avoid recreation on every render
 const CustomTabBarButton = ({ children, onPress }: any) => (
   <TouchableOpacity
     style={styles.customTabButton}
@@ -29,15 +30,40 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
   const { state } = useContext(GlobalContext);
-  
+
+  // Create stable icon functions using useCallback
+  const HomeIcon = useCallback(({ color, size }: { color: string; size: number }) => (
+    <Ionicons name="home-outline" size={size} color={color} />
+  ), []);
+
+  const LearnIcon = useCallback(({ color, size }: { color: string; size: number }) => (
+    <Ionicons name="book-outline" size={size} color={color} />
+  ), []);
+
+  const CameraIcon = useCallback(({ focused }: { focused: boolean }) => (
+    <Ionicons
+      name="camera-outline"
+      size={35}
+      color={focused ? '#FFFFFF' : '#FFFFFF'}
+    />
+  ), []);
+
+  const CommunityIcon = useCallback(({ color, size }: { color: string; size: number }) => (
+    <Ionicons name="people-outline" size={size} color={color} />
+  ), []);
+
+  const ProfileIcon = useCallback(({ color, size }: { color: string; size: number }) => (
+    <Ionicons name="person-outline" size={size} color={color} />
+  ), []);
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#3DB2FF',
         tabBarInactiveTintColor: '#888888',
-        tabBarStyle: state.isCameraCapturing 
-          ? { display: 'none' } 
+        tabBarStyle: state.isCameraCapturing
+          ? { display: 'none' }
           : [styles.tabBar, { paddingBottom: insets.bottom + 5 }],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
@@ -47,55 +73,41 @@ const TabNavigator = () => {
         name="Home"
         component={Dashboard}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
-          ),
+          tabBarIcon: HomeIcon,
         }}
       />
-      
+
       <Tab.Screen
         name="Learn"
         component={MinigamesScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
-          ),
+          tabBarIcon: LearnIcon,
         }}
       />
-      
+
       <Tab.Screen
-        name="LearnHub"
+        name="Camera"
         component={CameraScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <Ionicons 
-              name="book-outline" 
-              size={35} 
-              color={focused ? '#FFFFFF' : '#FFFFFF'} 
-            />
-          ),
+          tabBarIcon: CameraIcon,
           tabBarButton: (props) => <CustomTabBarButton {...props} />,
           tabBarLabel: '',
         }}
       />
-      
+
       <Tab.Screen
         name="Community"
         component={CommunityScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
-          ),
+          tabBarIcon: CommunityIcon,
         }}
       />
-      
+
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ProfileIcon,
         }}
       />
     </Tab.Navigator>
@@ -154,4 +166,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TabNavigator; 
+export default TabNavigator;

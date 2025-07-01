@@ -43,16 +43,16 @@ const QuizScreen = ({ navigation }: any) => {
   const [learningContent, setLearningContent] = useState('');
   const [_isProcessing, setIsProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState('');
-  
+
   // Avatar configuration
   const [selectedAvatar, setSelectedAvatar] = useState('black_man');
   const [selectedEmotion, setSelectedEmotion] = useState('happy');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
-  
+
   // Learning session
   const [_currentSession, setCurrentSession] = useState<LearningSession | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  
+
   const cameraRef = useRef<CameraView | null>(null);
 
   // Load custom fonts
@@ -110,33 +110,33 @@ const QuizScreen = ({ navigation }: any) => {
   const processImage = async (_imageUri: string) => {
     setIsProcessing(true);
     setProcessingMessage('Extracting text from image...');
-    
+
     try {
       // For now, using demo text as requested until you integrate with your OCR API
       console.log('🎯 QuizScreen: Using demo text (OCR integration ready)');
       await new Promise<void>((resolve) => setTimeout(() => resolve(), 2000));
-      
+
       // Use OCR service to generate demo text
       const ocrResult = ocrService.generateDemoText();
-      
+
       if (ocrResult.success && ocrResult.text) {
         setExtractedText(ocrResult.text);
-        
+
         // Set learning content as the same as extracted text (as requested)
         setLearningContent(ocrResult.text);
-        
+
         setProcessingMessage('Creating learning content...');
         await new Promise<void>((resolve) => setTimeout(() => resolve(), 1000));
-        
+
         setCurrentStep('text_review');
       } else {
         throw new Error('Failed to generate demo content');
       }
-      
+
       // TODO: When ready to integrate with real OCR, uncomment the following:
       /*
       const ocrResult = await ocrService.extractTextFromImage(imageUri);
-      
+
       if (ocrResult.success && ocrResult.text) {
         setExtractedText(ocrResult.text);
         setLearningContent(ocrResult.text);
@@ -148,7 +148,7 @@ const QuizScreen = ({ navigation }: any) => {
         setCurrentStep('capture');
       }
       */
-      
+
     } catch (error) {
       console.error('Error processing image:', error);
       Alert.alert('Processing Error', 'Failed to extract text from image. Please try again.');
@@ -181,9 +181,9 @@ const QuizScreen = ({ navigation }: any) => {
       };
 
       const response = await avatarTalkService.generateVideo(request);
-      
+
       setVideoUrl(response.mp4_url);
-      
+
       // Create learning session
       const session: LearningSession = {
         id: response.id,
@@ -195,13 +195,13 @@ const QuizScreen = ({ navigation }: any) => {
         language: selectedLanguage,
         createdAt: new Date(),
       };
-      
+
       setCurrentSession(session);
       setCurrentStep('learning');
-      
+
       Vibration.vibrate(200);
       Alert.alert('✅ Video Generated!', 'Your personalized learning video is ready!');
-      
+
     } catch (error) {
       console.error('Error generating avatar video:', error);
       Alert.alert('Generation Error', 'Failed to generate avatar video. Please try again.');
@@ -296,7 +296,7 @@ const QuizScreen = ({ navigation }: any) => {
         style={styles.camera}
         onCameraReady={() => setIsCameraReady(true)}
       />
-      
+
       <View style={[styles.cameraOverlay, { paddingTop: insets.top }]}>
         <TouchableOpacity style={styles.overlayBackButton} onPress={() => setCurrentStep('camera')}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -373,7 +373,7 @@ const QuizScreen = ({ navigation }: any) => {
               key={avatar.id}
               style={[
                 styles.optionCard,
-                selectedAvatar === avatar.id && styles.selectedOptionCard
+                selectedAvatar === avatar.id && styles.selectedOptionCard,
               ]}
               onPress={() => setSelectedAvatar(avatar.id)}
             >
@@ -390,7 +390,7 @@ const QuizScreen = ({ navigation }: any) => {
               key={emotion.id}
               style={[
                 styles.optionCard,
-                selectedEmotion === emotion.id && styles.selectedOptionCard
+                selectedEmotion === emotion.id && styles.selectedOptionCard,
               ]}
               onPress={() => setSelectedEmotion(emotion.id)}
             >
@@ -407,7 +407,7 @@ const QuizScreen = ({ navigation }: any) => {
               key={language.id}
               style={[
                 styles.optionCard,
-                selectedLanguage === language.id && styles.selectedOptionCard
+                selectedLanguage === language.id && styles.selectedOptionCard,
               ]}
               onPress={() => setSelectedLanguage(language.id)}
             >
@@ -435,7 +435,7 @@ const QuizScreen = ({ navigation }: any) => {
         <ActivityIndicator size="large" color="#3DB2FF" />
         <Text style={styles.processingText}>{processingMessage}</Text>
         <Text style={styles.processingSubtext}>Creating your personalized learning experience...</Text>
-        
+
         <View style={styles.avatarPreview}>
           <Text style={styles.avatarPreviewText}>
             {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.emoji} {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.name}
@@ -479,7 +479,7 @@ const QuizScreen = ({ navigation }: any) => {
               {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.emoji} {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.name}
             </Text>
           </View>
-          
+
           <View style={styles.infoCard}>
             <Text style={styles.infoLabel}>Content Length:</Text>
             <Text style={styles.infoValue}>{learningContent.length} characters</Text>
@@ -491,7 +491,7 @@ const QuizScreen = ({ navigation }: any) => {
             <Ionicons name="add" size={20} color="#3DB2FF" />
             <Text style={styles.secondaryButtonText}>Create New</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.goBack()}>
             <Ionicons name="checkmark" size={20} color="#FFFFFF" />
             <Text style={styles.primaryButtonText}>Complete</Text>
@@ -983,4 +983,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuizScreen; 
+export default QuizScreen;

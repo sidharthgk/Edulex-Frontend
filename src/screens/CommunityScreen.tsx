@@ -32,7 +32,7 @@ interface Discussion {
 const CommunityScreen = () => {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<'overview' | 'leaderboard' | 'discussions'>('overview');
-  
+
   // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -119,23 +119,23 @@ const CommunityScreen = () => {
 
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'overview' && styles.activeTab]}
           onPress={() => setActiveTab('overview')}
         >
           <Ionicons name="home" size={14} color={activeTab === 'overview' ? '#3DB2FF' : '#888888'} />
           <Text style={[styles.tabText, activeTab === 'overview' && styles.activeTabText]}>Home</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'leaderboard' && styles.activeTab]}
           onPress={() => setActiveTab('leaderboard')}
         >
           <Ionicons name="trophy" size={16} color={activeTab === 'leaderboard' ? '#3DB2FF' : '#888888'} />
           <Text style={[styles.tabText, activeTab === 'leaderboard' && styles.activeTabText]}>Rankings</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'discussions' && styles.activeTab]}
           onPress={() => setActiveTab('discussions')}
         >
@@ -474,4 +474,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommunityScreen; 
+export default CommunityScreen;

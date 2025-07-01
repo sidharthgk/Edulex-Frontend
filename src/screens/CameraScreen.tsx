@@ -44,15 +44,15 @@ const CameraScreen = () => {
     bbox: any;
     type: string;
   }>>([]);
-  
+
   // Avatar configuration
   const [selectedAvatar, setSelectedAvatar] = useState('black_man');
   const [selectedEmotion, setSelectedEmotion] = useState('happy');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  
+
   const cameraRef = useRef<CameraView | null>(null);
-  
+
   // Update global state when camera mode changes
   useEffect(() => {
     setCameraCapturing(ocrMode === 'capture');
@@ -94,17 +94,17 @@ const CameraScreen = () => {
 
 
   const processPhoto = async () => {
-    if (!photoUri) return;
-    
+    if (!photoUri) {return;}
+
     setIsProcessing(true);
     setProcessingMessage('Extracting text from image...');
     Vibration.vibrate(100);
-    
+
     try {
       // Step 1: Extract text using OCR
       console.log('🚀 Starting OCR processing...');
       const ocrResult = await ocrService.extractTextFromImage(photoUri);
-      
+
       if (!ocrResult.success || !ocrResult.text) {
         Alert.alert('OCR Failed', ocrResult.message || 'Failed to extract text from image. Please try again.');
         setOcrMode('capture');
@@ -114,26 +114,26 @@ const CameraScreen = () => {
       console.log('✅ OCR Success - Text extracted');
       setScannedText(ocrResult.text);
       setExtractedImages(ocrResult.images || []);
-      
+
       console.log('🖼️ Setting extracted images:', ocrResult.images?.length || 0);
-      
+
       // Step 2: Generate teaching plan
       setProcessingMessage('Generating personalized learning content...');
       console.log('🎓 Generating teaching plan...');
-      
+
       const teachingPlanResult = await ocrService.generateTeachingPlan(ocrResult.text);
-      
+
       if (teachingPlanResult.success && teachingPlanResult.data) {
         console.log('✅ Teaching Plan Generated');
         setTeachingPlan(teachingPlanResult.data);
-        
+
         // Format teaching plan for avatar
         const formattedContent = ocrService.formatTeachingPlanForAvatar(teachingPlanResult.data);
         setLearningContent(formattedContent);
-        
+
         setOcrMode('results');
         Alert.alert(
-          '✅ Content Processed!', 
+          '✅ Content Processed!',
           `Successfully extracted text and generated ${teachingPlanResult.data.length} personalized learning activities!`
         );
       } else {
@@ -142,30 +142,30 @@ const CameraScreen = () => {
         setLearningContent(ocrResult.text);
         setOcrMode('results');
         Alert.alert(
-          '✅ Text Extracted!', 
+          '✅ Text Extracted!',
           'Text extracted successfully. Teaching plan generation had issues, but you can still create an avatar video!'
         );
       }
 
     } catch (error) {
       console.error('💥 Processing Error:', error);
-      
+
       let errorMessage = 'Failed to process the image. Please try again.';
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       Alert.alert(
-        '❌ Processing Failed', 
+        '❌ Processing Failed',
         errorMessage,
         [
           { text: 'Retry', onPress: processPhoto },
           { text: 'Use Demo', onPress: () => {
-            const demoText = "Reading is a complex cognitive process that involves decoding written symbols to derive meaning. It requires coordination of visual processing, phonological awareness, and comprehension skills.";
+            const demoText = 'Reading is a complex cognitive process that involves decoding written symbols to derive meaning. It requires coordination of visual processing, phonological awareness, and comprehension skills.';
             setScannedText(demoText);
             setLearningContent(demoText);
             setOcrMode('results');
-          }}
+          }},
         ]
       );
     } finally {
@@ -186,43 +186,43 @@ const CameraScreen = () => {
 
     try {
       console.log('🎓 Starting learning session...');
-      
+
       // Generate quiz from the scanned text
       const quizResult = await ocrService.generateQuiz(scannedText);
-      
+
       if (quizResult.success && quizResult.data && quizResult.data.length > 0) {
         console.log('✅ Quiz Generated');
         setQuizData(quizResult.data);
         setCurrentQuestionIndex(0);
         setOcrMode('learning_content');
-        
+
         Alert.alert(
-          '✅ Learning Content Ready!', 
+          '✅ Learning Content Ready!',
           `Generated ${quizResult.data.length} quiz questions. Let's start learning!`
         );
       } else {
         console.log('⚠️ Quiz generation failed, using text content');
         // Fallback: create a simple learning content from the text
         const fallbackQuiz = [{
-          question: `What is the main topic of this text?`,
+          question: 'What is the main topic of this text?',
           options: ['Reading comprehension', 'The content you scanned', 'Learning skills'],
-          correct_answer: 'The content you scanned'
+          correct_answer: 'The content you scanned',
         }];
         setQuizData(fallbackQuiz);
         setCurrentQuestionIndex(0);
         setOcrMode('learning_content');
-        
+
         Alert.alert('✅ Learning Content Ready!', 'Created learning content from your text!');
       }
 
     } catch (error) {
       console.error('💥 Learning Error:', error);
-      
+
       let errorMessage = 'Failed to generate learning content. Please try again.';
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       Alert.alert('❌ Learning Failed', errorMessage);
     } finally {
       setIsProcessing(false);
@@ -247,30 +247,30 @@ const CameraScreen = () => {
       '🎉 Learning Complete!',
       'Excellent work! You\'ve finished all the quiz questions. Now create a personalized AI teacher video to explain the content in detail with audio.',
       [
-        { 
-          text: '🎬 Create AI Teacher Video', 
+        {
+          text: '🎬 Create AI Teacher Video',
           onPress: () => {
             console.log('✨ User selected: Create Avatar Video');
             startAvatarGeneration();
           },
-          style: 'default'
+          style: 'default',
         },
-        { 
-          text: '📚 Review Questions', 
+        {
+          text: '📚 Review Questions',
           onPress: () => {
             console.log('📚 User selected: Review Questions');
             setCurrentQuestionIndex(0);
-          }, 
-          style: 'cancel' 
+          },
+          style: 'cancel',
         },
-        { 
-          text: '🏠 Return to Dashboard', 
+        {
+          text: '🏠 Return to Dashboard',
           onPress: () => {
             console.log('🏠 User selected: Return to Dashboard');
             resetCamera();
           },
-          style: 'destructive'
-        }
+          style: 'destructive',
+        },
       ]
     );
   };
@@ -302,20 +302,20 @@ const CameraScreen = () => {
     try {
       console.log('🎓 Generating teaching plan from text input...');
       setScannedText(inputText);
-      
+
       const teachingPlanResult = await ocrService.generateTeachingPlan(inputText);
-      
+
       if (teachingPlanResult.success && teachingPlanResult.data) {
         console.log('✅ Teaching Plan Generated');
         setTeachingPlan(teachingPlanResult.data);
-        
+
         // Format teaching plan for avatar
         const formattedContent = ocrService.formatTeachingPlanForAvatar(teachingPlanResult.data);
         setLearningContent(formattedContent);
-        
+
         setOcrMode('results');
         Alert.alert(
-          '✅ Content Processed!', 
+          '✅ Content Processed!',
           `Successfully generated ${teachingPlanResult.data.length} personalized learning activities!`
         );
       } else {
@@ -327,12 +327,12 @@ const CameraScreen = () => {
 
     } catch (error) {
       console.error('💥 Text Processing Error:', error);
-      
+
       let errorMessage = 'Failed to process the text. Please try again.';
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       Alert.alert('❌ Processing Failed', errorMessage);
     } finally {
       setIsProcessing(false);
@@ -358,17 +358,17 @@ const CameraScreen = () => {
       Vibration.vibrate(100);
 
       console.log('📄 Starting document summarization...');
-      
+
       const summarizationResult = await ocrService.summarizeFile(document.uri);
-      
+
       if (summarizationResult.success && summarizationResult.data) {
         console.log('✅ Document Summarized');
         setScannedText(summarizationResult.data);
-        
+
         // Generate teaching plan from summary
         setProcessingMessage('Generating personalized learning content...');
         const teachingPlanResult = await ocrService.generateTeachingPlan(summarizationResult.data);
-        
+
         if (teachingPlanResult.success && teachingPlanResult.data) {
           setTeachingPlan(teachingPlanResult.data);
           const formattedContent = ocrService.formatTeachingPlanForAvatar(teachingPlanResult.data);
@@ -376,7 +376,7 @@ const CameraScreen = () => {
         } else {
           setLearningContent(summarizationResult.data);
         }
-        
+
         setOcrMode('results');
         Alert.alert('✅ Document Processed!', 'Document has been summarized and learning content generated!');
       } else {
@@ -415,13 +415,13 @@ const CameraScreen = () => {
       };
 
       const response = await avatarTalkService.generateVideo(request);
-      
+
       setVideoUrl(response.mp4_url);
       setOcrMode('learning');
-      
+
       Vibration.vibrate(200);
       Alert.alert('✅ Video Generated!', 'Your personalized learning video is ready!');
-      
+
     } catch (error) {
       console.error('Error generating avatar video:', error);
       Alert.alert('Generation Error', 'Failed to generate avatar video. Please try again.');
@@ -508,7 +508,7 @@ const CameraScreen = () => {
 
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Enter your learning content:</Text>
-          
+
           <TextInput
             style={styles.textInput}
             placeholder="Type or paste your text here..."
@@ -520,8 +520,8 @@ const CameraScreen = () => {
             placeholderTextColor="#999"
           />
 
-          <TouchableOpacity 
-            style={[styles.processButton, !inputText.trim() && styles.processButtonDisabled]} 
+          <TouchableOpacity
+            style={[styles.processButton, !inputText.trim() && styles.processButtonDisabled]}
             onPress={processTextInput}
             disabled={!inputText.trim() || isProcessing}
           >
@@ -571,7 +571,7 @@ const CameraScreen = () => {
   // Learning Content Mode
   if (ocrMode === 'learning_content') {
     const currentQuestion = quizData[currentQuestionIndex];
-    
+
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
@@ -588,8 +588,8 @@ const CameraScreen = () => {
               Question {currentQuestionIndex + 1} of {quizData.length}
             </Text>
             <View style={styles.progressBar}>
-              <View 
-                style={[styles.progressFill, { width: `${((currentQuestionIndex + 1) / quizData.length) * 100}%` }]} 
+              <View
+                style={[styles.progressFill, { width: `${((currentQuestionIndex + 1) / quizData.length) * 100}%` }]}
               />
             </View>
           </View>
@@ -597,7 +597,7 @@ const CameraScreen = () => {
           {/* Question Card */}
           <View style={styles.questionCard}>
             <Text style={styles.questionText}>❓ {currentQuestion?.question}</Text>
-            
+
             <View style={styles.optionsContainer}>
               {currentQuestion?.options?.map((option: string, index: number) => (
                 <View key={index} style={styles.optionItem}>
@@ -617,12 +617,12 @@ const CameraScreen = () => {
 
           {/* Navigation Buttons */}
           <View style={styles.learningNavigation}>
-            <TouchableOpacity 
-              style={[styles.navButton, currentQuestionIndex === 0 && styles.navButtonDisabled]} 
+            <TouchableOpacity
+              style={[styles.navButton, currentQuestionIndex === 0 && styles.navButtonDisabled]}
               onPress={previousQuestion}
               disabled={currentQuestionIndex === 0}
             >
-              <Ionicons name="chevron-back" size={20} color={currentQuestionIndex === 0 ? "#CCCCCC" : "#3DB2FF"} />
+              <Ionicons name="chevron-back" size={20} color={currentQuestionIndex === 0 ? '#CCCCCC' : '#3DB2FF'} />
               <Text style={[styles.navButtonText, currentQuestionIndex === 0 && styles.navButtonTextDisabled]}>
                 Previous
               </Text>
@@ -674,7 +674,7 @@ const CameraScreen = () => {
                 key={avatar.id}
                 style={[
                   styles.optionCard,
-                  selectedAvatar === avatar.id && styles.selectedOptionCard
+                  selectedAvatar === avatar.id && styles.selectedOptionCard,
                 ]}
                 onPress={() => setSelectedAvatar(avatar.id)}
               >
@@ -691,7 +691,7 @@ const CameraScreen = () => {
                 key={emotion.id}
                 style={[
                   styles.optionCard,
-                  selectedEmotion === emotion.id && styles.selectedOptionCard
+                  selectedEmotion === emotion.id && styles.selectedOptionCard,
                 ]}
                 onPress={() => setSelectedEmotion(emotion.id)}
               >
@@ -708,7 +708,7 @@ const CameraScreen = () => {
                 key={language.id}
                 style={[
                   styles.optionCard,
-                  selectedLanguage === language.id && styles.selectedOptionCard
+                  selectedLanguage === language.id && styles.selectedOptionCard,
                 ]}
                 onPress={() => setSelectedLanguage(language.id)}
               >
@@ -738,7 +738,7 @@ const CameraScreen = () => {
         <View style={styles.processingContainer}>
           <Text style={styles.processingText}>{processingMessage}</Text>
           <Text style={styles.processingSubtext}>This may take a few moments...</Text>
-          
+
           <View style={styles.avatarPreview}>
             <Text style={styles.avatarPreviewText}>
               {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.emoji} {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.name}
@@ -791,7 +791,7 @@ const CameraScreen = () => {
                 {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.emoji} {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.name}
               </Text>
             </View>
-            
+
             <View style={styles.infoCard}>
               <Text style={styles.infoLabel}>Content Length:</Text>
               <Text style={styles.infoValue}>{scannedText.length} characters</Text>
@@ -803,7 +803,7 @@ const CameraScreen = () => {
               <Ionicons name="add" size={20} color="#3DB2FF" />
               <Text style={styles.secondaryButtonText}>New Content</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.primaryButton} onPress={resetCamera}>
               <Ionicons name="home" size={20} color="#FFFFFF" />
               <Text style={styles.primaryButtonText}>Back to Hub</Text>
@@ -880,8 +880,8 @@ const CameraScreen = () => {
           <Text style={styles.headerTitle}>Scanned Text</Text>
         </View>
 
-        <ScrollView 
-          style={styles.resultsContainer} 
+        <ScrollView
+          style={styles.resultsContainer}
           contentContainerStyle={styles.scrollableContent}
           showsVerticalScrollIndicator={true}
         >
@@ -917,8 +917,8 @@ const CameraScreen = () => {
           )}
 
           {/* Learn Button */}
-          <TouchableOpacity 
-            style={[styles.learnButton, isProcessing && styles.learnButtonDisabled]} 
+          <TouchableOpacity
+            style={[styles.learnButton, isProcessing && styles.learnButtonDisabled]}
             onPress={startLearning}
             disabled={isProcessing}
           >
@@ -945,7 +945,7 @@ const CameraScreen = () => {
             <Text style={styles.getStartedDescription}>
               Click "Start Learning" to generate personalized quiz questions and learning activities based on your content.
             </Text>
-            
+
             {/* Learning Preview */}
             <View style={styles.previewContainer}>
               <View style={styles.previewItem}>
@@ -976,8 +976,8 @@ const CameraScreen = () => {
       </View>
 
       {/* Content */}
-      <ScrollView 
-        style={styles.content} 
+      <ScrollView
+        style={styles.content}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
       >
@@ -985,21 +985,21 @@ const CameraScreen = () => {
           <View style={styles.iconContainer}>
             <Ionicons name="camera-outline" size={80} color="#3DB2FF" />
           </View>
-          
+
           {isProcessing && (
             <View style={styles.processingContainer}>
               <Text style={styles.processingText}>🔍 Analyzing image...</Text>
               <Text style={styles.processingSubtext}>Extracting text using OCR technology</Text>
             </View>
           )}
-          
+
           {!isProcessing && (
             <>
               <Text style={styles.title}>Smart Text Recognition</Text>
               <Text style={styles.description}>
                 Point your camera at any text and our AI will help you learn and understand it better with personalized explanations.
               </Text>
-              
+
               <View style={styles.featuresContainer}>
                 <View style={styles.featureItem}>
                   <Ionicons name="scan-outline" size={20} color="#4CAF50" />
@@ -1019,8 +1019,8 @@ const CameraScreen = () => {
                 </View>
               </View>
 
-              <TouchableOpacity 
-                style={styles.startButton} 
+              <TouchableOpacity
+                style={styles.startButton}
                 onPress={openCamera}
                 disabled={isProcessing}
               >
@@ -1936,4 +1936,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CameraScreen; 
+export default CameraScreen;

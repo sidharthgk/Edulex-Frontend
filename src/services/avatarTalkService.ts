@@ -49,7 +49,7 @@ class AvatarTalkService {
         stream: request.stream || false,
       });
 
-      const url = request.stream 
+      const url = request.stream
         ? `${this.baseUrl}?stream=true`
         : this.baseUrl;
 
@@ -83,7 +83,7 @@ class AvatarTalkService {
       }
 
       const result: AvatarTalkResponse = await response.json();
-      
+
       console.log('✅ AvatarTalk Success!');
       console.log('🎥 Video Details:', {
         id: result.id,
@@ -141,10 +141,10 @@ class AvatarTalkService {
 
     // If no good sentence boundary, truncate at word boundary
     const lastSpace = truncated.lastIndexOf(' ');
-    return lastSpace > maxLength * 0.8 
+    return lastSpace > maxLength * 0.8
       ? truncated.substring(0, lastSpace) + '...'
       : truncated + '...';
   }
 }
 
-export const avatarTalkService = new AvatarTalkService(); 
+export const avatarTalkService = new AvatarTalkService();

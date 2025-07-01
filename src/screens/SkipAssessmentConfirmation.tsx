@@ -48,7 +48,7 @@ const SkipAssessmentConfirmation = ({ navigation }: any) => {
           <Text style={styles.subtitle}>
             This assessment is really important for your learning journey
           </Text>
-          
+
           <View style={styles.benefitsContainer}>
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
@@ -56,21 +56,21 @@ const SkipAssessmentConfirmation = ({ navigation }: any) => {
                 Helps us understand your unique learning style
               </Text>
             </View>
-            
+
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
               <Text style={styles.benefitText}>
                 Creates a personalized learning path just for you
               </Text>
             </View>
-            
+
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
               <Text style={styles.benefitText}>
                 Identifies your strengths and areas for improvement
               </Text>
             </View>
-            
+
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
               <Text style={styles.benefitText}>
@@ -80,7 +80,7 @@ const SkipAssessmentConfirmation = ({ navigation }: any) => {
           </View>
 
           <Text style={styles.encouragementText}>
-            We believe in your potential! This assessment will help us support you better 
+            We believe in your potential! This assessment will help us support you better
             and create the most effective learning experience for your needs.
           </Text>
         </View>
@@ -95,7 +95,7 @@ const SkipAssessmentConfirmation = ({ navigation }: any) => {
               Let's Take the Assessment
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={styles.skipButton}
             onPress={handleSkipConfirmed}
@@ -229,4 +229,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SkipAssessmentConfirmation; 
+export default SkipAssessmentConfirmation;

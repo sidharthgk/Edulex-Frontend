@@ -54,4 +54,4 @@ export const LANGUAGE_OPTIONS = [
   { id: 'hu', name: 'Hungarian', emoji: '🇭🇺' },
   { id: 'ko', name: 'Korean', emoji: '🇰🇷' },
   { id: 'hi', name: 'Hindi', emoji: '🇮🇳' },
-]; 
+];

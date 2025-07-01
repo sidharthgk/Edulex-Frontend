@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -31,7 +31,7 @@ const wordSets: WordSet[] = [
   { word: 'tree', difficulty: 1, category: 'nature' },
   { word: 'fish', difficulty: 1, category: 'animals' },
   { word: 'bird', difficulty: 1, category: 'animals' },
-  
+
   // Medium words (5-6 letters)
   { word: 'house', difficulty: 2, category: 'objects' },
   { word: 'happy', difficulty: 2, category: 'emotions' },
@@ -41,7 +41,7 @@ const wordSets: WordSet[] = [
   { word: 'flower', difficulty: 2, category: 'nature' },
   { word: 'friend', difficulty: 2, category: 'people' },
   { word: 'school', difficulty: 2, category: 'places' },
-  
+
   // Hard words (7+ letters)
   { word: 'rainbow', difficulty: 3, category: 'nature' },
   { word: 'computer', difficulty: 3, category: 'objects' },
@@ -53,7 +53,7 @@ const wordSets: WordSet[] = [
 
 const WordMatchingGame = () => {
   const navigation = useNavigation();
-  
+
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../../assets/fonts/OpenDyslexic-Bold.otf'),
@@ -69,27 +69,29 @@ const WordMatchingGame = () => {
   const [gameActive, setGameActive] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  
-  // Animations
-  const [fadeAnim] = useState(new Animated.Value(1));
-  const [scaleAnim] = useState(new Animated.Value(1));
 
-  // Timer effect
+  // Animations
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // Game timer
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: any;
     if (gameActive && timeLeft > 0) {
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (timeLeft === 0 && gameActive) {
       endGame();
     }
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, gameActive]);
 
   // Initialize game
   useEffect(() => {
-    if (fontsLoaded && !gameActive && !gameComplete) {
+    if (fontsLoaded) {
       generateNewWord();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fontsLoaded, level]);
 
   if (!fontsLoaded) {
@@ -99,30 +101,30 @@ const WordMatchingGame = () => {
   const generateNewWord = () => {
     // Filter words by current difficulty level
     const availableWords = wordSets.filter(w => w.difficulty <= level);
-    if (availableWords.length === 0) return;
+    if (availableWords.length === 0) {return;}
 
     const randomWord = availableWords[Math.floor(Math.random() * availableWords.length)];
-    
+
     // Generate wrong choices from same difficulty level
     const wrongChoices = availableWords
       .filter(w => w.word !== randomWord.word)
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
       .map(w => w.word);
-    
+
     // Shuffle all choices
     const allChoices = [randomWord.word, ...wrongChoices].sort(() => Math.random() - 0.5);
-    
+
     setCurrentWord(randomWord);
     setChoices(allChoices);
     setSelectedChoice(null);
   };
 
   const handleChoice = (selectedWord: string) => {
-    if (!currentWord || selectedChoice) return;
-    
+    if (!currentWord || selectedChoice) {return;}
+
     setSelectedChoice(selectedWord);
-    
+
     // Animate button press
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -144,12 +146,12 @@ const WordMatchingGame = () => {
         setScore(prev => prev + points);
         setStreak(prev => prev + 1);
         Vibration.vibrate(100);
-        
+
         // Level up after certain streaks
         if (streak > 0 && (streak + 1) % 5 === 0 && level < 3) {
           setLevel(prev => prev + 1);
           Alert.alert(
-            '🎉 Level Up!', 
+            '🎉 Level Up!',
             `Great job! You've reached level ${level + 1}!`,
             [{ text: 'Continue', onPress: () => generateNewWord() }]
           );
@@ -173,7 +175,7 @@ const WordMatchingGame = () => {
         setStreak(0);
         Vibration.vibrate([100, 50, 100]);
         Alert.alert(
-          '🤔 Try Again!', 
+          '🤔 Try Again!',
           `The correct word was "${currentWord.word}". Keep trying!`,
           [{ text: 'Next Word', onPress: () => generateNewWord() }]
         );
@@ -194,19 +196,19 @@ const WordMatchingGame = () => {
   const endGame = () => {
     setGameActive(false);
     setGameComplete(true);
-    
+
     let performance = 'Good effort!';
-    if (score >= 200) performance = 'Outstanding! 🌟';
-    else if (score >= 150) performance = 'Excellent! 🎉';
-    else if (score >= 100) performance = 'Great job! 👏';
-    else if (score >= 50) performance = 'Well done! 😊';
-    
+    if (score >= 200) {performance = 'Outstanding! 🌟';}
+    else if (score >= 150) {performance = 'Excellent! 🎉';}
+    else if (score >= 100) {performance = 'Great job! 👏';}
+    else if (score >= 50) {performance = 'Well done! 😊';}
+
     Alert.alert(
       '⏰ Time\'s Up!',
       `${performance}\n\nFinal Score: ${score}\nBest Streak: ${streak}\nLevel Reached: ${level}`,
       [
         { text: 'Play Again', onPress: startGame },
-        { text: 'Back to Games', onPress: () => navigation.goBack() }
+        { text: 'Back to Games', onPress: () => navigation.goBack() },
       ]
     );
   };
@@ -218,7 +220,7 @@ const WordMatchingGame = () => {
       'Take your time! Ready to continue?',
       [
         { text: 'Resume', onPress: () => setGameActive(true) },
-        { text: 'End Game', onPress: endGame }
+        { text: 'End Game', onPress: endGame },
       ]
     );
   };
@@ -227,20 +229,20 @@ const WordMatchingGame = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Ionicons name="arrow-back" size={24} color="#3DB2FF" />
         </TouchableOpacity>
-        
+
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Word Matching</Text>
           <Text style={styles.headerSubtitle}>Match the words correctly</Text>
         </View>
-        
+
         {gameActive && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.pauseButton}
             onPress={pauseGame}
           >
@@ -283,10 +285,10 @@ const WordMatchingGame = () => {
             </View>
             <Text style={styles.gameTitle}>Word Matching Challenge</Text>
             <Text style={styles.gameDescription}>
-              Match words as quickly and accurately as possible! 
+              Match words as quickly and accurately as possible!
               Build streaks to level up and earn bonus points.
             </Text>
-            
+
             <View style={styles.rulesContainer}>
               <Text style={styles.rulesTitle}>How to Play:</Text>
               <Text style={styles.rule}>• Find the word that matches the target</Text>
@@ -294,23 +296,23 @@ const WordMatchingGame = () => {
               <Text style={styles.rule}>• Level up every 5 correct answers</Text>
               <Text style={styles.rule}>• You have 60 seconds!</Text>
             </View>
-            
+
             <TouchableOpacity style={styles.startButton} onPress={startGame}>
               <Text style={styles.startButtonText}>Start Game</Text>
             </TouchableOpacity>
           </View>
         ) : gameActive && currentWord ? (
           // Active Game
-          <Animated.View 
+          <Animated.View
             style={[styles.gameArea, { opacity: fadeAnim }]}
           >
             <Text style={styles.instruction}>Find the word that matches:</Text>
-            
+
             <View style={styles.targetWordContainer}>
               <Text style={styles.targetWord}>{currentWord.word}</Text>
               <Text style={styles.categoryLabel}>{currentWord.category}</Text>
             </View>
-            
+
             <View style={styles.choicesContainer}>
               {choices.map((choice, index) => (
                 <Animated.View
@@ -337,18 +339,18 @@ const WordMatchingGame = () => {
                 </Animated.View>
               ))}
             </View>
-            
+
             {/* Progress indicators */}
             <View style={styles.progressContainer}>
               <Text style={styles.progressText}>
                 Next level: {5 - (streak % 5)}/5 streak
               </Text>
               <View style={styles.progressBar}>
-                <View 
+                <View
                   style={[
-                    styles.progressFill, 
-                    { width: `${((streak % 5) / 5) * 100}%` }
-                  ]} 
+                    styles.progressFill,
+                    { width: `${((streak % 5) / 5) * 100}%` },
+                  ]}
                 />
               </View>
             </View>
@@ -590,4 +592,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WordMatchingGame; 
+export default WordMatchingGame;

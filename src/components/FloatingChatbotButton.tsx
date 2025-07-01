@@ -97,7 +97,7 @@ const FloatingChatbotButton: React.FC = () => {
 
   return (
     <View style={[styles.container, { bottom: insets.bottom + 100 }]} pointerEvents="box-none">
-      {/* 
+      {/*
         If menu is open, show a transparent overlay behind the FAB.
         Tapping it closes the menu.
       */}
@@ -152,7 +152,7 @@ const FloatingChatbotButton: React.FC = () => {
         </Animated.View>
       </TouchableOpacity>
 
-      {/* 
+      {/*
         CALL CONFIRMATION MODAL:
         - We use a custom Modal so we can style text with OpenDyslexic font.
         - If user presses outside, they can close it or press Cancel or Yes.
@@ -203,21 +203,64 @@ const SUB_BUTTON_SIZE = 50;
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
+    bottom: 90,
     right: 20,
+    zIndex: 1000,
   },
   floatingButton: {
-    width: BUTTON_SIZE,
-    height: BUTTON_SIZE,
-    borderRadius: BUTTON_SIZE / 2,
-    backgroundColor: '#FFF',
-    alignItems: 'center',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
-    elevation: 6,         // Android shadow
-    shadowColor: '#000',  // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.3,
-    shadowRadius: 3,
-    zIndex: 10,           // Ensure it's above the overlay
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  buttonInactive: {
+    backgroundColor: '#aaa',
+  },
+  buttonActive: {
+    backgroundColor: '#3DB2FF',
+  },
+  buttonIcon: {
+    color: '#fff',
+  },
+  // Typing indicator styles
+  typingIndicator: {
+    position: 'absolute',
+    bottom: 70,
+    right: 0,
+    backgroundColor: '#2C3E50',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    opacity: 0,
+    transform: [{ scale: 0.8 }, { translateY: 10 }],
+  },
+  typingVisible: {
+    opacity: 1,
+    transform: [{ scale: 1 }, { translateY: 0 }],
+  },
+  typingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  typingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#fff',
+    opacity: 0.5,
+  },
+  typingActive: {
+    opacity: 1,
   },
   subButtonContainer: {
     position: 'absolute',

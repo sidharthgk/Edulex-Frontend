@@ -221,10 +221,10 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
       onRequestClose={onClose}
     >
       {/* Top-level wrapper to ensure flex layout */}
-      <View style={{ flex: 1 }}>
+      <View style={styles.flexContainer}>
         {/* KeyboardAvoidingView helps the UI adjust when the keyboard shows */}
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={styles.flexContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={[styles.container, darkMode && styles.darkContainer]}>
@@ -325,6 +325,9 @@ export default Chatbot;
 /* ---- STYLES ---- */
 const styles = StyleSheet.create({
   /* Container / General */
+  flexContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#F7F7F7', // Soft light background
@@ -449,46 +452,44 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 10,
-    marginBottom: Platform.OS === 'ios' ? 16 : 10,
-    borderRadius: 25,
     paddingHorizontal: 15,
-    paddingVertical: 6,
-    // Light shadow for input container
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E8E8E8',
   },
   darkInput: {
-    backgroundColor: '#2A2A2A',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
+    backgroundColor: '#2C2C2C',
+    borderTopColor: '#444',
   },
   input: {
     flex: 1,
-    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Regular',
-    color: '#333', // Dark text in light mode
+    backgroundColor: '#F9F9F9',
+    marginRight: 10,
   },
   darkInputText: {
-    color: '#EEE', // Light text in dark mode
+    backgroundColor: '#444',
+    borderColor: '#666',
+    color: '#FFF',
   },
   sendButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    backgroundColor: '#2C3E50',
+    backgroundColor: '#3DB2FF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 20,
-    marginLeft: 8,
   },
   darkSendButton: {
-    backgroundColor: '#555',
+    backgroundColor: '#0352C7',
   },
   sendButtonText: {
-    color: '#FFFFFF',
+    color: '#FFF',
     fontFamily: 'OpenDyslexic-Bold',
     fontSize: 16,
   },
@@ -496,23 +497,24 @@ const styles = StyleSheet.create({
   /* Menu Modal */
   modalBackground: {
     flex: 1,
-    justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
   },
   menuContainer: {
-    backgroundColor: '#fff',
-    marginHorizontal: 50,
-    borderRadius: 10,
-    padding: 15,
-    elevation: 5,
+    backgroundColor: '#FFF',
+    paddingBottom: 30,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   menuItem: {
-    paddingVertical: 10,
-    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
   },
   menuText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'OpenDyslexic-Regular',
     color: '#333',
+    textAlign: 'center',
   },
 });

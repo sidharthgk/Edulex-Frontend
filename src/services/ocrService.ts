@@ -88,14 +88,14 @@ class OCRService {
 
       // Create form data for the API request
       const formData = new FormData();
-      
+
       // Get the filename from the URI
       const filename = imageUri.split('/').pop() || 'captured_image.jpg';
       console.log('📄 Filename:', filename);
-      
+
       const apiEndpoint = `${this.baseUrl}${this.ocrEndpoint}`;
       console.log('📡 OCR API Endpoint:', apiEndpoint);
-      
+
       // Add the image file to form data
       formData.append('image', {
         uri: imageUri,
@@ -104,7 +104,7 @@ class OCRService {
       } as any);
 
       console.log('📡 OCR API: Making request to', apiEndpoint);
-      
+
       const requestStartTime = Date.now();
 
       // Make API request to OCR endpoint
@@ -130,7 +130,7 @@ class OCRService {
       }
 
       const result = await response.json();
-      
+
       console.log('🔍 OCR API Response:');
       console.log(JSON.stringify(result, null, 2));
 
@@ -139,17 +139,17 @@ class OCRService {
         const rawText = result.data.text || result.data || '';
         const cleanedText = this.parseMarkdownText(rawText.trim());
         const extractedImages = result.data.images || [];
-        
+
         console.log('✅ OCR Success!');
         console.log('📝 Raw text length:', rawText.length);
         console.log('📝 Cleaned text length:', cleanedText.length);
         console.log('📄 Cleaned text preview:', cleanedText.substring(0, 100) + (cleanedText.length > 100 ? '...' : ''));
         console.log('🖼️ Images extracted:', extractedImages.length);
-        
+
         if (extractedImages.length > 0) {
           console.log('📸 Image URLs:', extractedImages.map((img: { page: number; url: string; bbox: any; type: string }) => img.url));
         }
-        
+
         if (cleanedText.length > 0 || extractedImages.length > 0) {
           return {
             success: true,
@@ -174,9 +174,9 @@ class OCRService {
 
     } catch (error) {
       console.error('💥 OCR Service Error:', error);
-      
+
       let errorMessage = 'Failed to extract text from image. Please try again.';
-      
+
       if (error instanceof Error) {
         if (error.message.includes('Network request failed')) {
           errorMessage = 'Network connection failed. Please check your internet connection.';
@@ -186,7 +186,7 @@ class OCRService {
           errorMessage = error.message;
         }
       }
-      
+
       return {
         success: false,
         text: '',
@@ -212,7 +212,7 @@ class OCRService {
       };
 
       console.log('📡 Teaching Plan API: Making request...');
-      
+
       const requestStartTime = Date.now();
 
       const response = await fetch(apiEndpoint, {
@@ -237,14 +237,14 @@ class OCRService {
       }
 
       const result: TeachingPlanResult = await response.json();
-      
+
       console.log('🔍 Teaching Plan API Response:');
       console.log(JSON.stringify(result, null, 2));
 
       if (result.success && result.data) {
         console.log('✅ Teaching Plan Generated!');
         console.log('📚 Number of teaching actions:', result.data.length);
-        
+
         return result;
       } else {
         console.log('❌ Teaching Plan Failed - API returned success: false');
@@ -253,9 +253,9 @@ class OCRService {
 
     } catch (error) {
       console.error('💥 Teaching Plan Service Error:', error);
-      
+
       let errorMessage = 'Failed to generate teaching plan. Please try again.';
-      
+
       if (error instanceof Error) {
         if (error.message.includes('Network request failed')) {
           errorMessage = 'Network connection failed. Please check your internet connection.';
@@ -265,7 +265,7 @@ class OCRService {
           errorMessage = error.message;
         }
       }
-      
+
       return {
         success: false,
         message: errorMessage,
@@ -283,23 +283,23 @@ class OCRService {
     }
 
     let content = 'Welcome to your personalized learning session! ';
-    
+
     teachingPlan.forEach((action, index) => {
       if (index === 0) {
         content += `Let's start with ${action.action.toLowerCase()}. `;
       } else {
         content += `Next, we'll do ${action.action.toLowerCase()}. `;
       }
-      
+
       content += `${action.details} `;
-      
+
       if (action.parameters.time) {
         content += `This should take about ${action.parameters.time}. `;
       }
     });
 
     content += 'Remember, learning is a journey, and every step counts. Let\'s make this enjoyable and effective!';
-    
+
     return content;
   }
 
@@ -319,7 +319,7 @@ class OCRService {
       };
 
       console.log('📡 Quiz API: Making request...');
-      
+
       const requestStartTime = Date.now();
 
       const response = await fetch(apiEndpoint, {
@@ -344,14 +344,14 @@ class OCRService {
       }
 
       const result: QuizResult = await response.json();
-      
+
       console.log('🔍 Quiz API Response:');
       console.log(JSON.stringify(result, null, 2));
 
       if (result.success && result.data) {
         console.log('✅ Quiz Generated!');
         console.log('📝 Number of questions:', result.data.length);
-        
+
         return result;
       } else {
         console.log('❌ Quiz Generation Failed - API returned success: false');
@@ -360,9 +360,9 @@ class OCRService {
 
     } catch (error) {
       console.error('💥 Quiz Generation Service Error:', error);
-      
+
       let errorMessage = 'Failed to generate quiz. Please try again.';
-      
+
       if (error instanceof Error) {
         if (error.message.includes('Network request failed')) {
           errorMessage = 'Network connection failed. Please check your internet connection.';
@@ -372,7 +372,7 @@ class OCRService {
           errorMessage = error.message;
         }
       }
-      
+
       return {
         success: false,
         message: errorMessage,
@@ -394,11 +394,11 @@ class OCRService {
 
       // Create form data for the API request
       const formData = new FormData();
-      
+
       // Get the filename from the URI
       const filename = fileUri.split('/').pop() || 'uploaded_file';
       console.log('📄 Filename:', filename);
-      
+
       // Add the file to form data
       formData.append('file', {
         uri: fileUri,
@@ -407,7 +407,7 @@ class OCRService {
       } as any);
 
       console.log('📡 Summarization API: Making request...');
-      
+
       const requestStartTime = Date.now();
 
       const response = await fetch(apiEndpoint, {
@@ -432,14 +432,14 @@ class OCRService {
       }
 
       const result: SummarizationResult = await response.json();
-      
+
       console.log('🔍 Summarization API Response:');
       console.log(JSON.stringify(result, null, 2));
 
       if (result.success && result.data) {
         console.log('✅ File Summarized!');
         console.log('📝 Summary length:', result.data.length);
-        
+
         return result;
       } else {
         console.log('❌ File Summarization Failed - API returned success: false');
@@ -448,9 +448,9 @@ class OCRService {
 
     } catch (error) {
       console.error('💥 File Summarization Service Error:', error);
-      
+
       let errorMessage = 'Failed to summarize file. Please try again.';
-      
+
       if (error instanceof Error) {
         if (error.message.includes('Network request failed')) {
           errorMessage = 'Network connection failed. Please check your internet connection.';
@@ -460,7 +460,7 @@ class OCRService {
           errorMessage = error.message;
         }
       }
-      
+
       return {
         success: false,
         message: errorMessage,
@@ -473,8 +473,8 @@ class OCRService {
    * Generate demo text for testing purposes
    */
   generateDemoText(): OCRResult {
-    const demoText = "Reading is a complex cognitive process that involves decoding written symbols to derive meaning. It requires the coordination of visual processing, phonological awareness, and comprehension skills. For individuals with dyslexia, this process can be challenging, but with proper support and assistive technologies, reading can become more accessible and enjoyable.";
-    
+    const demoText = 'Reading is a complex cognitive process that involves decoding written symbols to derive meaning. It requires the coordination of visual processing, phonological awareness, and comprehension skills. For individuals with dyslexia, this process can be challenging, but with proper support and assistive technologies, reading can become more accessible and enjoyable.';
+
     return {
       success: true,
       text: demoText,
@@ -505,7 +505,7 @@ class OCRService {
    * Parse markdown text and extract clean readable content
    */
   parseMarkdownText(markdownText: string): string {
-    if (!markdownText) return '';
+    if (!markdownText) {return '';}
 
     let cleanText = markdownText;
 
@@ -540,7 +540,7 @@ class OCRService {
   cleanText(text: string): string {
     // First parse markdown if present
     const parsedText = this.parseMarkdownText(text);
-    
+
     return parsedText
       .trim()
       .replace(/\s+/g, ' ') // Replace multiple spaces with single space
@@ -548,4 +548,4 @@ class OCRService {
   }
 }
 
-export const ocrService = new OCRService(); 
+export const ocrService = new OCRService();

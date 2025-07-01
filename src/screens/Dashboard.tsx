@@ -87,10 +87,10 @@ const Dashboard = ({ navigation }: any) => {
      // Set random motivational message
      const motivationalMessages = [
        "Great job! You're making amazing progress! 🌟",
-       "Every small step counts. Keep going! 💪",
+       'Every small step counts. Keep going! 💪',
        "You're building stronger reading skills each day! 📚",
-       "Your dedication is inspiring! 🚀",
-       "Practice makes progress, and you're doing great! ✨"
+       'Your dedication is inspiring! 🚀',
+       "Practice makes progress, and you're doing great! ✨",
      ];
      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
      setMotivationalMessage(randomMessage);
@@ -152,16 +152,16 @@ const Dashboard = ({ navigation }: any) => {
   };
 
   const getStreakIcon = (streak: number): any => {
-    if (streak >= 30) return 'flame';
-    if (streak >= 14) return 'flame-outline';
-    if (streak >= 7) return 'bonfire-outline';
+    if (streak >= 30) {return 'flame';}
+    if (streak >= 14) {return 'flame-outline';}
+    if (streak >= 7) {return 'bonfire-outline';}
     return 'sunny-outline';
   };
 
   const getStreakColor = (streak: number): string => {
-    if (streak >= 30) return '#FF4444';
-    if (streak >= 14) return '#FF8800';
-    if (streak >= 7) return '#FFAA00';
+    if (streak >= 30) {return '#FF4444';}
+    if (streak >= 14) {return '#FF8800';}
+    if (streak >= 7) {return '#FFAA00';}
     return '#FFC107';
   };
 
@@ -186,7 +186,7 @@ const Dashboard = ({ navigation }: any) => {
             <Text style={styles.streakNumber}>{currentStreak}</Text>
             <Text style={styles.streakLabel}>Day Streak</Text>
           </View>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.practiceButton}
             onPress={() => handleQuickAction('practice')}
           >
@@ -200,8 +200,8 @@ const Dashboard = ({ navigation }: any) => {
       <View style={styles.goalsContainer}>
         <Text style={styles.sectionTitle}>Today's Goals</Text>
         {dailyGoals.map((goal) => (
-          <TouchableOpacity 
-            key={goal.id} 
+          <TouchableOpacity
+            key={goal.id}
             style={styles.goalCard}
             onPress={() => handleGoalTap(goal)}
           >
@@ -214,14 +214,14 @@ const Dashboard = ({ navigation }: any) => {
             </View>
             <View style={styles.goalProgress}>
               <View style={styles.progressBar}>
-                                 <View 
+                                 <View
                    style={[
-                     styles.progressFill, 
-                     { 
+                     styles.progressFill,
+                     {
                        width: `${getProgressBarWidth(goal.progress, goal.target)}%`,
-                       backgroundColor: goal.color 
-                     }
-                   ]} 
+                       backgroundColor: goal.color,
+                     },
+                   ]}
                  />
               </View>
               <Text style={styles.progressText}>{goal.progress}/{goal.target} {goal.unit}</Text>
@@ -234,40 +234,40 @@ const Dashboard = ({ navigation }: any) => {
       <View style={styles.quickActionsContainer}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.quickActionsGrid}>
-          <TouchableOpacity 
-            style={[styles.quickActionCard, { backgroundColor: '#E3F2FD' }]}
+          <TouchableOpacity
+            style={[styles.quickActionCard, styles.quickActionGames]}
             onPress={() => handleQuickAction('games')}
           >
             <Ionicons name="game-controller" size={32} color="#2196F3" />
             <Text style={styles.quickActionText}>Play Games</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.quickActionCard, { backgroundColor: '#E8F5E8' }]}
+
+          <TouchableOpacity
+            style={[styles.quickActionCard, styles.quickActionCamera]}
             onPress={() => handleQuickAction('camera')}
           >
             <Ionicons name="camera" size={32} color="#4CAF50" />
             <Text style={styles.quickActionText}>Scan Text</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.quickActionCard, { backgroundColor: '#FCE4EC' }]}
+
+          <TouchableOpacity
+            style={[styles.quickActionCard, styles.quickActionQuiz]}
             onPress={() => handleQuickAction('quiz')}
           >
             <Ionicons name="school" size={32} color="#E91E63" />
             <Text style={styles.quickActionText}>AI Quiz</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.quickActionCard, { backgroundColor: '#FFF3E0' }]}
+
+          <TouchableOpacity
+            style={[styles.quickActionCard, styles.quickActionCommunity]}
             onPress={() => handleQuickAction('community')}
           >
             <Ionicons name="people" size={32} color="#FF9800" />
             <Text style={styles.quickActionText}>Community</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.quickActionCard, { backgroundColor: '#F3E5F5' }]}
+
+          <TouchableOpacity
+            style={[styles.quickActionCard, styles.quickActionAssessment]}
             onPress={handleTakeAssessment}
           >
             <Ionicons name="analytics" size={32} color="#9C27B0" />
@@ -317,8 +317,8 @@ const Dashboard = ({ navigation }: any) => {
       <View style={styles.recommendationsContainer}>
         <Text style={styles.sectionTitle}>Recommended for You</Text>
         {recommendations.map((rec) => (
-          <TouchableOpacity 
-            key={rec.id} 
+          <TouchableOpacity
+            key={rec.id}
             style={styles.recommendationCard}
             onPress={() => handleRecommendationTap(rec)}
           >
@@ -337,7 +337,7 @@ const Dashboard = ({ navigation }: any) => {
               {/* Recent Achievements */}
         <View style={styles.recentActivityContainer}>
           <Text style={styles.sectionTitle}>Recent Achievements</Text>
-          
+
           {recentAchievements.map((achievement, index) => (
             <View key={achievement.id} style={styles.activityItem}>
               <View style={[styles.activityIcon, { backgroundColor: achievement.color }]}>
@@ -358,10 +358,13 @@ const Dashboard = ({ navigation }: any) => {
         <View style={styles.achievementsContainer}>
           <Text style={styles.sectionTitle}>All Achievements</Text>
           <Text style={styles.sectionSubtitle}>Unlock badges by completing challenges</Text>
-          
+
           {achievements.map((achievement) => (
             <View key={achievement.id} style={[styles.achievementCard, !achievement.unlocked && styles.lockedAchievement]}>
-              <View style={[styles.achievementIcon, { backgroundColor: achievement.unlocked ? achievement.color : '#E0E0E0' }]}>
+              <View style={[
+                styles.achievementIcon,
+                achievement.unlocked ? { backgroundColor: achievement.color } : styles.lockedAchievementIcon,
+              ]}>
                 <Ionicons name={achievement.icon as any} size={24} color={achievement.unlocked ? '#FFFFFF' : '#BDBDBD'} />
               </View>
               <View style={styles.achievementInfo}>
@@ -518,11 +521,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   quickActionCard: {
-    width: '48%',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 15,
     padding: 20,
-    alignItems: 'center',
-    marginBottom: 12,
+    marginHorizontal: 5,
+    marginVertical: 5,
+    minHeight: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   quickActionText: {
     fontSize: 14,
@@ -734,6 +745,24 @@ const styles = StyleSheet.create({
   lockedText: {
     color: '#BDBDBD',
   },
+  quickActionGames: {
+    backgroundColor: '#E3F2FD',
+  },
+  quickActionCamera: {
+    backgroundColor: '#E8F5E8',
+  },
+  quickActionQuiz: {
+    backgroundColor: '#FCE4EC',
+  },
+  quickActionCommunity: {
+    backgroundColor: '#FFF3E0',
+  },
+  quickActionAssessment: {
+    backgroundColor: '#F3E5F5',
+  },
+  lockedAchievementIcon: {
+    backgroundColor: '#E0E0E0',
+  },
 });
 
-export default Dashboard; 
+export default Dashboard;

@@ -61,9 +61,9 @@ const MinigamesScreen = () => {
   const [isUppercase, setIsUppercase] = useState(true);
 
   const confusingLetters = [
-    ['b', 'd'], ['p', 'q'], ['m', 'w'], ['n', 'u'], 
+    ['b', 'd'], ['p', 'q'], ['m', 'w'], ['n', 'u'],
     ['f', 't'], ['h', 'n'], ['i', 'l'], ['o', 'a'],
-    ['c', 'e'], ['s', 'z'], ['v', 'y'], ['k', 'h']
+    ['c', 'e'], ['s', 'z'], ['v', 'y'], ['k', 'h'],
   ];
 
   useEffect(() => {
@@ -87,28 +87,28 @@ const MinigamesScreen = () => {
     const otherWords = wordSets.filter(w => w.word !== randomWord.word);
     const shuffledChoices = [randomWord.word, ...otherWords.slice(0, 2).map(w => w.word)]
       .sort(() => Math.random() - 0.5);
-    
+
     setCurrentWord(randomWord);
     setWordChoices(shuffledChoices);
     setSelectedChoice(null);
   };
 
   const handleWordChoice = (selectedWord: string) => {
-    if (!currentWord || selectedChoice) return;
-    
+    if (!currentWord || selectedChoice) {return;}
+
     setSelectedChoice(selectedWord);
-    
+
     setTimeout(() => {
       if (selectedWord === currentWord.word) {
         setWordScore(prev => prev + currentWord.difficulty * 10);
         Vibration.vibrate(100);
         Alert.alert('Correct! 🎉', 'Great job!', [
-          { text: 'Next Word', onPress: initializeWordGame }
+          { text: 'Next Word', onPress: initializeWordGame },
         ]);
       } else {
         Vibration.vibrate([100, 50, 100]);
         Alert.alert('Try Again! 🤔', `The correct word was "${currentWord.word}".`, [
-          { text: 'Next Word', onPress: initializeWordGame }
+          { text: 'Next Word', onPress: initializeWordGame },
         ]);
       }
     }, 500);
@@ -124,7 +124,7 @@ const MinigamesScreen = () => {
     setUserSequence([]);
     setShowingSequence(true);
     setCurrentStep(0);
-    
+
     newSequence.forEach((num, index) => {
       setTimeout(() => {
         setCurrentStep(index + 1);
@@ -139,22 +139,22 @@ const MinigamesScreen = () => {
   };
 
   const handleMemoryButton = (buttonIndex: number) => {
-    if (showingSequence) return;
-    
+    if (showingSequence) {return;}
+
     const newUserSequence = [...userSequence, buttonIndex];
     setUserSequence(newUserSequence);
-    
+
     if (newUserSequence.length === sequence.length) {
       if (JSON.stringify(newUserSequence) === JSON.stringify(sequence)) {
         setSequenceLevel(prev => prev + 1);
         Vibration.vibrate(100);
         Alert.alert('Perfect! 🌟', `Level ${sequenceLevel + 1} unlocked!`, [
-          { text: 'Next Level', onPress: startMemoryGame }
+          { text: 'Next Level', onPress: startMemoryGame },
         ]);
       } else {
         setSequenceLevel(1);
         Alert.alert('Try Again! 🔄', 'The sequence was different.', [
-          { text: 'Restart', onPress: startMemoryGame }
+          { text: 'Restart', onPress: startMemoryGame },
         ]);
       }
     }
@@ -166,17 +166,17 @@ const MinigamesScreen = () => {
     const letterPair = confusingLetters[Math.floor(Math.random() * confusingLetters.length)];
     const targetLetter = letterPair[Math.floor(Math.random() * letterPair.length)];
     const displayLetter = isUppercase ? targetLetter.toUpperCase() : targetLetter;
-    
+
     // Create choices with the target letter and confusing alternatives
     const otherLetter = letterPair.find(l => l !== targetLetter) || 'x';
     const randomLetter = String.fromCharCode(97 + Math.floor(Math.random() * 26)); // Random letter
-    
+
     const choices = [
       isUppercase ? targetLetter.toUpperCase() : targetLetter,
       isUppercase ? otherLetter.toUpperCase() : otherLetter,
-      isUppercase ? randomLetter.toUpperCase() : randomLetter
+      isUppercase ? randomLetter.toUpperCase() : randomLetter,
     ].sort(() => Math.random() - 0.5);
-    
+
     setCurrentLetter(displayLetter);
     setLetterChoices(choices);
   };
@@ -187,12 +187,12 @@ const MinigamesScreen = () => {
       setLetterScore(prev => prev + 10);
       Vibration.vibrate(100);
       Alert.alert('Perfect! 🎯', 'You found the right letter!', [
-        { text: 'Next Letter', onPress: initializeLetterGame }
+        { text: 'Next Letter', onPress: initializeLetterGame },
       ]);
     } else {
       Vibration.vibrate([100, 50, 100]);
       Alert.alert('Try Again! 🔤', `The correct letter was "${correctLetter}".`, [
-        { text: 'Next Letter', onPress: initializeLetterGame }
+        { text: 'Next Letter', onPress: initializeLetterGame },
       ]);
     }
   };
@@ -201,7 +201,7 @@ const MinigamesScreen = () => {
     setIsUppercase(!isUppercase);
     if (currentLetter) {
       setCurrentLetter(isUppercase ? currentLetter.toLowerCase() : currentLetter.toUpperCase());
-      setLetterChoices(letterChoices.map(letter => 
+      setLetterChoices(letterChoices.map(letter =>
         isUppercase ? letter.toLowerCase() : letter.toUpperCase()
       ));
     }
@@ -216,7 +216,7 @@ const MinigamesScreen = () => {
         </View>
 
         <View style={styles.gamesGrid}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.gameCard}
             onPress={() => setCurrentScreen('wordMatch')}
           >
@@ -230,7 +230,7 @@ const MinigamesScreen = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.gameCard}
             onPress={() => setCurrentScreen('memory')}
           >
@@ -244,7 +244,7 @@ const MinigamesScreen = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.gameCard}
             onPress={() => setCurrentScreen('letters')}
           >
@@ -282,7 +282,7 @@ const MinigamesScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.gameHeader}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => setCurrentScreen('hub')}
           >
@@ -296,12 +296,12 @@ const MinigamesScreen = () => {
           {currentWord && (
             <>
               <Text style={styles.instruction}>Find the word that matches:</Text>
-              
+
               <View style={styles.targetWordContainer}>
                 <Text style={styles.targetWord}>{currentWord.word}</Text>
                 <Text style={styles.categoryLabel}>{currentWord.category}</Text>
               </View>
-              
+
               <View style={styles.choicesContainer}>
                 {wordChoices.map((choice, index) => (
                   <TouchableOpacity
@@ -335,7 +335,7 @@ const MinigamesScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.gameHeader}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => setCurrentScreen('hub')}
           >
@@ -347,10 +347,10 @@ const MinigamesScreen = () => {
 
         <View style={styles.gameContent}>
           <Text style={styles.instruction}>
-            {showingSequence ? `Watch the sequence... (${currentStep}/${sequence.length})` : 
+            {showingSequence ? `Watch the sequence... (${currentStep}/${sequence.length})` :
              sequence.length > 0 ? 'Repeat the sequence:' : 'Press Start to begin!'}
           </Text>
-          
+
           <View style={styles.memoryContainer}>
             {[0, 1, 2, 3].map((buttonIndex) => (
               <TouchableOpacity
@@ -367,8 +367,8 @@ const MinigamesScreen = () => {
               </TouchableOpacity>
             ))}
           </View>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.startButton}
             onPress={startMemoryGame}
           >
@@ -391,7 +391,7 @@ const MinigamesScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.gameHeader}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => setCurrentScreen('hub')}
           >
@@ -403,7 +403,7 @@ const MinigamesScreen = () => {
 
         <View style={styles.gameContent}>
           <Text style={styles.instruction}>Find the letter that matches:</Text>
-          
+
           <View style={styles.targetWordContainer}>
             <Text style={styles.targetLetter}>{currentLetter}</Text>
             <TouchableOpacity style={styles.caseToggle} onPress={toggleCase}>
@@ -412,7 +412,7 @@ const MinigamesScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.choicesContainer}>
             {letterChoices.map((letter, index) => (
               <TouchableOpacity
@@ -772,4 +772,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MinigamesScreen; 
+export default MinigamesScreen;
