@@ -109,12 +109,20 @@ const EyeTrackingTest = ({ navigation }: any) => {
   };
 
   const submit = () => {
-    if (videoUri) {
-      setState({ ...state, videoUri: videoUri });
+    if (!videoUri) {
+      console.warn('No video to submit');
+      return;
     }
+    
+    // Update global state with the video URI
+    setState({ ...state, videoUri: videoUri });
+    
+    // Navigate to TestSubmitted screen
     navigation.navigate('TestSubmitted', {
       mediaType: 'video',
-      videoUri: videoUri});
+      videoUri: videoUri
+    });
+    
     console.log('Video submitted:', videoUri);
   };
 

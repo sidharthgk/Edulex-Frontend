@@ -5,12 +5,15 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Switch,
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../context/AuthContext';
+import DyslexicAlert from '../components/DyslexicAlert';
+import ToastNotification from '../components/ToastNotification';
+import { useToast } from '../hooks/useToast';
 
 interface UserStats {
   lessonsCompleted: number;
@@ -29,6 +32,22 @@ const ProfileScreen = ({ navigation }: any) => {
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
   const [dyslexicFontEnabled, setDyslexicFontEnabled] = useState(true);
   const [highContrastMode, setHighContrastMode] = useState(false);
+  
+  // Alert state
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
+    type: 'info' as 'success' | 'error' | 'warning' | 'info',
+    onConfirm: () => {},
+    showCancel: false,
+  });
+  
+  // Authentication context
+  const { user, logout } = useAuth();
+  
+  // Toast notifications
+  const { toast, showSuccess, showInfo, hideToast } = useToast();
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -52,49 +71,78 @@ const ProfileScreen = ({ navigation }: any) => {
   };
 
   const handleAssessmentHistory = () => {
-    Alert.alert('📊 Assessment History', 'View your past assessment results and track your progress over time.\n\n• Initial Assessment: 65% accuracy\n• Follow-up (1 month): 78% accuracy\n• Latest: 85% accuracy\n\n📈 Great improvement!');
+    setAlertConfig({
+      title: '📊 Assessment History',
+      message: 'View your past assessment results and track your progress over time.\n\n• Initial Assessment: 65% accuracy\n• Follow-up (1 month): 78% accuracy\n• Latest: 85% accuracy\n\n📈 Great improvement!',
+      type: 'info',
+      onConfirm: () => setAlertVisible(false),
+      showCancel: false,
+    });
+    setAlertVisible(true);
   };
 
   const handleSettings = () => {
-    Alert.alert('⚙️ Settings Saved!', 'Your preferences have been updated and will be applied throughout the app.');
+    showSuccess('⚙️ Settings saved! Your preferences have been updated.');
   };
 
   const handleHelp = () => {
-    Alert.alert('🆘 Help & Support', 'Get help with:\n\n• Using OCR camera features\n• Understanding assessment results\n• Playing learning games\n• Connecting with community\n\nContact: support@edulex.ai');
+    setAlertConfig({
+      title: '🆘 Help & Support',
+      message: 'Get help with:\n\n• Using OCR camera features\n• Understanding assessment results\n• Playing learning games\n• Connecting with community\n\nContact: support@edulex.ai',
+      type: 'info',
+      onConfirm: () => setAlertVisible(false),
+      showCancel: false,
+    });
+    setAlertVisible(true);
   };
 
   const handleAbout = () => {
-    Alert.alert('ℹ️ About Edulex AI', 'Version 1.0.0\n\nEducational AI assistant for dyslexic learners aged 8-18.\n\nDeveloped with ❤️ to make learning accessible and fun.\n\n© 2024 Edulex AI Team');
+    setAlertConfig({
+      title: 'ℹ️ About Edulex AI',
+      message: 'Version 1.0.0\n\nEducational AI assistant for dyslexic learners aged 8-18.\n\nDeveloped with ❤️ to make learning accessible and fun.\n\n© 2024 Edulex AI Team',
+      type: 'info',
+      onConfirm: () => setAlertVisible(false),
+      showCancel: false,
+    });
+    setAlertVisible(true);
   };
 
   const handleExportData = () => {
-    Alert.alert('📤 Export Data', 'Your learning data has been exported to your device. This includes:\n\n• Progress statistics\n• Game scores\n• Achievement history\n• Assessment results\n\nData exported successfully!');
+    showInfo('📤 Data exported successfully! Includes progress, scores, and achievements.');
   };
 
   const handleClearData = () => {
-    Alert.alert(
-      '⚠️ Clear All Data',
-      'This will permanently delete all your local data including progress, scores, and preferences. This action cannot be undone.\n\nAre you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Clear Data', style: 'destructive', onPress: () => {
-          Alert.alert('✅ Data Cleared', 'All local data has been removed.');
-        }},
-      ]
-    );
+    setAlertConfig({
+      title: '⚠️ Clear All Data',
+      message: 'This will permanently delete all your local data including progress, scores, and preferences. This action cannot be undone.\n\nAre you sure?',
+      type: 'warning',
+      onConfirm: () => {
+        setAlertVisible(false);
+        showSuccess('✅ All local data has been cleared.');
+      },
+      showCancel: true,
+    });
+    setAlertVisible(true);
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      '👋 Log Out',
-      'Are you sure you want to log out? Your progress will be saved.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Log Out', onPress: () => {
-          Alert.alert('✅ Logged Out', 'You have been successfully logged out. See you soon!');
-        }},
-      ]
-    );
+    setAlertConfig({
+      title: '👋 Log Out',
+      message: 'Are you sure you want to log out? Your progress will be saved.',
+      type: 'warning',
+      onConfirm: async () => {
+        setAlertVisible(false);
+        try {
+          await logout();
+          showSuccess('✅ Logged out successfully. See you soon!');
+          // Navigation will be handled automatically by the auth state change
+        } catch (error) {
+          console.error('Logout error:', error);
+        }
+      },
+      showCancel: true,
+    });
+    setAlertVisible(true);
   };
 
   if (!fontsLoaded) {
@@ -112,8 +160,8 @@ const ProfileScreen = ({ navigation }: any) => {
         <View style={styles.avatarContainer}>
           <Ionicons name="person" size={50} color="#3DB2FF" />
         </View>
-        <Text style={styles.userName}>Alex Johnson</Text>
-        <Text style={styles.userEmail}>alex.johnson@example.com</Text>
+        <Text style={styles.userName}>{user?.name || 'Guest User'}</Text>
+        <Text style={styles.userEmail}>{user?.email || 'guest@edulex.app'}</Text>
         <Text style={styles.userLevel}>Learning Level: Intermediate</Text>
       </View>
 
@@ -323,6 +371,25 @@ const ProfileScreen = ({ navigation }: any) => {
           <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
       </View>
+      
+      {/* Custom Alert */}
+      <DyslexicAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onConfirm={alertConfig.onConfirm}
+        onCancel={() => setAlertVisible(false)}
+        showCancel={alertConfig.showCancel}
+      />
+      
+      {/* Toast Notification */}
+      <ToastNotification
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
     </ScrollView>
   );
 };

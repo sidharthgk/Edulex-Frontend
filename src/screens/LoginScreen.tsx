@@ -10,21 +10,114 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import { useFonts } from 'expo-font';
-import { Ionicons } from '@expo/vector-icons'; // Import icons from Expo
+import { Ionicons } from '@expo/vector-icons';
 import SvgImage from '../../assets/Splash.svg';
+import { useAuth } from '../context/AuthContext';
+import DyslexicAlert from '../components/DyslexicAlert';
+import ToastNotification from '../components/ToastNotification';
+import { useToast } from '../hooks/useToast';
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showForgotPasswordAlert, setShowForgotPasswordAlert] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  
+  // Authentication context
+  const { login, isLoading, sendPasswordResetLink } = useAuth();
+  
+  // Toast notifications
+  const { toast, showSuccess, showError, hideToast } = useToast();
 
-  // Login handler - navigate to dashboard
-  const handleLogin = () => {
-    console.log('Email:', email, 'Password:', password);
-    // For now, navigate directly to main tabs
-    // TODO: Add authentication logic when backend is ready
-    navigation.navigate('MainTabs');
+  // Login handler with API integration
+  const handleLogin = async () => {
+    if (!email.trim()) {
+      showError('Please enter your email address');
+      return;
+    }
+    
+    if (!password.trim()) {
+      showError('Please enter your password');
+      return;
+    }
+
+    try {
+      const result = await login({ email: email.trim(), password });
+      
+      if (result.success) {
+        showSuccess('Welcome back! 🎉');
+        // Navigation will be handled by the AuthContext/AppNavigator
+        navigation.navigate('TabNavigator');
+      } else {
+        showError(result.message || 'Login failed. Please check your credentials.');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      // Handle specific error types with user-friendly messages
+      if (error.type === 'UNAUTHORIZED') {
+        showError('❌ Invalid email or password. Please check your credentials and try again.');
+      } else if (error.type === 'VALIDATION_ERROR') {
+        // Show the specific validation error message from the API
+        const message = error.message || 'Please check your input and try again.';
+        showError(`⚠️ ${message}`);
+      } else if (error.type === 'RATE_LIMIT') {
+        showError('⏰ Too many login attempts. Please wait a moment before trying again.');
+      } else if (error.type === 'NETWORK_ERROR') {
+        showError('🌐 Network error. Please check your internet connection and try again.');
+      } else if (error.type === 'SERVER_ERROR') {
+        showError('🔧 Server maintenance in progress. Please try again later.');
+      } else {
+        // Fallback for any other errors
+        const message = error.message || 'An unexpected error occurred. Please try again.';
+        showError(message);
+      }
+    }
+  };
+
+  // Handle forgot password
+  const handleForgotPassword = () => {
+    setResetEmail(email); // Pre-fill with current email if entered
+    setShowForgotPasswordAlert(true);
+  };
+
+  const handleSendResetLink = async () => {
+    if (!resetEmail.trim()) {
+      showError('Please enter your email address');
+      return;
+    }
+
+    try {
+      const result = await sendPasswordResetLink(resetEmail.trim());
+      
+      if (result.success) {
+        showSuccess('Password reset link sent to your email! 📧');
+        setShowForgotPasswordAlert(false);
+        setResetEmail('');
+      } else {
+        showError(result.message || 'Failed to send reset link');
+      }
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      
+      // Handle specific error types for password reset
+      if (error.type === 'VALIDATION_ERROR') {
+        const message = error.message || 'Please enter a valid email address.';
+        showError(`⚠️ ${message}`);
+      } else if (error.type === 'NETWORK_ERROR') {
+        showError('🌐 Network error. Please check your internet connection and try again.');
+      } else if (error.type === 'SERVER_ERROR') {
+        showError('🔧 Server error. Please try again later.');
+      } else if (error.type === 'RATE_LIMIT') {
+        showError('⏰ Too many requests. Please wait a moment before trying again.');
+      } else {
+        const message = error.message || 'An unexpected error occurred. Please try again.';
+        showError(message);
+      }
+    }
   };
 
   let [fontsLoaded] = useFonts({
@@ -83,9 +176,22 @@ const LoginScreen = ({ navigation }: any) => {
               />
             </View>
 
+            {/* Forgot Password Link */}
+            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPasswordContainer}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
             {/* Standard Login Button */}
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-              <Text style={styles.buttonText}>Login</Text>
+            <TouchableOpacity 
+              style={[styles.button, isLoading && styles.buttonDisabled]} 
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
             </TouchableOpacity>
 
             {/* or sign up with */}
@@ -126,6 +232,27 @@ const LoginScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
         </ScrollView>
+        
+        {/* Forgot Password Alert */}
+        <DyslexicAlert
+          visible={showForgotPasswordAlert}
+          title="🔐 Reset Password"
+          message="Enter your email address and we'll send you a link to reset your password."
+          type="info"
+          onConfirm={handleSendResetLink}
+          onCancel={() => setShowForgotPasswordAlert(false)}
+          confirmText="Send Link"
+          cancelText="Cancel"
+          showCancel={true}
+        />
+        
+        {/* Toast Notification */}
+        <ToastNotification
+          visible={toast.visible}
+          message={toast.message}
+          type={toast.type}
+          onHide={hideToast}
+        />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -231,6 +358,20 @@ const styles = StyleSheet.create({
   registerHighlight: {
     color: '#3DB2FF',
     fontFamily: 'OpenDyslexic-Bold',
+  },
+  forgotPasswordContainer: {
+    alignItems: 'flex-end',
+    marginTop: 5,
+    marginBottom: 15,
+  },
+  forgotPasswordText: {
+    color: '#3DB2FF',
+    fontSize: 12,
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  buttonDisabled: {
+    backgroundColor: '#A5D6FF',
+    opacity: 0.6,
   },
 });
 

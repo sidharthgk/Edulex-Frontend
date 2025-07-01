@@ -1,4 +1,5 @@
 import { API_CONFIG } from '../constants/config';
+import authService from './authService';
 
 export interface OCRApiResponse {
   success: boolean;
@@ -11,6 +12,8 @@ export interface OCRApiResponse {
       bbox: any;
       type: string;
     }>;
+    topic_id?: number;
+    curriculum_status?: boolean;
   };
 }
 
@@ -24,6 +27,8 @@ export interface OCRResult {
     bbox: any;
     type: string;
   }>;
+  topic_id?: number;
+  curriculum_status?: boolean;
   message?: string;
 }
 
@@ -105,14 +110,22 @@ class OCRService {
 
       console.log('📡 OCR API: Making request to', apiEndpoint);
 
+      // Get authentication token
+      const token = await authService.getToken();
+      if (!token) {
+        throw new Error('Authentication required. Please login first.');
+      }
+
       const requestStartTime = Date.now();
 
-      // Make API request to OCR endpoint
+      // Make API request to OCR endpoint with authentication
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type for FormData - let the browser set it with boundary
         },
       });
 
@@ -124,12 +137,31 @@ class OCRService {
       console.log('📥 Response ok:', response.ok);
 
       if (!response.ok) {
-        const errorResult = await response.json();
-        console.error('❌ OCR API Error Response:', errorResult);
-        throw new Error(errorResult.message || `OCR API responded with status ${response.status}`);
+        let errorMessage = `OCR API responded with status ${response.status}`;
+        try {
+          const errorResult = await response.json();
+          console.error('❌ OCR API Error Response:', errorResult);
+          errorMessage = errorResult.message || errorMessage;
+        } catch (parseError) {
+          console.error('❌ Failed to parse error response as JSON:', parseError);
+          const textResponse = await response.text();
+          console.error('❌ Error response body:', textResponse.substring(0, 200));
+          if (textResponse.includes('<html') || textResponse.includes('<!DOCTYPE')) {
+            errorMessage = 'Authentication failed. Please login again.';
+          }
+        }
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error('❌ Failed to parse success response as JSON:', parseError);
+        const textResponse = await response.text();
+        console.error('❌ Response body:', textResponse.substring(0, 200));
+        throw new Error('Invalid response format from server');
+      }
 
       console.log('🔍 OCR API Response:');
       console.log(JSON.stringify(result, null, 2));
@@ -156,6 +188,8 @@ class OCRService {
             text: cleanedText,
             text_length: cleanedText.length,
             images: extractedImages,
+            topic_id: result.data.topic_id,
+            curriculum_status: result.data.curriculum_status,
           };
         } else {
           console.log('⚠️ OCR Success but no text or images found');
@@ -164,6 +198,8 @@ class OCRService {
             text: '',
             text_length: 0,
             images: [],
+            topic_id: result.data.topic_id,
+            curriculum_status: result.data.curriculum_status,
             message: 'No readable text or images were found. Please try a clearer photo with better lighting.',
           };
         }
@@ -215,28 +251,16 @@ class OCRService {
 
       const requestStartTime = Date.now();
 
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const result: TeachingPlanResult = await authService.makeAuthenticatedRequest(
+        this.teachingPlanEndpoint,
+        'POST',
+        requestBody
+      );
 
       const requestEndTime = Date.now();
       const requestDuration = requestEndTime - requestStartTime;
 
       console.log(`⏱️ Teaching Plan API: Request completed in ${requestDuration}ms`);
-      console.log('📥 Response status:', response.status);
-      console.log('📥 Response ok:', response.ok);
-
-      if (!response.ok) {
-        const errorResult = await response.json();
-        console.error('❌ Teaching Plan API Error Response:', errorResult);
-        throw new Error(errorResult.message || `Teaching Plan API responded with status ${response.status}`);
-      }
-
-      const result: TeachingPlanResult = await response.json();
 
       console.log('🔍 Teaching Plan API Response:');
       console.log(JSON.stringify(result, null, 2));
@@ -322,28 +346,16 @@ class OCRService {
 
       const requestStartTime = Date.now();
 
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const result: QuizResult = await authService.makeAuthenticatedRequest(
+        this.quizEndpoint,
+        'POST',
+        requestBody
+      );
 
       const requestEndTime = Date.now();
       const requestDuration = requestEndTime - requestStartTime;
 
       console.log(`⏱️ Quiz API: Request completed in ${requestDuration}ms`);
-      console.log('📥 Response status:', response.status);
-      console.log('📥 Response ok:', response.ok);
-
-      if (!response.ok) {
-        const errorResult = await response.json();
-        console.error('❌ Quiz API Error Response:', errorResult);
-        throw new Error(errorResult.message || `Quiz API responded with status ${response.status}`);
-      }
-
-      const result: QuizResult = await response.json();
 
       console.log('🔍 Quiz API Response:');
       console.log(JSON.stringify(result, null, 2));
@@ -408,13 +420,21 @@ class OCRService {
 
       console.log('📡 Summarization API: Making request...');
 
+      // Get authentication token
+      const token = await authService.getToken();
+      if (!token) {
+        throw new Error('Authentication required. Please login first.');
+      }
+
       const requestStartTime = Date.now();
 
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type for FormData - let the browser set it with boundary
         },
       });
 
@@ -426,12 +446,31 @@ class OCRService {
       console.log('📥 Response ok:', response.ok);
 
       if (!response.ok) {
-        const errorResult = await response.json();
-        console.error('❌ Summarization API Error Response:', errorResult);
-        throw new Error(errorResult.message || `Summarization API responded with status ${response.status}`);
+        let errorMessage = `Summarization API responded with status ${response.status}`;
+        try {
+          const errorResult = await response.json();
+          console.error('❌ Summarization API Error Response:', errorResult);
+          errorMessage = errorResult.message || errorMessage;
+        } catch (parseError) {
+          console.error('❌ Failed to parse error response as JSON:', parseError);
+          const textResponse = await response.text();
+          console.error('❌ Error response body:', textResponse.substring(0, 200));
+          if (textResponse.includes('<html') || textResponse.includes('<!DOCTYPE')) {
+            errorMessage = 'Authentication failed. Please login again.';
+          }
+        }
+        throw new Error(errorMessage);
       }
 
-      const result: SummarizationResult = await response.json();
+      let result: SummarizationResult;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error('❌ Failed to parse success response as JSON:', parseError);
+        const textResponse = await response.text();
+        console.error('❌ Response body:', textResponse.substring(0, 200));
+        throw new Error('Invalid response format from server');
+      }
 
       console.log('🔍 Summarization API Response:');
       console.log(JSON.stringify(result, null, 2));

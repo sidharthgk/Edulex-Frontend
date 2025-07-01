@@ -7,7 +7,7 @@ import { GlobalContext } from '../GlobalState';
 
 // Import screens
 import Dashboard from '../screens/Dashboard';
-import MinigamesScreen from '../screens/MinigamesScreen';
+import LearnScreen from '../screens/LearnScreen';
 import CameraScreen from '../screens/CameraScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -79,7 +79,7 @@ const TabNavigator = () => {
 
       <Tab.Screen
         name="Learn"
-        component={MinigamesScreen}
+        component={LearnScreen}
         options={{
           tabBarIcon: LearnIcon,
         }}

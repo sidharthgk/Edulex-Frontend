@@ -1,15 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  Image,
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import { topicsService, Topic, Chapter } from '../services/topicsService';
 
-const LearnScreen = () => {
+interface TopicWithChapters extends Topic {
+  chapters?: Chapter[];
+}
+
+const LearnScreen = ({ navigation }: any) => {
+  const [topics, setTopics] = useState<TopicWithChapters[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Load custom fonts
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
@@ -17,35 +30,210 @@ const LearnScreen = () => {
     'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
+  // Fetch topics and chapters
+  const fetchTopics = async () => {
+    try {
+      setError(null);
+      const topicsWithChapters = await topicsService.getTopicsWithChapters();
+      setTopics(topicsWithChapters);
+    } catch (err: any) {
+      console.error('Error fetching topics:', err);
+      setError(err.message || 'Failed to load topics');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      fetchTopics();
+    }
+  }, [fontsLoaded]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchTopics();
+  };
+
+  const formatDuration = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${remainingMinutes}m`;
+    }
+    return `${remainingMinutes}m`;
+  };
+
+  const getProgressPercentage = (_chapters: Chapter[]): number => {
+    // For now, return a random progress between 0-100
+    // In a real app, this would be based on completed chapters
+    return Math.floor(Math.random() * 101);
+  };
+
+  const openTopic = (topicId: number) => {
+    navigation.navigate('TopicDetail', { topicId });
+  };
+
+  const renderTopicCard = (topic: TopicWithChapters) => {
+    const chapters = topic.chapters || [];
+    const totalChapters = chapters.length;
+    const totalDuration = topic.metadata?.total_duration_minutes || 0;
+    const progress = getProgressPercentage(chapters);
+
+    return (
+      <TouchableOpacity 
+        key={topic.id} 
+        style={styles.topicCard}
+        onPress={() => openTopic(topic.id)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.topicHeader}>
+          <View style={styles.topicInfo}>
+            <Text style={styles.topicTitle} numberOfLines={2}>
+              {topic.title}
+            </Text>
+            <Text style={styles.topicDescription} numberOfLines={3}>
+              {topic.description}
+            </Text>
+          </View>
+          {topic.extracted_images && topic.extracted_images.length > 0 && (
+            <Image 
+              source={{ uri: topic.extracted_images[0] }} 
+              style={styles.topicImage}
+              resizeMode="cover"
+            />
+          )}
+        </View>
+
+        <View style={styles.topicStats}>
+          <View style={styles.statItem}>
+            <Ionicons name="book-outline" size={16} color="#3DB2FF" />
+            <Text style={styles.statText}>{totalChapters} chapters</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="time-outline" size={16} color="#3DB2FF" />
+            <Text style={styles.statText}>{formatDuration(totalDuration)}</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="trophy-outline" size={16} color="#3DB2FF" />
+            <Text style={styles.statText}>{progress}% complete</Text>
+          </View>
+        </View>
+
+        {/* Progress bar */}
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          </View>
+          <Text style={styles.progressText}>{progress}%</Text>
+        </View>
+
+        {/* Chapters preview */}
+        {chapters.length > 0 && (
+          <View style={styles.chaptersPreview}>
+            <Text style={styles.chaptersTitle}>Chapters:</Text>
+            {chapters.slice(0, 3).map((chapter, index) => (
+              <View key={chapter.id} style={styles.chapterItem}>
+                <View style={[
+                  styles.chapterNumber,
+                  { backgroundColor: index < progress / (100 / chapters.length) ? '#4CAF50' : '#E0E0E0' }
+                ]}>
+                  <Text style={[
+                    styles.chapterNumberText,
+                    { color: index < progress / (100 / chapters.length) ? '#FFFFFF' : '#666666' }
+                  ]}>
+                    {chapter.chapter_order}
+                  </Text>
+                </View>
+                <View style={styles.chapterInfo}>
+                  <Text style={styles.chapterTitle} numberOfLines={1}>
+                    {chapter.title}
+                  </Text>
+                  <Text style={styles.chapterDuration}>
+                    {formatDuration(chapter.estimated_duration_minutes)} • {chapter.difficulty_level}
+                  </Text>
+                </View>
+                {index < progress / (100 / chapters.length) && (
+                  <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                )}
+              </View>
+            ))}
+            {chapters.length > 3 && (
+              <Text style={styles.moreChapters}>
+                +{chapters.length - 3} more chapters
+              </Text>
+            )}
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
   // Show loading indicator while fonts load
   if (!fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 100 }}>Loading...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3DB2FF" />
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#3DB2FF']}
+        />
+      }
+    >
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Learn</Text>
-        <Text style={styles.headerSubtitle}>Discover interactive lessons tailored for you</Text>
+        <Text style={styles.headerSubtitle}>
+          Track your progress across all learning topics
+        </Text>
       </View>
 
       {/* Content */}
       <View style={styles.content}>
-        <View style={styles.comingSoonCard}>
-          <Ionicons name="book-outline" size={60} color="#3DB2FF" />
-          <Text style={styles.comingSoonTitle}>Learning Modules</Text>
-          <Text style={styles.comingSoonText}>
-            Interactive lessons and personalized learning paths are coming soon!
-          </Text>
-          <TouchableOpacity style={styles.notifyButton}>
-            <Text style={styles.notifyButtonText}>Notify Me</Text>
-          </TouchableOpacity>
-        </View>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#3DB2FF" />
+            <Text style={styles.loadingText}>Loading your topics...</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle-outline" size={60} color="#FF6B6B" />
+            <Text style={styles.errorTitle}>Unable to load topics</Text>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={fetchTopics}>
+              <Text style={styles.retryButtonText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : topics.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="library-outline" size={60} color="#CCCCCC" />
+            <Text style={styles.emptyTitle}>No Topics Yet</Text>
+            <Text style={styles.emptyText}>
+              Create your first learning topic by uploading content in the Camera section
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.statsHeader}>
+              <Text style={styles.statsTitle}>Your Learning Progress</Text>
+              <Text style={styles.statsSubtitle}>
+                {topics.length} topic{topics.length !== 1 ? 's' : ''} available
+              </Text>
+            </View>
+            {topics.map(renderTopicCard)}
+          </>
+        )}
       </View>
     </ScrollView>
   );
@@ -77,44 +265,206 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    justifyContent: 'center',
   },
-  comingSoonCard: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 20,
-    padding: 40,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 50,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  errorTitle: {
+    fontSize: 20,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+    textAlign: 'center',
+    marginBottom: 25,
+    paddingHorizontal: 20,
+  },
+  retryButton: {
+    backgroundColor: '#3DB2FF',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Bold',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  statsHeader: {
+    marginBottom: 20,
+  },
+  statsTitle: {
+    fontSize: 20,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 5,
+  },
+  statsSubtitle: {
+    fontSize: 14,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  topicCard: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
   },
-  comingSoonTitle: {
-    fontSize: 22,
-    color: '#333333',
-    fontFamily: 'OpenDyslexic-Bold',
-    marginTop: 20,
+  topicHeader: {
+    flexDirection: 'row',
     marginBottom: 15,
   },
-  comingSoonText: {
-    fontSize: 16,
+  topicInfo: {
+    flex: 1,
+    marginRight: 15,
+  },
+  topicTitle: {
+    fontSize: 18,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 8,
+  },
+  topicDescription: {
+    fontSize: 14,
     color: '#666666',
     fontFamily: 'OpenDyslexic-Regular',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 25,
+    lineHeight: 20,
   },
-  notifyButton: {
-    backgroundColor: '#3DB2FF',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+  topicImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
   },
-  notifyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+  topicStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  statText: {
+    marginLeft: 5,
+    fontSize: 12,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  progressBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: 12,
+    color: '#666666',
     fontFamily: 'OpenDyslexic-Bold',
+    minWidth: 35,
+  },
+  chaptersPreview: {
+    marginTop: 10,
+  },
+  chaptersTitle: {
+    fontSize: 14,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 10,
+  },
+  chapterItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  chapterNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  chapterNumberText: {
+    fontSize: 12,
+    fontFamily: 'OpenDyslexic-Bold',
+  },
+  chapterInfo: {
+    flex: 1,
+  },
+  chapterTitle: {
+    fontSize: 13,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginBottom: 2,
+  },
+  chapterDuration: {
+    fontSize: 11,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  moreChapters: {
+    fontSize: 12,
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginTop: 5,
+    textAlign: 'center',
   },
 });
 

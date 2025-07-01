@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -68,6 +69,35 @@ const CameraScreen = () => {
   const openCamera = () => {
     setOcrMode('capture');
     setPhotoUri(null);
+  };
+
+  const openGallery = async () => {
+    try {
+      // Request permission to access media library
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        setPhotoUri(selectedImage.uri);
+        setOcrMode('capture'); // Go to camera mode to show the selected image
+      }
+    } catch (error) {
+      console.error('Error opening gallery:', error);
+      Alert.alert('Error', 'Failed to open gallery. Please try again.');
+    }
   };
 
   const takePhoto = async () => {
@@ -463,7 +493,21 @@ const CameraScreen = () => {
             <Ionicons name="chevron-forward" size={24} color="#666" />
           </TouchableOpacity>
 
-          {/* Option 2: Write Text */}
+          {/* Option 2: Upload from Gallery */}
+          <TouchableOpacity style={styles.selectionCard} onPress={openGallery}>
+            <View style={styles.selectionIconContainer}>
+              <Ionicons name="images-outline" size={48} color="#9C27B0" />
+            </View>
+            <View style={styles.selectionContent}>
+              <Text style={styles.selectionTitle}>🖼️ Upload from Gallery</Text>
+              <Text style={styles.selectionDescription}>
+                Select an image from your gallery to extract text from
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#666" />
+          </TouchableOpacity>
+
+          {/* Option 3: Write Text */}
           <TouchableOpacity style={styles.selectionCard} onPress={() => setOcrMode('text_input')}>
             <View style={styles.selectionIconContainer}>
               <Ionicons name="create-outline" size={48} color="#4CAF50" />
@@ -477,7 +521,7 @@ const CameraScreen = () => {
             <Ionicons name="chevron-forward" size={24} color="#666" />
           </TouchableOpacity>
 
-          {/* Option 3: Upload Document */}
+          {/* Option 4: Upload Document */}
           <TouchableOpacity style={styles.selectionCard} onPress={processDocumentUpload}>
             <View style={styles.selectionIconContainer}>
               <Ionicons name="document-outline" size={48} color="#FF9800" />
@@ -571,10 +615,15 @@ const CameraScreen = () => {
     return (
       <View style={styles.cameraContainer}>
         <View style={[styles.cameraHeader, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => setOcrMode('selection')}>
+          <TouchableOpacity style={styles.backButton} onPress={() => {
+            setPhotoUri(null);
+            setOcrMode('selection');
+          }}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.cameraHeaderTitle}>Capture Text</Text>
+          <Text style={styles.cameraHeaderTitle}>
+            {photoUri ? 'Selected Image' : 'Capture Text'}
+          </Text>
         </View>
 
         {photoUri ? (
@@ -600,9 +649,14 @@ const CameraScreen = () => {
               </TouchableOpacity>
             </>
           ) : (
-            <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
-              <Ionicons name="camera" size={30} color="#FFFFFF" />
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity style={[styles.galleryButton]} onPress={openGallery}>
+                <Ionicons name="images" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
+                <Ionicons name="camera" size={30} color="#FFFFFF" />
+              </TouchableOpacity>
+            </>
           )}
         </View>
       </View>
@@ -773,6 +827,9 @@ const CameraScreen = () => {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+          <TouchableOpacity style={styles.backButton} onPress={() => setOcrMode('avatar_config')}>
+            <Ionicons name="arrow-back" size={24} color="#3DB2FF" />
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Generating Video</Text>
         </View>
 
@@ -1362,6 +1419,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 20,
   },
   cameraButton: {
     backgroundColor: '#3DB2FF',
@@ -1371,6 +1429,15 @@ const styles = StyleSheet.create({
     minWidth: 80,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  galleryButton: {
+    backgroundColor: '#9C27B0',
+    padding: 15,
+    borderRadius: 50,
+    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 60,
   },
   cameraButtonText: {
     color: '#FFFFFF',

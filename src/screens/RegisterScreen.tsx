@@ -9,8 +9,12 @@ import {
   Keyboard,
   Platform,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import { useFonts } from 'expo-font';
+import { useAuth } from '../context/AuthContext';
+import ToastNotification from '../components/ToastNotification';
+import { useToast } from '../hooks/useToast';
 
 const RegisterScreen = ({ navigation }: any) => {
   const [step, setStep] = useState(0); // Track current step
@@ -19,8 +23,14 @@ const RegisterScreen = ({ navigation }: any) => {
     age: '',
     email: '',
     password: '',
+    password_confirmation: '',
   });
-  const [isLoading] = useState(false);
+  
+  // Authentication context
+  const { register, isLoading } = useAuth();
+  
+  // Toast notifications
+  const { toast, showSuccess, showError, hideToast } = useToast();
 
   const steps = [
     {
@@ -42,24 +52,79 @@ const RegisterScreen = ({ navigation }: any) => {
       field: 'email',
     },
     {
-      label: 'Enter your password',
+      label: 'Create a password',
       placeholder: 'Enter your password',
       keyboardType: 'default' as const,
       field: 'password',
+      secureTextEntry: true,
+    },
+    {
+      label: 'Confirm your password',
+      placeholder: 'Re-enter your password',
+      keyboardType: 'default' as const,
+      field: 'password_confirmation',
       secureTextEntry: true,
     },
   ];
 
   const currentStep = steps[step];
 
-  const handleNext = () => {
+  const validateCurrentStep = () => {
+    const value = formData[currentStep.field]?.trim();
+    
+    if (!value) {
+      showError(`Please enter your ${currentStep.field.replace('_', ' ')}`);
+      return false;
+    }
+    
+    // Validate email format
+    if (currentStep.field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        showError('Please enter a valid email address');
+        return false;
+      }
+    }
+    
+    // Validate password length
+    if (currentStep.field === 'password') {
+      if (value.length < 8) {
+        showError('Password must be at least 8 characters long');
+        return false;
+      }
+    }
+    
+    // Validate password confirmation
+    if (currentStep.field === 'password_confirmation') {
+      if (value !== formData.password) {
+        showError('Passwords do not match');
+        return false;
+      }
+    }
+    
+    // Validate age
+    if (currentStep.field === 'age') {
+      const age = parseInt(value);
+      if (isNaN(age) || age < 5 || age > 100) {
+        showError('Please enter a valid age between 5 and 100');
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  const handleNext = async () => {
+    if (!validateCurrentStep()) {
+      return;
+    }
+    
     if (step < steps.length - 1) {
       setStep((prev) => prev + 1);
       Keyboard.dismiss();
     } else {
       Keyboard.dismiss();
-      // Simulate a save to global state or local storage
-      saveLocally();
+      await handleRegistration();
     }
   };
 
@@ -75,13 +140,45 @@ const RegisterScreen = ({ navigation }: any) => {
     setFormData((prev) => ({ ...prev, [currentStep.field]: value }));
   };
 
-  const saveLocally = () => {
-    // Simulating saving to global state or local storage
-    console.log('Form Data Saved:', formData);
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'DyslexiaTestStart' }], // Navigate to assessment after registration
-    });
+  const handleRegistration = async () => {
+    try {
+      const result = await register({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        password_confirmation: formData.password_confirmation,
+      });
+      
+      if (result.success) {
+        showSuccess('Account created successfully! 🎉');
+        // Navigate to assessment after successful registration
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'DyslexiaTestStart' }],
+          });
+        }, 1500);
+      } else {
+        showError(result.message || 'Registration failed. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      
+      // Handle specific error types with user-friendly messages
+      if (error.type === 'VALIDATION_ERROR') {
+        const message = error.message || 'Please check your input and try again.';
+        showError(`⚠️ ${message}`);
+      } else if (error.type === 'NETWORK_ERROR') {
+        showError('🌐 Network error. Please check your internet connection and try again.');
+      } else if (error.type === 'SERVER_ERROR') {
+        showError('🔧 Server maintenance in progress. Please try again later.');
+      } else if (error.type === 'RATE_LIMIT') {
+        showError('⏰ Too many registration attempts. Please wait a moment before trying again.');
+      } else {
+        const message = error.message || 'An unexpected error occurred. Please try again.';
+        showError(message);
+      }
+    }
   };
 
   let [fontsLoaded] = useFonts({
@@ -122,21 +219,33 @@ const RegisterScreen = ({ navigation }: any) => {
               <Text style={styles.backButtonText}>Back</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.nextButton, isNextButtonDisabled && styles.disabledButton]}
+              style={[styles.nextButton, (isNextButtonDisabled || isLoading) && styles.disabledButton]}
               onPress={handleNext}
               disabled={isNextButtonDisabled || isLoading}
             >
-              <Text
-                style={[
-                  styles.nextButtonText,
-                  isNextButtonDisabled && styles.disabledButtonText,
-                ]}
-              >
-                {step < steps.length - 1 ? 'Next' : 'Finish'}
-              </Text>
+              {isLoading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Text
+                  style={[
+                    styles.nextButtonText,
+                    isNextButtonDisabled && styles.disabledButtonText,
+                  ]}
+                >
+                  {step < steps.length - 1 ? 'Next' : 'Create Account'}
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
+        
+        {/* Toast Notification */}
+        <ToastNotification
+          visible={toast.visible}
+          message={toast.message}
+          type={toast.type}
+          onHide={hideToast}
+        />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );

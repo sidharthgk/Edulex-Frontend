@@ -5,38 +5,25 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
-  Vibration,
+  ActivityIndicator,
   Animated,
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import authService, { UserDetails } from '../services/authService';
 
-interface DailyGoal {
-  id: string;
-  title: string;
-  progress: number;
-  target: number;
-  unit: string;
-  icon: string;
-  color: string;
-}
 
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
-  unlocked: boolean;
-}
 
 const Dashboard = ({ navigation }: any) => {
-  const [hasCompletedAssessment, _setHasCompletedAssessment] = useState(false); // Hardcoded for now
-  const [currentStreak, setCurrentStreak] = useState(5);
-  const [motivationalMessage, setMotivationalMessage] = useState('');
+  const [_hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
+  
+  // User details and dyslexia profile state
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const insets = useSafeAreaInsets();
 
   // Load custom fonts
@@ -46,123 +33,61 @@ const Dashboard = ({ navigation }: any) => {
     'OpenDyslexic-Italic': require('../../assets/fonts/OpenDyslexic-Italic.otf'),
   });
 
-  // Daily goals data
-  const dailyGoals: DailyGoal[] = [
-    { id: '1', title: 'Reading Practice', progress: 8, target: 10, unit: 'minutes', icon: 'book', color: '#4CAF50' },
-    { id: '2', title: 'Games Played', progress: 2, target: 3, unit: 'games', icon: 'game-controller', color: '#2196F3' },
-    { id: '3', title: 'AI Quizzes', progress: 0, target: 1, unit: 'quiz', icon: 'school', color: '#E91E63' },
-    { id: '4', title: 'Words Learned', progress: 5, target: 8, unit: 'words', icon: 'text', color: '#FF9800' },
-    { id: '5', title: 'OCR Scans', progress: 1, target: 2, unit: 'scans', icon: 'camera', color: '#9C27B0' },
-  ];
 
-  // All achievements
-  const achievements: Achievement[] = [
-    { id: '1', title: 'First Steps', description: 'Complete your first lesson', icon: 'footsteps', color: '#4CAF50', unlocked: true },
-    { id: '2', title: 'Word Master', description: 'Score 100 points in word games', icon: 'book', color: '#2196F3', unlocked: true },
-    { id: '3', title: 'Reading Streak', description: 'Practice for 7 days in a row', icon: 'flame', color: '#FF9800', unlocked: true },
-    { id: '4', title: 'Letter Legend', description: 'Master 50 letter recognition exercises', icon: 'text', color: '#9C27B0', unlocked: false },
-    { id: '5', title: 'Reading Champion', description: 'Read 1000 words with OCR camera', icon: 'camera', color: '#F44336', unlocked: false },
-    { id: '6', title: 'Community Helper', description: 'Help 10 fellow learners', icon: 'heart', color: '#E91E63', unlocked: false },
-  ];
 
-  // Recent achievements for display
-  const recentAchievements = achievements.filter(a => a.unlocked).slice(0, 3);
+  // Fetch user details
+  const fetchUserDetails = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const details = await authService.getUserDetails();
+      setUserDetails(details);
+      
+      // Set assessment completion status based on dyslexia profile
+      if (details.dyslexia_profile) {
+        setHasCompletedAssessment(true);
+      }
+    } catch (err: any) {
+      console.error('Error fetching user details:', err);
+      setError(err.message || 'Failed to load user details');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Learning recommendations
-  const recommendations = [
-    { id: '1', title: 'Try AI Learning Quiz', description: 'Take a photo of text and learn with an AI avatar teacher', action: 'Start Quiz', target: 'quiz' },
-    { id: '2', title: 'Practice Letter Recognition', description: 'Focus on confusing letters like b/d and p/q', action: 'Start Game', target: 'letters' },
-    { id: '3', title: 'Try OCR Camera', description: 'Scan text from your environment to practice reading', action: 'Open Camera', target: 'camera' },
-    { id: '4', title: 'Join Community', description: 'Connect with other learners for support', action: 'Explore', target: 'community' },
-  ];
-
-     useEffect(() => {
-     // Animate welcome message
-     Animated.timing(fadeAnim, {
-       toValue: 1,
-       duration: 1000,
-       useNativeDriver: true,
-     }).start();
-
-     // Set random motivational message
-     const motivationalMessages = [
-       "Great job! You're making amazing progress! 🌟",
-       'Every small step counts. Keep going! 💪',
-       "You're building stronger reading skills each day! 📚",
-       'Your dedication is inspiring! 🚀',
-       "Practice makes progress, and you're doing great! ✨",
-     ];
-     const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-     setMotivationalMessage(randomMessage);
-   }, [fadeAnim]);
+  useEffect(() => {
+    // Animate welcome message
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+    
+    // Fetch user details on component mount
+    fetchUserDetails();
+  }, [fadeAnim]);
 
   const handleTakeAssessment = () => {
     navigation.navigate('DyslexiaTestStart');
   };
 
-  const handleGoalTap = (goal: DailyGoal) => {
-    if (goal.progress >= goal.target) {
-      Vibration.vibrate(100);
-      Alert.alert('🎉 Goal Completed!', `Congratulations! You've reached your ${goal.title.toLowerCase()} goal for today!`);
-    } else {
-      Alert.alert('💪 Keep Going!', `You're ${goal.target - goal.progress} ${goal.unit} away from completing your ${goal.title.toLowerCase()} goal.`);
-    }
-  };
-
-  const handleStreakTap = () => {
-    Alert.alert('🔥 Learning Streak', `You've been practicing for ${currentStreak} days in a row! \n\nKeep it up to unlock special rewards:\n• 7 days: Bronze Badge\n• 14 days: Silver Badge\n• 30 days: Gold Badge`);
-  };
-
-  const handleRecommendationTap = (recommendation: any) => {
-    if (recommendation.target === 'letters') {
-      navigation.navigate('Learn');
-    } else if (recommendation.target === 'camera') {
-      navigation.navigate('Camera');
-    } else if (recommendation.target === 'community') {
-      navigation.navigate('Community');
-    } else if (recommendation.target === 'quiz') {
-      navigation.navigate('Quiz');
-    }
-  };
-
   const handleQuickAction = (action: string) => {
     switch (action) {
-      case 'games':
-        navigation.navigate('Learn');
+      case 'reading_assistant':
+        navigation.navigate('ReadingAssistant');
+        break;
+      case 'vocabulary':
+        navigation.navigate('VocabularyBuilder');
         break;
       case 'camera':
         navigation.navigate('Camera');
         break;
-      case 'community':
-        navigation.navigate('Community');
+      case 'analytics':
+        navigation.navigate('Dashboard'); // Navigate to analytics when implemented
         break;
-      case 'quiz':
-        navigation.navigate('Quiz');
-        break;
-      case 'practice':
-        setCurrentStreak(currentStreak + 1);
-        Vibration.vibrate(100);
-        Alert.alert('✅ Practice Logged!', 'Great job on your practice session today!');
-        break;
+      default:
+        navigation.navigate('Learn');
     }
-  };
-
-  const getProgressBarWidth = (progress: number, target: number): number => {
-    return Math.min((progress / target) * 100, 100);
-  };
-
-  const getStreakIcon = (streak: number): any => {
-    if (streak >= 30) {return 'flame';}
-    if (streak >= 14) {return 'flame-outline';}
-    if (streak >= 7) {return 'bonfire-outline';}
-    return 'sunny-outline';
-  };
-
-  const getStreakColor = (streak: number): string => {
-    if (streak >= 30) {return '#FF4444';}
-    if (streak >= 14) {return '#FF8800';}
-    if (streak >= 7) {return '#FFAA00';}
-    return '#FFC107';
   };
 
   if (!fontsLoaded) {
@@ -173,212 +98,91 @@ const Dashboard = ({ navigation }: any) => {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Header Section */}
       <Animated.View style={[styles.header, { paddingTop: insets.top + 20, opacity: fadeAnim }]}>
-        <Text style={styles.welcomeText}>Welcome back!</Text>
+        <Text style={styles.welcomeText}>Welcome back{userDetails ? `, ${userDetails.name}` : ''}!</Text>
         <Text style={styles.titleText}>EDULEX AI</Text>
-        <Text style={styles.subtitleText}>{motivationalMessage}</Text>
+        <Text style={styles.subtitleText}>Your personalized learning companion</Text>
       </Animated.View>
 
-      {/* Streak Card */}
-      <TouchableOpacity style={styles.streakCard} onPress={handleStreakTap}>
-        <View style={styles.streakHeader}>
-          <Ionicons name={getStreakIcon(currentStreak)} size={32} color={getStreakColor(currentStreak)} />
-          <View style={styles.streakInfo}>
-            <Text style={styles.streakNumber}>{currentStreak}</Text>
-            <Text style={styles.streakLabel}>Day Streak</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.practiceButton}
-            onPress={() => handleQuickAction('practice')}
-          >
-            <Text style={styles.practiceButtonText}>+1</Text>
+      {/* Loading State */}
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3DB2FF" />
+          <Text style={styles.loadingText}>Loading your profile...</Text>
+        </View>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={32} color="#F44336" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchUserDetails}>
+            <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.streakDescription}>You're on fire! Keep practicing daily.</Text>
-      </TouchableOpacity>
+      )}
 
-      {/* Daily Goals */}
-      <View style={styles.goalsContainer}>
-        <Text style={styles.sectionTitle}>Today's Goals</Text>
-        {dailyGoals.map((goal) => (
-          <TouchableOpacity
-            key={goal.id}
-            style={styles.goalCard}
-            onPress={() => handleGoalTap(goal)}
-          >
-            <View style={styles.goalHeader}>
-              <Ionicons name={goal.icon as any} size={24} color={goal.color} />
-              <Text style={styles.goalTitle}>{goal.title}</Text>
-              {goal.progress >= goal.target && (
-                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-              )}
-            </View>
-            <View style={styles.goalProgress}>
-              <View style={styles.progressBar}>
-                                 <View
-                   style={[
-                     styles.progressFill,
-                     {
-                       width: `${getProgressBarWidth(goal.progress, goal.target)}%`,
-                       backgroundColor: goal.color,
-                     },
-                   ]}
-                 />
-              </View>
-              <Text style={styles.progressText}>{goal.progress}/{goal.target} {goal.unit}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Quick Actions */}
-      <View style={styles.quickActionsContainer}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActionsGrid}>
-          <TouchableOpacity
-            style={[styles.quickActionCard, styles.quickActionGames]}
-            onPress={() => handleQuickAction('games')}
-          >
-            <Ionicons name="game-controller" size={32} color="#2196F3" />
-            <Text style={styles.quickActionText}>Play Games</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionCard, styles.quickActionCamera]}
-            onPress={() => handleQuickAction('camera')}
-          >
-            <Ionicons name="camera" size={32} color="#4CAF50" />
-            <Text style={styles.quickActionText}>Scan Text</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionCard, styles.quickActionQuiz]}
-            onPress={() => handleQuickAction('quiz')}
-          >
-            <Ionicons name="school" size={32} color="#E91E63" />
-            <Text style={styles.quickActionText}>AI Quiz</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionCard, styles.quickActionCommunity]}
-            onPress={() => handleQuickAction('community')}
-          >
-            <Ionicons name="people" size={32} color="#FF9800" />
-            <Text style={styles.quickActionText}>Community</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickActionCard, styles.quickActionAssessment]}
-            onPress={handleTakeAssessment}
-          >
-            <Ionicons name="analytics" size={32} color="#9C27B0" />
-            <Text style={styles.quickActionText}>Assessment</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Assessment Section */}
-      {!hasCompletedAssessment && (
-        <View style={styles.assessmentCard}>
-          <View style={styles.assessmentHeader}>
-            <Ionicons name="analytics-outline" size={24} color="#3DB2FF" />
-            <Text style={styles.assessmentTitle}>Take Your Assessment</Text>
-          </View>
+      {/* Assessment Prompt for users without profile */}
+      {!loading && userDetails && !userDetails.dyslexia_profile && (
+        <View style={styles.assessmentPrompt}>
+          <Ionicons name="school" size={48} color="#3DB2FF" />
+          <Text style={styles.assessmentTitle}>Complete Your Assessment</Text>
           <Text style={styles.assessmentDescription}>
-            Help us create a personalized learning path tailored to your needs. This assessment will help identify your strengths and areas for improvement.
+            Take our simple assessment to get personalized learning recommendations
           </Text>
-          <TouchableOpacity style={styles.assessmentButton} onPress={handleTakeAssessment}>
-            <Text style={styles.assessmentButtonText}>Start Assessment</Text>
+          <TouchableOpacity style={styles.promptAssessmentButton} onPress={handleTakeAssessment}>
+            <Text style={styles.promptAssessmentButtonText}>Start Assessment</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Progress Section */}
-      {hasCompletedAssessment && (
-        <View style={styles.progressCard}>
-          <Text style={styles.progressTitle}>Your Progress</Text>
-          <View style={styles.progressStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>85%</Text>
-              <Text style={styles.statLabel}>Completion</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Lessons</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>5</Text>
-              <Text style={styles.statLabel}>Achievements</Text>
-            </View>
+      {/* Learning Tools - Always show */}
+      {!loading && userDetails && (
+        <View style={styles.enhancedToolsContainer}>
+          <Text style={styles.sectionTitle}>🚀 Learning Tools</Text>
+          <View style={styles.toolsGrid}>
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => handleQuickAction('reading_assistant')}
+            >
+              <Ionicons name="volume-high" size={32} color="#4CAF50" />
+              <Text style={styles.toolTitle}>Reading Assistant</Text>
+              <Text style={styles.toolDescription}>Text-to-speech with highlighting</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => handleQuickAction('vocabulary')}
+            >
+              <Ionicons name="book" size={32} color="#2196F3" />
+              <Text style={styles.toolTitle}>Vocabulary Builder</Text>
+              <Text style={styles.toolDescription}>Learn words with pronunciation</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => handleQuickAction('camera')}
+            >
+              <Ionicons name="camera" size={32} color="#FF9800" />
+              <Text style={styles.toolTitle}>Smart Scanner</Text>
+              <Text style={styles.toolDescription}>AI-powered text recognition</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.toolCard}
+              onPress={() => handleQuickAction('analytics')}
+            >
+              <Ionicons name="analytics" size={32} color="#9C27B0" />
+              <Text style={styles.toolTitle}>Progress Analytics</Text>
+              <Text style={styles.toolDescription}>Track your improvements</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
-
-      {/* Learning Recommendations */}
-      <View style={styles.recommendationsContainer}>
-        <Text style={styles.sectionTitle}>Recommended for You</Text>
-        {recommendations.map((rec) => (
-          <TouchableOpacity
-            key={rec.id}
-            style={styles.recommendationCard}
-            onPress={() => handleRecommendationTap(rec)}
-          >
-            <View style={styles.recommendationContent}>
-              <Text style={styles.recommendationTitle}>{rec.title}</Text>
-              <Text style={styles.recommendationDescription}>{rec.description}</Text>
-            </View>
-            <View style={styles.recommendationAction}>
-              <Text style={styles.actionButtonText}>{rec.action}</Text>
-              <Ionicons name="arrow-forward" size={16} color="#3DB2FF" />
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-              {/* Recent Achievements */}
-        <View style={styles.recentActivityContainer}>
-          <Text style={styles.sectionTitle}>Recent Achievements</Text>
-
-          {recentAchievements.map((achievement, index) => (
-            <View key={achievement.id} style={styles.activityItem}>
-              <View style={[styles.activityIcon, { backgroundColor: achievement.color }]}>
-                <Ionicons name={achievement.icon as any} size={20} color="#FFFFFF" />
-              </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>{achievement.title}</Text>
-                <Text style={styles.activityDescription}>{achievement.description}</Text>
-                <Text style={styles.activityTime}>
-                  {index === 0 ? '2 hours ago' : index === 1 ? '1 day ago' : '3 days ago'}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* All Achievements Section */}
-        <View style={styles.achievementsContainer}>
-          <Text style={styles.sectionTitle}>All Achievements</Text>
-          <Text style={styles.sectionSubtitle}>Unlock badges by completing challenges</Text>
-
-          {achievements.map((achievement) => (
-            <View key={achievement.id} style={[styles.achievementCard, !achievement.unlocked && styles.lockedAchievement]}>
-              <View style={[
-                styles.achievementIcon,
-                achievement.unlocked ? { backgroundColor: achievement.color } : styles.lockedAchievementIcon,
-              ]}>
-                <Ionicons name={achievement.icon as any} size={24} color={achievement.unlocked ? '#FFFFFF' : '#BDBDBD'} />
-              </View>
-              <View style={styles.achievementInfo}>
-                <Text style={[styles.achievementTitle, !achievement.unlocked && styles.lockedText]}>{achievement.title}</Text>
-                <Text style={[styles.achievementDescription, !achievement.unlocked && styles.lockedText]}>{achievement.description}</Text>
-              </View>
-              {achievement.unlocked && (
-                <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-              )}
-            </View>
-          ))}
-        </View>
     </ScrollView>
   );
+
+
 };
 
 const styles = StyleSheet.create({
@@ -762,6 +566,345 @@ const styles = StyleSheet.create({
   },
   lockedAchievementIcon: {
     backgroundColor: '#E0E0E0',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginHorizontal: 20,
+    marginBottom: 25,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 15,
+    padding: 20,
+  },
+  statCard: {
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  difficultyContainer: {
+    marginHorizontal: 20,
+    marginBottom: 25,
+    backgroundColor: '#F0F8FF',
+    borderRadius: 15,
+    padding: 20,
+  },
+  difficultyButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 15,
+  },
+  difficultyButton: {
+    borderWidth: 2,
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFFFFF',
+  },
+  difficultyButtonActive: {
+    backgroundColor: '#E3F2FD',
+  },
+  difficultyButtonText: {
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#666666',
+    textAlign: 'center',
+  },
+  difficultyDescription: {
+    fontSize: 14,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  accessibilityContainer: {
+    marginHorizontal: 20,
+    marginBottom: 25,
+    backgroundColor: '#E8F5E8',
+    borderRadius: 15,
+    padding: 20,
+  },
+  accessibilityGrid: {
+    gap: 15,
+  },
+  accessibilityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+  },
+  accessibilityLabel: {
+    fontSize: 14,
+    color: '#333333',
+    fontFamily: 'OpenDyslexic-Regular',
+    marginLeft: 10,
+    flex: 1,
+  },
+  enhancedToolsContainer: {
+    marginHorizontal: 20,
+    marginBottom: 25,
+    backgroundColor: '#F0F8FF',
+    borderRadius: 15,
+    padding: 20,
+  },
+  toolsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  toolCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 15,
+    width: '48%',
+    marginBottom: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E3F2FD',
+  },
+  toolTitle: {
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#333333',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  toolDescription: {
+    fontSize: 12,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#666666',
+    marginTop: 4,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  
+  // Loading state styles
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    marginHorizontal: 20,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 15,
+    marginBottom: 25,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
+  },
+  
+  // Error state styles
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+    marginHorizontal: 20,
+    backgroundColor: '#FFEBEE',
+    borderRadius: 15,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
+  },
+  errorText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#D32F2F',
+    fontFamily: 'OpenDyslexic-Regular',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  retryButton: {
+    marginTop: 15,
+    backgroundColor: '#F44336',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Bold',
+  },
+  
+  // Profile container styles
+  profileContainer: {
+    marginHorizontal: 20,
+    marginBottom: 25,
+  },
+  profileCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E3F2FD',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profileInfo: {
+    marginLeft: 15,
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 20,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#333333',
+    marginBottom: 5,
+  },
+  profileEmail: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#666666',
+    marginBottom: 3,
+  },
+  profileAge: {
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#888888',
+  },
+  
+  // Wallet section styles
+  walletSection: {
+    marginBottom: 20,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  walletInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E8',
+    borderRadius: 10,
+    padding: 15,
+  },
+  walletBalance: {
+    marginLeft: 12,
+    fontSize: 18,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#4CAF50',
+  },
+  
+  // Assessment section styles
+  assessmentSection: {
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  profileAssessmentTitle: {
+    fontSize: 18,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#4CAF50',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  reportSection: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  reportTitle: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#2196F3',
+    marginBottom: 10,
+  },
+  reportText: {
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#333333',
+    lineHeight: 20,
+  },
+  promptsSection: {
+    backgroundColor: '#FFF3E0',
+    borderRadius: 10,
+    padding: 15,
+  },
+  promptsTitle: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#FF9800',
+    marginBottom: 10,
+  },
+  promptsText: {
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#333333',
+    lineHeight: 20,
+  },
+  
+  // Assessment prompt styles (for users without profile)
+  assessmentPrompt: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+    marginHorizontal: 20,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 15,
+    marginBottom: 25,
+    borderWidth: 2,
+    borderColor: '#3DB2FF',
+    borderStyle: 'dashed',
+  },
+  promptAssessmentButton: {
+    backgroundColor: '#3DB2FF',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+    marginTop: 15,
+  },
+  promptAssessmentButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontFamily: 'OpenDyslexic-Bold',
+  },
+  
+  // Retake assessment styles
+  retakePrompt: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    marginHorizontal: 20,
+    backgroundColor: '#FFF3E0',
+    borderRadius: 15,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: '#FFE0B2',
+  },
+  retakeTitle: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#F57F17',
+    marginVertical: 10,
+    textAlign: 'center',
+  },
+  retakeButton: {
+    backgroundColor: '#FF9800',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 5,
+  },
+  retakeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

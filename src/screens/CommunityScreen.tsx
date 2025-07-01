@@ -5,12 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   FlatList,
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ToastNotification from '../components/ToastNotification';
+import { useToast } from '../hooks/useToast';
 
 interface LeaderboardEntry {
   id: string;
@@ -32,6 +33,9 @@ interface Discussion {
 const CommunityScreen = () => {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<'overview' | 'leaderboard' | 'discussions'>('overview');
+  
+  // Toast notifications
+  const { toast, showInfo, hideToast } = useToast();
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -63,15 +67,15 @@ const CommunityScreen = () => {
   ];
 
   const handleJoinDiscussion = (_discussionId: string) => {
-    Alert.alert('💬 Join Discussion', 'This would open a discussion thread where you can read and participate in conversations with other learners.');
+    showInfo('💬 Opening discussion thread...');
   };
 
   const handleStartDiscussion = () => {
-    Alert.alert('✍️ Start Discussion', 'This would open a form to create a new discussion topic for the community.');
+    showInfo('✍️ Opening discussion form...');
   };
 
   const handleViewProfile = (_userId: string) => {
-    Alert.alert('👤 View Profile', 'This would show the user\'s profile with their learning journey and achievements.');
+    showInfo('👤 Opening user profile...');
   };
 
   if (!fontsLoaded) {
@@ -212,6 +216,14 @@ const CommunityScreen = () => {
           </View>
         )}
       </ScrollView>
+      
+      {/* Toast Notification */}
+      <ToastNotification
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
     </View>
   );
 };
