@@ -50,8 +50,9 @@ const Dashboard = ({ navigation }: any) => {
   const dailyGoals: DailyGoal[] = [
     { id: '1', title: 'Reading Practice', progress: 8, target: 10, unit: 'minutes', icon: 'book', color: '#4CAF50' },
     { id: '2', title: 'Games Played', progress: 2, target: 3, unit: 'games', icon: 'game-controller', color: '#2196F3' },
-    { id: '3', title: 'Words Learned', progress: 5, target: 8, unit: 'words', icon: 'text', color: '#FF9800' },
-    { id: '4', title: 'OCR Scans', progress: 1, target: 2, unit: 'scans', icon: 'camera', color: '#9C27B0' },
+    { id: '3', title: 'AI Quizzes', progress: 0, target: 1, unit: 'quiz', icon: 'school', color: '#E91E63' },
+    { id: '4', title: 'Words Learned', progress: 5, target: 8, unit: 'words', icon: 'text', color: '#FF9800' },
+    { id: '5', title: 'OCR Scans', progress: 1, target: 2, unit: 'scans', icon: 'camera', color: '#9C27B0' },
   ];
 
   // All achievements
@@ -69,9 +70,10 @@ const Dashboard = ({ navigation }: any) => {
 
   // Learning recommendations
   const recommendations = [
-    { id: '1', title: 'Practice Letter Recognition', description: 'Focus on confusing letters like b/d and p/q', action: 'Start Game', target: 'letters' },
-    { id: '2', title: 'Try OCR Camera', description: 'Scan text from your environment to practice reading', action: 'Open Camera', target: 'camera' },
-    { id: '3', title: 'Join Community', description: 'Connect with other learners for support', action: 'Explore', target: 'community' },
+    { id: '1', title: 'Try AI Learning Quiz', description: 'Take a photo of text and learn with an AI avatar teacher', action: 'Start Quiz', target: 'quiz' },
+    { id: '2', title: 'Practice Letter Recognition', description: 'Focus on confusing letters like b/d and p/q', action: 'Start Game', target: 'letters' },
+    { id: '3', title: 'Try OCR Camera', description: 'Scan text from your environment to practice reading', action: 'Open Camera', target: 'camera' },
+    { id: '4', title: 'Join Community', description: 'Connect with other learners for support', action: 'Explore', target: 'community' },
   ];
 
      useEffect(() => {
@@ -118,6 +120,8 @@ const Dashboard = ({ navigation }: any) => {
       navigation.navigate('Camera');
     } else if (recommendation.target === 'community') {
       navigation.navigate('Community');
+    } else if (recommendation.target === 'quiz') {
+      navigation.navigate('Quiz');
     }
   };
 
@@ -131,6 +135,9 @@ const Dashboard = ({ navigation }: any) => {
         break;
       case 'community':
         navigation.navigate('Community');
+        break;
+      case 'quiz':
+        navigation.navigate('Quiz');
         break;
       case 'practice':
         setCurrentStreak(currentStreak + 1);
@@ -241,6 +248,14 @@ const Dashboard = ({ navigation }: any) => {
           >
             <Ionicons name="camera" size={32} color="#4CAF50" />
             <Text style={styles.quickActionText}>Scan Text</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.quickActionCard, { backgroundColor: '#FCE4EC' }]}
+            onPress={() => handleQuickAction('quiz')}
+          >
+            <Ionicons name="school" size={32} color="#E91E63" />
+            <Text style={styles.quickActionText}>AI Quiz</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 

@@ -12,7 +12,7 @@ import { useFonts } from 'expo-font';
 import { Video, ResizeMode } from 'expo-av';
 import { GlobalContext } from '../../GlobalState';
 
-const TestResults = () => {
+const TestResults = ({ navigation }: any) => {
   const { state } = useContext(GlobalContext);
   const { photoUri, videoUri, dictationScore, quizScore } = state;
 
@@ -87,12 +87,28 @@ const TestResults = () => {
             <Text style={styles.probValue}>{phoneticsProbability}%</Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.goBackButton}
-          onPress={() => setShowResultsPage(false)}
-        >
-          <Text style={styles.goBackButtonText}>Go Back</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.goBackButton}
+            onPress={() => setShowResultsPage(false)}
+          >
+            <Text style={styles.goBackButtonText}>Go Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.dashboardButton}
+            onPress={() => {
+              // Navigate to dashboard via tab navigator
+              if (navigation) {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'TabNavigator' }],
+                });
+              }
+            }}
+          >
+            <Text style={styles.dashboardButtonText}>Continue to Dashboard</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -323,6 +339,27 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     fontFamily: 'OpenDyslexic-Bold',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%',
+    marginTop: 20,
+  },
+  dashboardButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+    flex: 1,
+    marginLeft: 10,
+  },
+  dashboardButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontFamily: 'OpenDyslexic-Bold',
+    textAlign: 'center',
   },
 });
 

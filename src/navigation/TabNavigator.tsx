@@ -64,12 +64,12 @@ const TabNavigator = () => {
       />
       
       <Tab.Screen
-        name="Camera"
+        name="LearnHub"
         component={CameraScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons 
-              name="camera" 
+              name="book-outline" 
               size={35} 
               color={focused ? '#FFFFFF' : '#FFFFFF'} 
             />
