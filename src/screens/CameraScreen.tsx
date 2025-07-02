@@ -16,6 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppStyles } from '../hooks/useAppStyles';
 import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions, PermissionStatus } from 'expo-camera';
 import { Video, ResizeMode } from 'expo-av';
@@ -28,6 +29,7 @@ const CameraScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { setCameraCapturing } = useContext(GlobalContext);
+  const { theme, styles: globalStyles } = useAppStyles();
   const [ocrMode, setOcrMode] = useState<'selection' | 'camera' | 'capture' | 'text_input' | 'document_upload' | 'results' | 'learning_content' | 'avatar_config' | 'video_generation' | 'learning'>('selection');
   const [scannedText, setScannedText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -423,19 +425,19 @@ const CameraScreen = () => {
   if (!fontsLoaded) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={globalStyles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   // Selection Mode - Show 3 options
-  if (ocrMode === 'selection') {
-    return (
-      <View style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-          <Text style={styles.headerTitle}>📚 Learn Hub</Text>
-          <Text style={styles.headerSubtitle}>Choose how you want to learn</Text>
-        </View>
+      if (ocrMode === 'selection') {
+      return (
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+          <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+                   <Text style={[globalStyles.h2, styles.headerTitle]}>📚 Learn Hub</Text>
+         <Text style={[globalStyles.textSecondary, styles.headerSubtitle]}>Choose how you want to learn</Text>
+          </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
           {/* Option 1: Take Picture (OCR) */}
@@ -444,8 +446,8 @@ const CameraScreen = () => {
               <Ionicons name="camera-outline" size={48} color="#3DB2FF" />
             </View>
             <View style={styles.selectionContent}>
-              <Text style={styles.selectionTitle}>📸 Take Picture</Text>
-              <Text style={styles.selectionDescription}>
+              <Text style={globalStyles.selectionTitle}>📸 Take Picture</Text>
+              <Text style={globalStyles.selectionDescription}>
                 Capture text from books, notes, or any document using your camera
               </Text>
             </View>
@@ -597,14 +599,52 @@ const CameraScreen = () => {
           />
         )}
 
+        {/* Processing Overlay */}
+        {isProcessing && (
+          <View style={styles.processingOverlay}>
+            <View style={styles.processingContent}>
+              <ActivityIndicator size="large" color="#3DB2FF" />
+              <Text style={styles.processingTitle}>Processing Image</Text>
+              <Text style={styles.processingMessage}>{processingMessage}</Text>
+              <View style={styles.processingSteps}>
+                <Text style={styles.processingStepText}>🔍 Extracting text from image</Text>
+                <Text style={styles.processingStepText}>🎓 Generating learning content</Text>
+                <Text style={styles.processingStepText}>✨ Creating personalized activities</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
         <View style={styles.cameraButtonContainer}>
           {photoUri ? (
             <>
-              <TouchableOpacity style={[styles.cameraButton, styles.retakeButton]} onPress={retakePhoto}>
+              <TouchableOpacity 
+                style={[styles.cameraButton, styles.retakeButton]} 
+                onPress={retakePhoto}
+                disabled={isProcessing}
+              >
                 <Text style={styles.cameraButtonText}>Retake</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.cameraButton} onPress={processPhoto}>
-                <Text style={styles.cameraButtonText}>Process</Text>
+              <TouchableOpacity 
+                style={[
+                  styles.cameraButton, 
+                  styles.cameraProcessButton,
+                  isProcessing && styles.cameraProcessButtonDisabled
+                ]} 
+                onPress={processPhoto}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                    <Text style={styles.cameraButtonText}>Processing...</Text>
+                  </>
+                ) : (
+                  <>
+                    <Ionicons name="scan-outline" size={20} color="#FFFFFF" />
+                    <Text style={styles.cameraButtonText}>Process</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </>
           ) : (
@@ -889,11 +929,12 @@ const CameraScreen = () => {
     return (
       <View style={styles.container}>
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+        <View style={[styles.resultsHeader, { paddingTop: insets.top + 20 }]}>
           <TouchableOpacity style={styles.backButton} onPress={resetCamera}>
             <Ionicons name="arrow-back" size={24} color="#3DB2FF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Scanned Text</Text>
+          <Text style={styles.resultsHeaderTitle}>Scanned Text</Text>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView
@@ -1079,21 +1120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 25,
-    padding: 12,
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    padding: 8,
   },
   headerTitle: {
     fontSize: 28,
@@ -1310,7 +1337,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollableContent: {
-    paddingBottom: 40,
+    paddingBottom: 120,
+  },
+  resultsHeader: {
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  resultsHeaderTitle: {
+    fontSize: 20,
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
+    flex: 1,
+    textAlign: 'center',
   },
   resourcesContainer: {
     backgroundColor: '#F0F8FF',
@@ -1462,6 +1503,57 @@ const styles = StyleSheet.create({
   },
   retakeButton: {
     backgroundColor: '#FFA500',
+  },
+  cameraProcessButton: {
+    backgroundColor: '#4CAF50',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  cameraProcessButtonDisabled: {
+    backgroundColor: '#CCCCCC',
+    opacity: 0.7,
+  },
+  processingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  processingContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    maxWidth: 300,
+    marginHorizontal: 20,
+  },
+  processingTitle: {
+    fontSize: 20,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#333333',
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  processingMessage: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  processingSteps: {
+    alignItems: 'flex-start',
+  },
+  processingStepText: {
+    fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#888888',
+    marginBottom: 5,
   },
   // Selection screen styles
   selectionCard: {

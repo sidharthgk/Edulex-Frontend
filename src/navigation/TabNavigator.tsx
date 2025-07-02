@@ -4,10 +4,11 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobalContext } from '../GlobalState';
+import { useAppStyles } from '../hooks/useAppStyles';
 
 // Import screens
 import Dashboard from '../screens/Dashboard';
-import LearnScreen from '../screens/LearnScreen';
+import MinigamesScreen from '../screens/MinigamesScreen';
 import CameraScreen from '../screens/CameraScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -30,6 +31,7 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
   const { state } = useContext(GlobalContext);
+  const { theme } = useAppStyles();
 
   // Create stable icon functions using useCallback
   const HomeIcon = useCallback(({ color, size }: { color: string; size: number }) => (
@@ -40,11 +42,11 @@ const TabNavigator = () => {
     <Ionicons name="book-outline" size={size} color={color} />
   ), []);
 
-  const CameraIcon = useCallback(({ focused }: { focused: boolean }) => (
+  const CameraIcon = useCallback(({ focused: _focused }: { focused: boolean }) => (
     <Ionicons
-      name="camera-outline"
+      name="camera"
       size={35}
-      color={focused ? '#FFFFFF' : '#FFFFFF'}
+      color="#FFFFFF"
     />
   ), []);
 
@@ -60,11 +62,15 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#3DB2FF',
-        tabBarInactiveTintColor: '#888888',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarStyle: state.isCameraCapturing
           ? { display: 'none' }
-          : [styles.tabBar, { paddingBottom: insets.bottom + 15 }],
+          : [styles.tabBar, { 
+              paddingBottom: insets.bottom + 5, 
+              backgroundColor: theme.colors.card,
+              borderTopColor: theme.colors.border
+            }],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
       }}
@@ -79,7 +85,7 @@ const TabNavigator = () => {
 
       <Tab.Screen
         name="Learn"
-        component={LearnScreen}
+        component={MinigamesScreen}
         options={{
           tabBarIcon: LearnIcon,
         }}
@@ -117,17 +123,16 @@ const TabNavigator = () => {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 0,
+   bottom: 0,
     left: 0,
     right: 0,
     elevation: 8,
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: 85,
-    paddingTop: 12,
+    height: 95,
+    paddingTop: 8,
     paddingBottom: 10,
-    paddingHorizontal: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -139,36 +144,32 @@ const styles = StyleSheet.create({
   },
   tabBarLabel: {
     fontFamily: 'OpenDyslexic-Regular',
-    fontSize: 11,
-    marginTop: 4,
-    marginBottom: 2,
+    fontSize: 12,
+    marginTop: 2,
   },
   tabBarIcon: {
     marginTop: 8,
   },
   customTabButton: {
-    top: -25,
+    top: -15,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
   },
   customTabButtonInner: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
     backgroundColor: '#3DB2FF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: '#FFFFFF',
     shadowColor: '#3DB2FF',
     shadowOffset: {
       width: 0,
-      height: 6,
+      height: 4,
     },
     shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 12,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });
 

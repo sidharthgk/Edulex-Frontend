@@ -12,6 +12,7 @@ import {
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAppStyles } from '../hooks/useAppStyles';
 import { topicsService, Topic, Chapter } from '../services/topicsService';
 import { GlobalContext } from '../GlobalState';
 
@@ -20,6 +21,7 @@ interface TopicWithChapters extends Topic {
 }
 
 const LearnScreen = ({ navigation }: any) => {
+  const { theme, styles: globalStyles } = useAppStyles();
   const [topics, setTopics] = useState<TopicWithChapters[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -176,7 +178,7 @@ const LearnScreen = ({ navigation }: any) => {
 
   return (
     <ScrollView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -187,8 +189,8 @@ const LearnScreen = ({ navigation }: any) => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Learn</Text>
-        <Text style={styles.headerSubtitle}>
+        <Text style={[globalStyles.h2, styles.headerTitle]}>Learn</Text>
+        <Text style={[globalStyles.textSecondary, styles.headerSubtitle]}>
           Track your progress across all learning topics
         </Text>
       </View>

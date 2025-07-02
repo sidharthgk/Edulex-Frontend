@@ -11,6 +11,7 @@ import {
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppStyles } from '../hooks/useAppStyles';
 import * as Speech from 'expo-speech';
 import ToastNotification from '../components/ToastNotification';
 import { useToast } from '../hooks/useToast';
@@ -26,6 +27,7 @@ interface ReadingSettings {
 
 const ReadingAssistant = ({ navigation, route }: any) => {
   const insets = useSafeAreaInsets();
+  const { theme, styles: globalStyles } = useAppStyles();
   const [text, setText] = useState(route?.params?.text || '');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(-1);

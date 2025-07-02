@@ -10,6 +10,7 @@ import {
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppStyles } from '../hooks/useAppStyles';
 import ToastNotification from '../components/ToastNotification';
 import { useToast } from '../hooks/useToast';
 
@@ -32,6 +33,7 @@ interface Discussion {
 
 const CommunityScreen = () => {
   const insets = useSafeAreaInsets();
+  const { theme, styles: globalStyles } = useAppStyles();
   const [activeTab, setActiveTab] = useState<'overview' | 'leaderboard' | 'discussions'>('overview');
   
   // Toast notifications

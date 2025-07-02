@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { topicsService, Chapter, ChapterVideo } from '../services/topicsService';
-import { GlobalContext } from '../GlobalState';
 
 const ChapterDetailScreen = ({ route, navigation }: any) => {
   const { topicId, chapterId, topicTitle } = route.params;
@@ -23,10 +22,6 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
   const [videoData, setVideoData] = useState<ChapterVideo | null>(null);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
-  const [markingComplete, setMarkingComplete] = useState(false);
-
-  // Global state for chapter completion
-  const { markChapterComplete, isChapterComplete } = useContext(GlobalContext);
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -69,20 +64,7 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
     }
   }, [topicId, chapterId]);
 
-  const handleMarkChapterComplete = async () => {
-    try {
-      setMarkingComplete(true);
-      // Use global state instead of API call
-      markChapterComplete(topicId, chapterId);
-    } catch (err: any) {
-      console.error('Error marking chapter as complete:', err);
-    } finally {
-      setMarkingComplete(false);
-    }
-  };
 
-  // Check if current chapter is completed
-  const isCurrentChapterComplete = isChapterComplete(topicId, chapterId);
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -320,32 +302,7 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
           </View>
         )}
 
-        {/* Progress Actions */}
-        <View style={styles.actionsSection}>
-                     <TouchableOpacity 
-             style={[
-               styles.markCompleteButton, 
-               markingComplete && styles.markCompleteButtonDisabled,
-               isCurrentChapterComplete && styles.markCompleteButtonCompleted
-             ]} 
-             onPress={handleMarkChapterComplete}
-             disabled={markingComplete || isCurrentChapterComplete}
-           >
-             {markingComplete ? (
-               <ActivityIndicator size={20} color="#4CAF50" />
-             ) : (
-               <Ionicons 
-                 name={isCurrentChapterComplete ? "checkmark-circle" : "checkmark-circle-outline"} 
-                 size={20} 
-                 color={isCurrentChapterComplete ? "#FFFFFF" : "#4CAF50"} 
-               />
-             )}
-             <Text style={[styles.markCompleteButtonText, isCurrentChapterComplete && styles.markCompleteButtonTextCompleted]}>
-               {markingComplete ? 'Marking Complete...' : 
-                isCurrentChapterComplete ? 'Completed' : 'Mark as Complete'}
-             </Text>
-           </TouchableOpacity>
-        </View>
+        
       </ScrollView>
     </View>
   );
@@ -573,36 +530,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginLeft: 10,
   },
-  actionsSection: {
-    padding: 20,
-    backgroundColor: '#F8F9FA',
-  },
-  markCompleteButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-  },
-  markCompleteButtonDisabled: {
-    opacity: 0.6,
-  },
-  markCompleteButtonCompleted: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  markCompleteButtonText: {
-    color: '#4CAF50',
-    fontSize: 16,
-    fontFamily: 'OpenDyslexic-Bold',
-    marginLeft: 8,
-  },
-  markCompleteButtonTextCompleted: {
-    color: '#FFFFFF',
-  },
+
   errorContainer: {
     flex: 1,
     justifyContent: 'center',

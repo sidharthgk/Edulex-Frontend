@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { topicsService, Chapter } from '../services/topicsService';
+import { GlobalContext } from '../GlobalState';
 
 interface TopicSummary {
   id: number;
@@ -26,6 +27,9 @@ const TopicDetailScreen = ({ route, navigation }: any) => {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Global state for chapter completion
+  const { markChapterComplete, isChapterComplete } = useContext(GlobalContext);
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -54,32 +58,7 @@ const TopicDetailScreen = ({ route, navigation }: any) => {
     }
   }, [fontsLoaded, fetchTopicDetails]);
 
-  const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h ${remainingMinutes}m`;
-    }
-    return `${remainingMinutes}m`;
-  };
 
-  const getDifficultyColor = (level: string): string => {
-    switch (level.toLowerCase()) {
-      case 'beginner': return '#4CAF50';
-      case 'intermediate': return '#FF9800';
-      case 'advanced': return '#F44336';
-      default: return '#2196F3';
-    }
-  };
-
-  const getDifficultyIcon = (level: string) => {
-    switch (level.toLowerCase()) {
-      case 'beginner': return 'leaf-outline' as const;
-      case 'intermediate': return 'flame-outline' as const;
-      case 'advanced': return 'flash-outline' as const;
-      default: return 'book-outline' as const;
-    }
-  };
 
   const openChapter = (chapter: Chapter) => {
     navigation.navigate('ChapterDetail', {
@@ -87,6 +66,14 @@ const TopicDetailScreen = ({ route, navigation }: any) => {
       chapterId: chapter.id,
       topicTitle: topic?.title,
     });
+  };
+
+  const handleMarkChapterComplete = (chapter: Chapter) => {
+    markChapterComplete(topicId, chapter.id);
+  };
+
+  const isChapterCompleted = (chapter: Chapter): boolean => {
+    return isChapterComplete(topicId, chapter.id);
   };
 
   if (!fontsLoaded || loading) {
@@ -140,16 +127,6 @@ const TopicDetailScreen = ({ route, navigation }: any) => {
                 <Ionicons name="book-outline" size={20} color="#3DB2FF" />
                 <Text style={styles.statText}>{chapters.length} chapters</Text>
               </View>
-              <View style={styles.statItem}>
-                <Ionicons name="time-outline" size={20} color="#3DB2FF" />
-                <Text style={styles.statText}>
-                  {formatDuration(chapters.reduce((total, chapter) => total + chapter.estimated_duration_minutes, 0))}
-                </Text>
-              </View>
-              <View style={styles.statItem}>
-                <Ionicons name="checkmark-circle-outline" size={20} color="#4CAF50" />
-                <Text style={styles.statText}>{topic.status}</Text>
-              </View>
             </View>
           </View>
         )}
@@ -159,75 +136,46 @@ const TopicDetailScreen = ({ route, navigation }: any) => {
           <Text style={styles.sectionTitle}>Chapters ({chapters.length})</Text>
           
           {chapters.map((chapter, _index) => (
-            <TouchableOpacity
-              key={chapter.id}
-              style={styles.chapterCard}
-              onPress={() => openChapter(chapter)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.chapterHeader}>
-                <View style={styles.chapterNumber}>
-                  <Text style={styles.chapterNumberText}>{chapter.chapter_order}</Text>
-                </View>
-                <View style={styles.chapterInfo}>
-                  <Text style={styles.chapterTitle}>{chapter.title}</Text>
-                  <Text style={styles.chapterDescription} numberOfLines={2}>
-                    {chapter.description}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#666666" />
-              </View>
-
-              <View style={styles.chapterMeta}>
-                <View style={styles.metaItem}>
-                  <Ionicons 
-                    name={getDifficultyIcon(chapter.difficulty_level)} 
-                    size={16} 
-                    color={getDifficultyColor(chapter.difficulty_level)} 
-                  />
-                  <Text style={[styles.metaText, { color: getDifficultyColor(chapter.difficulty_level) }]}>
-                    {chapter.difficulty_level}
-                  </Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Ionicons name="time-outline" size={16} color="#666666" />
-                  <Text style={styles.metaText}>
-                    {formatDuration(chapter.estimated_duration_minutes)}
-                  </Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Ionicons name="list-outline" size={16} color="#666666" />
-                  <Text style={styles.metaText}>
-                    {chapter.learning_objectives.length} objectives
-                  </Text>
-                </View>
-              </View>
-
-              {/* Learning Objectives Preview */}
-              {chapter.learning_objectives.length > 0 && (
-                <View style={styles.objectivesPreview}>
-                  <Text style={styles.objectivesTitle}>Learning Objectives:</Text>
-                  {chapter.learning_objectives.slice(0, 2).map((objective, objIndex) => (
-                    <Text key={objIndex} style={styles.objectiveText}>
-                      • {objective}
-                    </Text>
-                  ))}
-                  {chapter.learning_objectives.length > 2 && (
-                    <Text style={styles.moreObjectives}>
-                      +{chapter.learning_objectives.length - 2} more objectives
-                    </Text>
-                  )}
+            <View key={chapter.id} style={styles.chapterCard}>
+              {/* Completion Status Badge */}
+              {isChapterCompleted(chapter) && (
+                <View style={styles.completionBadge}>
+                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                  <Text style={styles.completionText}>Completed</Text>
                 </View>
               )}
 
-              {/* Progress Indicator (placeholder) */}
-              <View style={styles.progressIndicator}>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: '0%' }]} />
+              <TouchableOpacity
+                style={styles.chapterContent}
+                onPress={() => openChapter(chapter)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.chapterHeader}>
+                  <View style={[styles.chapterNumber, isChapterCompleted(chapter) && styles.chapterNumberCompleted]}>
+                    <Text style={styles.chapterNumberText}>{chapter.chapter_order}</Text>
+                  </View>
+                  <View style={styles.chapterInfo}>
+                    <Text style={styles.chapterTitle}>{chapter.title}</Text>
+                    <Text style={styles.chapterDescription} numberOfLines={2}>
+                      {chapter.description}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#666666" />
                 </View>
-                <Text style={styles.progressText}>Not started</Text>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+
+              {/* Mark as Complete Button */}
+              {!isChapterCompleted(chapter) && (
+                <TouchableOpacity
+                  style={styles.markCompleteButton}
+                  onPress={() => handleMarkChapterComplete(chapter)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={18} color="#4CAF50" />
+                  <Text style={styles.markCompleteButtonText}>Mark as Complete</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           ))}
         </View>
       </ScrollView>
@@ -322,7 +270,6 @@ const styles = StyleSheet.create({
   chapterCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 15,
-    padding: 20,
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -331,6 +278,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    position: 'relative',
+  },
+  completionBadge: {
+    position: 'absolute',
+    top: -8,
+    right: 15,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+    zIndex: 10,
+  },
+  completionText: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginLeft: 4,
+  },
+  chapterContent: {
+    padding: 20,
   },
   chapterHeader: {
     flexDirection: 'row',
@@ -345,6 +316,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+  },
+  chapterNumberCompleted: {
+    backgroundColor: '#4CAF50',
   },
   chapterNumberText: {
     fontSize: 16,
@@ -366,68 +340,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenDyslexic-Regular',
     lineHeight: 20,
   },
-  chapterMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  metaText: {
-    marginLeft: 5,
-    fontSize: 12,
-    fontFamily: 'OpenDyslexic-Regular',
-  },
-  objectivesPreview: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-  },
-  objectivesTitle: {
-    fontSize: 14,
-    color: '#333333',
-    fontFamily: 'OpenDyslexic-Bold',
-    marginBottom: 8,
-  },
-  objectiveText: {
-    fontSize: 13,
-    color: '#666666',
-    fontFamily: 'OpenDyslexic-Regular',
-    marginBottom: 4,
-    lineHeight: 18,
-  },
-  moreObjectives: {
-    fontSize: 12,
-    color: '#3DB2FF',
-    fontFamily: 'OpenDyslexic-Regular',
-    marginTop: 5,
-  },
-  progressIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  progressBar: {
-    flex: 1,
-    height: 6,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 3,
-    marginRight: 10,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#666666',
-    fontFamily: 'OpenDyslexic-Regular',
-    minWidth: 80,
-  },
+
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -458,6 +371,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontFamily: 'OpenDyslexic-Bold',
+  },
+  markCompleteButton: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markCompleteButtonText: {
+    fontSize: 14,
+    color: '#4CAF50',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginLeft: 8,
   },
 });
 
