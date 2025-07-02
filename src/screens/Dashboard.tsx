@@ -99,10 +99,10 @@ const Dashboard = ({ navigation }: any) => {
   return (
     <ScrollView style={globalStyles.container} contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}>
       {/* Header Section */}
-      <Animated.View style={[styles.header, { paddingTop: insets.top + 20, backgroundColor: theme.colors.surface, opacity: fadeAnim }]}>
-        <Text style={[globalStyles.textSecondary, { fontSize: 16, marginBottom: 5 }]}>Welcome back{userDetails ? `, ${userDetails.name}` : ''}!</Text>
-        <Text style={[globalStyles.h3, { textAlign: 'center', color: theme.colors.primary }]}>EDULEX AI</Text>
-        <Text style={[globalStyles.textSecondary, { textAlign: 'center', paddingHorizontal: 20, marginTop: 8 }]}>Your personalized learning companion</Text>
+      <Animated.View style={[styles.headerContainer, { paddingTop: insets.top + 10, backgroundColor: theme.colors.surface, opacity: fadeAnim }]}>
+        <Text style={[globalStyles.textSecondary, { fontSize: 14, marginBottom: 5 }]}>Welcome back{userDetails ? `, ${userDetails.name}` : ''}!</Text>
+        <Text style={[styles.appTitle, { color: theme.colors.primary }]}>EDULEX AI</Text>
+        <Text style={[globalStyles.textSecondary, { textAlign: 'center', paddingHorizontal: 20, marginTop: 5, fontSize: 14 }]}>Your personalized learning companion</Text>
       </Animated.View>
 
       {/* Loading State */}
@@ -248,6 +248,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+  },
+  headerContainer: {
+    alignItems: 'center',
+    paddingBottom: 25,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    minHeight: 120,
+  },
+  appTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
   },
   streakCard: {
     backgroundColor: '#FFF8E1',
