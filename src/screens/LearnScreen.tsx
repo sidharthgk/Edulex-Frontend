@@ -12,7 +12,6 @@ import {
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useAppStyles } from '../hooks/useAppStyles';
 import { topicsService, Topic, Chapter } from '../services/topicsService';
 import { GlobalContext } from '../GlobalState';
 
@@ -21,7 +20,6 @@ interface TopicWithChapters extends Topic {
 }
 
 const LearnScreen = ({ navigation }: any) => {
-  const { theme, styles: globalStyles } = useAppStyles();
   const [topics, setTopics] = useState<TopicWithChapters[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -178,7 +176,8 @@ const LearnScreen = ({ navigation }: any) => {
 
   return (
     <ScrollView 
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 120 }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -189,8 +188,8 @@ const LearnScreen = ({ navigation }: any) => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[globalStyles.h2, styles.headerTitle]}>Learn</Text>
-        <Text style={[globalStyles.textSecondary, styles.headerSubtitle]}>
+        <Text style={styles.headerTitle}>Learn</Text>
+        <Text style={styles.headerSubtitle}>
           Track your progress across all learning topics
         </Text>
       </View>
@@ -239,7 +238,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingBottom: 120,
   },
   header: {
     paddingTop: 60,

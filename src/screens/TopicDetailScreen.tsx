@@ -115,7 +115,7 @@ const TopicDetailScreen = ({ route, navigation }: any) => {
         <Text style={styles.headerTitle}>Topic Details</Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         {/* Topic Header */}
         {topic && (
           <View style={styles.topicHeader}>

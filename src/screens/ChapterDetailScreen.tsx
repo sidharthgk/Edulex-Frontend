@@ -77,6 +77,7 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
   const player = useVideoPlayer(videoData?.video_url || '', player => {
     player.loop = false;
     player.muted = false;
+    player.play();
   });
 
   const parseContent = (content: string) => {
@@ -143,7 +144,7 @@ const ChapterDetailScreen = ({ route, navigation }: any) => {
         </Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         {/* Chapter Header */}
         <View style={styles.chapterHeader}>
           <View style={styles.breadcrumb}>

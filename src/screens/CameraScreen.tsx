@@ -16,7 +16,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppStyles } from '../hooks/useAppStyles';
 import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions, PermissionStatus } from 'expo-camera';
 import { Video, ResizeMode } from 'expo-av';
@@ -29,7 +28,6 @@ const CameraScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { setCameraCapturing } = useContext(GlobalContext);
-  const { theme, styles: globalStyles } = useAppStyles();
   const [ocrMode, setOcrMode] = useState<'selection' | 'camera' | 'capture' | 'text_input' | 'document_upload' | 'results' | 'learning_content' | 'avatar_config' | 'video_generation' | 'learning'>('selection');
   const [scannedText, setScannedText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -425,19 +423,19 @@ const CameraScreen = () => {
   if (!fontsLoaded) {
     return (
       <View style={styles.container}>
-        <Text style={globalStyles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   // Selection Mode - Show 3 options
-      if (ocrMode === 'selection') {
-      return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-          <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-                   <Text style={[globalStyles.h2, styles.headerTitle]}>📚 Learn Hub</Text>
-         <Text style={[globalStyles.textSecondary, styles.headerSubtitle]}>Choose how you want to learn</Text>
-          </View>
+  if (ocrMode === 'selection') {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+          <Text style={styles.headerTitle}>📚 Learn Hub</Text>
+          <Text style={styles.headerSubtitle}>Choose how you want to learn</Text>
+        </View>
 
         <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
           {/* Option 1: Take Picture (OCR) */}
@@ -446,8 +444,8 @@ const CameraScreen = () => {
               <Ionicons name="camera-outline" size={48} color="#3DB2FF" />
             </View>
             <View style={styles.selectionContent}>
-              <Text style={globalStyles.selectionTitle}>📸 Take Picture</Text>
-              <Text style={globalStyles.selectionDescription}>
+              <Text style={styles.selectionTitle}>📸 Take Picture</Text>
+              <Text style={styles.selectionDescription}>
                 Capture text from books, notes, or any document using your camera
               </Text>
             </View>

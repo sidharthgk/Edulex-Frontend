@@ -4,11 +4,10 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobalContext } from '../GlobalState';
-import { useAppStyles } from '../hooks/useAppStyles';
 
 // Import screens
 import Dashboard from '../screens/Dashboard';
-import MinigamesScreen from '../screens/MinigamesScreen';
+import LearnScreen from '../screens/LearnScreen';
 import CameraScreen from '../screens/CameraScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -31,7 +30,6 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
   const { state } = useContext(GlobalContext);
-  const { theme } = useAppStyles();
 
   // Create stable icon functions using useCallback
   const HomeIcon = useCallback(({ color, size }: { color: string; size: number }) => (
@@ -62,17 +60,16 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textMuted,
+        tabBarActiveTintColor: '#3DB2FF',
+        tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: state.isCameraCapturing
           ? { display: 'none' }
-          : [styles.tabBar, { 
-              paddingBottom: insets.bottom + 5, 
-              backgroundColor: theme.colors.card,
-              borderTopColor: theme.colors.border
-            }],
+          : [styles.tabBar, { paddingBottom: insets.bottom + 8 }],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
+        tabBarBackground: () => (
+          <View style={styles.tabBarBackground} />
+        ),
       }}
     >
       <Tab.Screen
@@ -85,7 +82,7 @@ const TabNavigator = () => {
 
       <Tab.Screen
         name="Learn"
-        component={MinigamesScreen}
+        component={LearnScreen}
         options={{
           tabBarIcon: LearnIcon,
         }}
@@ -123,53 +120,75 @@ const TabNavigator = () => {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-   bottom: 0,
+    bottom: 0,
     left: 0,
     right: 0,
-    elevation: 8,
+    elevation: 12,
+    height: 90,
+    paddingTop: 12,
+    paddingHorizontal: 10,
+    borderTopWidth: 0,
+    backgroundColor: 'transparent',
+  },
+  tabBarBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: 95,
-    paddingTop: 8,
-    paddingBottom: 10,
-    shadowColor: '#000',
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    shadowColor: '#000000',
     shadowOffset: {
       width: 0,
-      height: -2,
+      height: -4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    borderTopWidth: 0,
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
   tabBarLabel: {
-    fontFamily: 'OpenDyslexic-Regular',
-    fontSize: 12,
-    marginTop: 2,
+    fontFamily: 'OpenDyslexic-Bold',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 4,
+    marginBottom: 2,
+    textAlign: 'center',
+    letterSpacing: 0.3,
   },
   tabBarIcon: {
-    marginTop: 8,
+    marginTop: 6,
+    marginBottom: 2,
   },
   customTabButton: {
-    top: -15,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    top: -5,
+    zIndex: 10,
   },
   customTabButtonInner: {
-    width: 65,
-    height: 65,
-    borderRadius: 32.5,
+    width: 70,
+    height: 70,
+    marginTop: 10,
+    borderRadius: 35,
     backgroundColor: '#3DB2FF',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 10,
     shadowColor: '#3DB2FF',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
   },
 });
 

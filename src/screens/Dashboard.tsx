@@ -11,7 +11,6 @@ import {
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppStyles } from '../hooks/useAppStyles';
 import authService, { UserDetails } from '../services/authService';
 
 
@@ -26,7 +25,6 @@ const Dashboard = ({ navigation }: any) => {
   const [error, setError] = useState<string | null>(null);
   
   const insets = useSafeAreaInsets();
-  const { theme, styles: globalStyles } = useAppStyles();
 
   // Load custom fonts
   let [fontsLoaded] = useFonts({
@@ -97,43 +95,43 @@ const Dashboard = ({ navigation }: any) => {
   }
 
   return (
-    <ScrollView style={globalStyles.container} contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}>
       {/* Header Section */}
-      <Animated.View style={[styles.headerContainer, { paddingTop: insets.top + 10, backgroundColor: theme.colors.surface, opacity: fadeAnim }]}>
-        <Text style={[globalStyles.textSecondary, { fontSize: 14, marginBottom: 5 }]}>Welcome back{userDetails ? `, ${userDetails.name}` : ''}!</Text>
-        <Text style={[styles.appTitle, { color: theme.colors.primary }]}>EDULEX AI</Text>
-        <Text style={[globalStyles.textSecondary, { textAlign: 'center', paddingHorizontal: 20, marginTop: 5, fontSize: 14 }]}>Your personalized learning companion</Text>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 20, opacity: fadeAnim }]}>
+        <Text style={styles.welcomeText}>Welcome back{userDetails ? `, ${userDetails.name}` : ''}!</Text>
+        <Text style={styles.titleText}>EDULEX AI</Text>
+        <Text style={styles.subtitleText}>Your personalized learning companion</Text>
       </Animated.View>
 
       {/* Loading State */}
       {loading && (
-        <View style={globalStyles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={globalStyles.loadingText}>Loading your profile...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3DB2FF" />
+          <Text style={styles.loadingText}>Loading your profile...</Text>
         </View>
       )}
 
       {/* Error State */}
       {error && (
-        <View style={globalStyles.errorContainer}>
-          <Ionicons name="alert-circle" size={32} color={theme.colors.error} />
-          <Text style={globalStyles.errorText}>{error}</Text>
-          <TouchableOpacity style={globalStyles.primaryButton} onPress={fetchUserDetails}>
-            <Text style={globalStyles.primaryButtonText}>Try Again</Text>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={32} color="#F44336" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchUserDetails}>
+            <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {/* Assessment Prompt for users without profile */}
       {!loading && userDetails && !userDetails.dyslexia_profile && (
-        <View style={[globalStyles.card, globalStyles.sectionContainer]}>
-          <Ionicons name="school" size={48} color={theme.colors.primary} />
-          <Text style={[globalStyles.h3, { textAlign: 'center', marginTop: theme.spacing.md }]}>Complete Your Assessment</Text>
-          <Text style={[globalStyles.textSecondary, { textAlign: 'center', marginTop: theme.spacing.sm }]}>
+        <View style={styles.assessmentPrompt}>
+          <Ionicons name="school" size={48} color="#3DB2FF" />
+          <Text style={styles.assessmentTitle}>Complete Your Assessment</Text>
+          <Text style={styles.assessmentDescription}>
             Take our simple assessment to get personalized learning recommendations
           </Text>
-          <TouchableOpacity style={[globalStyles.primaryButton, { marginTop: theme.spacing.lg }]} onPress={handleTakeAssessment}>
-            <Text style={globalStyles.primaryButtonText}>Start Assessment</Text>
+          <TouchableOpacity style={styles.promptAssessmentButton} onPress={handleTakeAssessment}>
+            <Text style={styles.promptAssessmentButtonText}>Start Assessment</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -141,44 +139,44 @@ const Dashboard = ({ navigation }: any) => {
 
       {/* Minigames Section - New addition */}
       {!loading && userDetails && (
-        <View style={globalStyles.sectionContainer}>
-          <Text style={globalStyles.sectionTitle}>🎮 Learning Games</Text>
-          <Text style={[globalStyles.textSecondary, { marginBottom: theme.spacing.md }]}>Fun games designed for dyslexic learners</Text>
+        <View style={styles.enhancedToolsContainer}>
+          <Text style={styles.sectionTitle}>🎮 Learning Games</Text>
+          <Text style={styles.sectionSubtitle}>Fun games designed for dyslexic learners</Text>
           <View style={styles.toolsGrid}>
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={[styles.toolCard, styles.gameCard]}
               onPress={() => navigation.navigate('RhymingPairsGame')}
             >
               <Ionicons name="musical-notes" size={32} color="#E91E63" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Rhyming Pairs</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Match words that sound alike</Text>
+              <Text style={styles.toolTitle}>Rhyming Pairs</Text>
+              <Text style={styles.toolDescription}>Match words that sound alike</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={[styles.toolCard, styles.gameCard]}
               onPress={() => navigation.navigate('LetterFlippingGame')}
             >
               <Ionicons name="build" size={32} color="#FF5722" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Word Builder</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Spell words from emoji clues</Text>
+              <Text style={styles.toolTitle}>Word Builder</Text>
+              <Text style={styles.toolDescription}>Spell words from emoji clues</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={[styles.toolCard, styles.gameCard]}
               onPress={() => navigation.navigate('SyllableCountingGame')}
             >
               <Ionicons name="mic" size={32} color="#00BCD4" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Syllable Counter</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Count word parts and sounds</Text>
+              <Text style={styles.toolTitle}>Syllable Counter</Text>
+              <Text style={styles.toolDescription}>Count word parts and sounds</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={[styles.toolCard, styles.gameCard]}
               onPress={() => navigation.navigate('PatternRecognitionGame')}
             >
               <Ionicons name="eye" size={32} color="#795548" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Pattern Master</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Complete visual sequences</Text>
+              <Text style={styles.toolTitle}>Pattern Master</Text>
+              <Text style={styles.toolDescription}>Complete visual sequences</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -186,43 +184,43 @@ const Dashboard = ({ navigation }: any) => {
 
             {/* Learning Tools - Always show */}
             {!loading && userDetails && (
-        <View style={globalStyles.sectionContainer}>
-          <Text style={globalStyles.sectionTitle}>🚀 Learning Tools</Text>
+        <View style={styles.enhancedToolsContainer}>
+          <Text style={styles.sectionTitle}>🚀 Learning Tools</Text>
           <View style={styles.toolsGrid}>
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={styles.toolCard}
               onPress={() => handleQuickAction('reading_assistant')}
             >
               <Ionicons name="volume-high" size={32} color="#4CAF50" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Reading Assistant</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Text-to-speech with highlighting</Text>
+              <Text style={styles.toolTitle}>Reading Assistant</Text>
+              <Text style={styles.toolDescription}>Text-to-speech with highlighting</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={styles.toolCard}
               onPress={() => handleQuickAction('vocabulary')}
             >
               <Ionicons name="book" size={32} color="#2196F3" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Vocabulary Builder</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Learn words with pronunciation</Text>
+              <Text style={styles.toolTitle}>Vocabulary Builder</Text>
+              <Text style={styles.toolDescription}>Learn words with pronunciation</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={styles.toolCard}
               onPress={() => handleQuickAction('camera')}
             >
               <Ionicons name="camera" size={32} color="#FF9800" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Smart Scanner</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>AI-powered text recognition</Text>
+              <Text style={styles.toolTitle}>Smart Scanner</Text>
+              <Text style={styles.toolDescription}>AI-powered text recognition</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[globalStyles.card, styles.toolCard]}
+              style={styles.toolCard}
               onPress={() => handleQuickAction('analytics')}
             >
               <Ionicons name="analytics" size={32} color="#9C27B0" />
-              <Text style={[globalStyles.textBold, styles.toolTitle]}>Progress Analytics</Text>
-              <Text style={[globalStyles.textSecondary, styles.toolDescription]}>Track your improvements</Text>
+              <Text style={styles.toolTitle}>Progress Analytics</Text>
+              <Text style={styles.toolDescription}>Track your improvements</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -246,22 +244,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 30,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
   },
-  headerContainer: {
-    alignItems: 'center',
-    paddingBottom: 25,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    minHeight: 120,
-  },
-  appTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  welcomeText: {
+    fontSize: 18,
+    color: '#666666',
+    fontFamily: 'OpenDyslexic-Regular',
     marginBottom: 5,
+  },
+  titleText: {
+    fontSize: 32,
+    color: '#3DB2FF',
+    fontFamily: 'OpenDyslexic-Bold',
+    marginBottom: 10,
+  },
+  subtitleText: {
+    fontSize: 16,
+    color: '#888888',
+    fontFamily: 'OpenDyslexic-Regular',
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
   streakCard: {
     backgroundColor: '#FFF8E1',
@@ -283,11 +284,12 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Bold',
     color: '#F57C00',
   },
   streakLabel: {
     fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
     color: '#F57C00',
   },
   practiceButton: {
@@ -300,15 +302,30 @@ const styles = StyleSheet.create({
   },
   practiceButtonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontFamily: 'OpenDyslexic-Bold',
     fontSize: 16,
   },
   streakDescription: {
     fontSize: 14,
+    fontFamily: 'OpenDyslexic-Regular',
     color: '#E65100',
     fontStyle: 'italic',
   },
-
+  sectionTitle: {
+    fontSize: 22,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#333333',
+    marginBottom: 20,
+    textAlign: 'left',
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#666666',
+    marginBottom: 15,
+    textAlign: 'left',
+    lineHeight: 22,
+  },
   goalsContainer: {
     marginBottom: 25,
   },
@@ -699,11 +716,17 @@ const styles = StyleSheet.create({
     borderColor: '#F0F0F0',
   },
   toolTitle: {
+    fontSize: 16,
+    fontFamily: 'OpenDyslexic-Bold',
+    color: '#333333',
     marginTop: 12,
     marginBottom: 6,
     textAlign: 'center',
   },
   toolDescription: {
+    fontSize: 12,
+    fontFamily: 'OpenDyslexic-Regular',
+    color: '#666666',
     textAlign: 'center',
     lineHeight: 16,
   },

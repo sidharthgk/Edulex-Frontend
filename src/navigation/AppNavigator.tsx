@@ -6,7 +6,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { GlobalContext } from '../GlobalState';
 import { useAuth } from '../context/AuthContext';
-import { useAppStyles } from '../hooks/useAppStyles';
 
 // Import Screens
 import SplashScreen from '../screens/SplashScreen';
@@ -56,38 +55,18 @@ function getActiveRouteName(state: any): string {
 const AppNavigator = () => {
   const { setState } = useContext(GlobalContext);
   const { isAuthenticated, isLoading } = useAuth();
-  const { theme } = useAppStyles();
 
   // Show loading screen while checking authentication
   if (isLoading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3DB2FF" />
       </View>
     );
   }
 
-  const navigationTheme = {
-    dark: theme.colors.background === '#121212',
-    colors: {
-      primary: theme.colors.primary,
-      background: theme.colors.background,
-      card: theme.colors.card,
-      text: theme.colors.text,
-      border: theme.colors.border,
-      notification: theme.colors.primary,
-    },
-    fonts: {
-      regular: { fontFamily: 'System', fontWeight: '400' as const },
-      medium: { fontFamily: 'System', fontWeight: '500' as const },
-      bold: { fontFamily: 'System', fontWeight: '700' as const },
-      heavy: { fontFamily: 'System', fontWeight: '900' as const },
-    },
-  };
-
   return (
     <NavigationContainer
-      theme={navigationTheme}
       onStateChange={(state) => {
         if (state) {
           const currentRouteName = getActiveRouteName(state);

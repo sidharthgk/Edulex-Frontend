@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
-import { useAppStyles } from '../hooks/useAppStyles';
+import { useTheme } from '../hooks/useTheme';
 import DyslexicAlert from '../components/DyslexicAlert';
 import ToastNotification from '../components/ToastNotification';
 import { useToast } from '../hooks/useToast';
@@ -21,7 +21,7 @@ import { useToast } from '../hooks/useToast';
 const ProfileScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
   const { settings, updateSetting } = useSettings();
-  const { theme, styles: globalStyles } = useAppStyles();
+  const theme = useTheme();
 
   // Handle setting changes with feedback
   const handleSettingChange = async (key: keyof typeof settings, value: any) => {
@@ -154,150 +154,125 @@ const ProfileScreen = ({ navigation }: any) => {
   }
 
   return (
-    <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 120 }}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={{ paddingBottom: 120 }}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 20, backgroundColor: theme.colors.surface }]}>
         <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={50} color={theme.colors.primary} />
+          <Ionicons name="person" size={50} color="#3DB2FF" />
         </View>
-        <Text style={[globalStyles.h3, { textAlign: 'center', color: theme.colors.text }]}>{user?.name || 'Guest User'}</Text>
-        <Text style={[globalStyles.textSecondary, { textAlign: 'center', marginTop: 5 }]}>{user?.email || 'guest@edulex.app'}</Text>
+        <Text style={[styles.userName, { color: theme.colors.text }]}>{user?.name || 'Guest User'}</Text>
+        <Text style={[styles.userEmail, { color: theme.colors.textSecondary }]}>{user?.email || 'guest@edulex.app'}</Text>
       </View>
 
       {/* Assessment Section */}
       <View style={styles.menuContainer}>
-        <Text style={[globalStyles.sectionTitle, { color: theme.colors.text }]}>Assessment & Learning</Text>
+        <Text style={styles.sectionTitle}>Assessment & Learning</Text>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem]} onPress={handleTakeAssessment}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleTakeAssessment}>
           <View style={styles.menuItemLeft}>
-            <Ionicons name="analytics-outline" size={24} color={theme.colors.primary} />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Take New Assessment</Text>
+            <Ionicons name="analytics-outline" size={24} color="#3DB2FF" />
+            <Text style={styles.menuItemText}>Take New Assessment</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem]} onPress={handleAssessmentHistory}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleAssessmentHistory}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="document-text-outline" size={24} color="#4CAF50" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Assessment History</Text>
+            <Text style={styles.menuItemText}>Assessment History</Text>
           </View>
           <View style={styles.progressBadge}>
             <Text style={styles.progressBadgeText}>+20%</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
       </View>
 
       {/* Settings Section */}
       <View style={styles.menuContainer}>
-        <Text style={[globalStyles.sectionTitle, { color: theme.colors.text }]}>Accessibility Settings</Text>
+        <Text style={styles.sectionTitle}>Accessibility Settings</Text>
 
-        <View style={[globalStyles.card, styles.settingItem]}>
+        <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="text-outline" size={24} color="#9C27B0" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Dyslexic-Friendly Font</Text>
+            <Text style={styles.menuItemText}>Dyslexic-Friendly Font</Text>
           </View>
           <Switch
             value={settings.dyslexicFontEnabled}
             onValueChange={(value) => handleSettingChange('dyslexicFontEnabled', value)}
-            trackColor={{ false: '#E0E0E0', true: theme.colors.primary }}
+            trackColor={{ false: '#E0E0E0', true: '#3DB2FF' }}
             thumbColor="#FFFFFF"
           />
         </View>
 
 
-        <View style={[globalStyles.card, styles.settingItem]}>
+        <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="volume-high-outline" size={24} color="#4CAF50" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Sound Effects</Text>
+            <Text style={styles.menuItemText}>Sound Effects</Text>
           </View>
           <Switch
             value={settings.soundEnabled}
             onValueChange={(value) => handleSettingChange('soundEnabled', value)}
-            trackColor={{ false: '#E0E0E0', true: theme.colors.primary }}
+            trackColor={{ false: '#E0E0E0', true: '#3DB2FF' }}
             thumbColor="#FFFFFF"
           />
         </View>
-        <View style={[globalStyles.card, styles.settingItem]}>
+{/*
+        <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="phone-portrait-outline" size={24} color="#FF9800" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Vibration Feedback</Text>
+            <Text style={styles.menuItemText}>Vibration Feedback</Text>
           </View>
           <Switch
             value={settings.vibrationEnabled}
             onValueChange={(value) => handleSettingChange('vibrationEnabled', value)}
-            trackColor={{ false: '#E0E0E0', true: theme.colors.primary }}
+            trackColor={{ false: '#E0E0E0', true: '#3DB2FF' }}
             thumbColor="#FFFFFF"
           />
-        </View>
+        </View> */}
 
-        <View style={[globalStyles.card, styles.settingItem]}>
+        {/* <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="contrast-outline" size={24} color="#795548" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>High Contrast Mode</Text>
+            <Text style={styles.menuItemText}>High Contrast Mode</Text>
           </View>
           <Switch
             value={settings.highContrastMode}
             onValueChange={(value) => handleSettingChange('highContrastMode', value)}
-            trackColor={{ false: '#E0E0E0', true: theme.colors.primary }}
+            trackColor={{ false: '#E0E0E0', true: '#3DB2FF' }}
             thumbColor="#FFFFFF"
           />
-        </View>
-
-        <View style={[globalStyles.card, styles.settingItem]}>
-          <View style={styles.menuItemLeft}>
-            <Ionicons name="text" size={24} color="#673AB7" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Font Size</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {(['small', 'medium', 'large'] as const).map((size) => (
-              <TouchableOpacity
-                key={size}
-                style={[
-                  styles.fontSizeButton,
-                  settings.fontSize === size && styles.fontSizeButtonActive
-                ]}
-                onPress={() => handleSettingChange('fontSize', size)}
-              >
-                <Text style={[
-                  styles.fontSizeButtonText,
-                  settings.fontSize === size && styles.fontSizeButtonTextActive
-                ]}>
-                  {size.charAt(0).toUpperCase() + size.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        </View> */}
 
       </View>
 
       {/* App Settings */}
       <View style={styles.menuContainer}>
-        <Text style={[globalStyles.sectionTitle, { color: theme.colors.text }]}>App Settings</Text>
+        <Text style={styles.sectionTitle}>App Settings</Text>
 
-        <View style={[globalStyles.card, styles.settingItem]}>
+        <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
-            <Ionicons name="notifications-outline" size={24} color={theme.colors.primary} />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Daily Reminders</Text>
+            <Ionicons name="notifications-outline" size={24} color="#3DB2FF" />
+            <Text style={styles.menuItemText}>Daily Reminders</Text>
           </View>
           <Switch
             value={settings.notificationsEnabled}
             onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
-            trackColor={{ false: '#E0E0E0', true: theme.colors.primary }}
+            trackColor={{ false: '#E0E0E0', true: '#3DB2FF' }}
             thumbColor="#FFFFFF"
           />
         </View>
 
-        <View style={[globalStyles.card, styles.settingItem]}>
+        <View style={styles.settingItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="moon-outline" size={24} color="#5D4037" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Dark Mode</Text>
+            <Text style={styles.menuItemText}>Dark Mode</Text>
           </View>
           <Switch
             value={settings.darkModeEnabled}
             onValueChange={(value) => handleSettingChange('darkModeEnabled', value)}
-            trackColor={{ false: '#E0E0E0', true: theme.colors.primary }}
+            trackColor={{ false: '#E0E0E0', true: '#3DB2FF' }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -305,51 +280,51 @@ const ProfileScreen = ({ navigation }: any) => {
 
       {/* Data Management */}
       <View style={styles.menuContainer}>
-        <Text style={[globalStyles.sectionTitle, { color: theme.colors.text }]}>Data Management</Text>
+        <Text style={styles.sectionTitle}>Data Management</Text>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem]} onPress={handleExportData}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleExportData}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="download-outline" size={24} color="#4CAF50" />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Export My Data</Text>
+            <Text style={styles.menuItemText}>Export My Data</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem]} onPress={handleClearData}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleClearData}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="trash-outline" size={24} color="#FF6B6B" />
-            <Text style={[globalStyles.text, { marginLeft: 15, color: '#FF6B6B' }]}>Clear All Data</Text>
+            <Text style={[styles.menuItemText, { color: '#FF6B6B' }]}>Clear All Data</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
       </View>
 
       {/* Support Section */}
       <View style={styles.menuContainer}>
-        <Text style={[globalStyles.sectionTitle, { color: theme.colors.text }]}>Support & Info</Text>
+        <Text style={styles.sectionTitle}>Support & Info</Text>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem]} onPress={handleHelp}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleHelp}>
           <View style={styles.menuItemLeft}>
-            <Ionicons name="help-circle-outline" size={24} color={theme.colors.primary} />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>Help & Support</Text>
+            <Ionicons name="help-circle-outline" size={24} color="#3DB2FF" />
+            <Text style={styles.menuItemText}>Help & Support</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem]} onPress={handleAbout}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleAbout}>
           <View style={styles.menuItemLeft}>
-            <Ionicons name="information-circle-outline" size={24} color={theme.colors.primary} />
-            <Text style={[globalStyles.text, { marginLeft: 15 }]}>About Edulex AI</Text>
+            <Ionicons name="information-circle-outline" size={24} color="#3DB2FF" />
+            <Text style={styles.menuItemText}>About Edulex AI</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[globalStyles.card, styles.menuItem, styles.logoutItem]} onPress={handleLogout}>
+        <TouchableOpacity style={[styles.menuItem, styles.logoutItem]} onPress={handleLogout}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="log-out-outline" size={24} color="#FF6B6B" />
-            <Text style={[globalStyles.text, { marginLeft: 15, color: '#FF6B6B' }]}>Log Out</Text>
+            <Text style={[styles.menuItemText, styles.logoutText]}>Log Out</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
+          <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
         </TouchableOpacity>
       </View>
       
@@ -411,7 +386,6 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
     textAlign: 'center',
-    marginTop: 10,
   },
   userEmail: {
     fontSize: 16,
@@ -479,19 +453,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 12,
     marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 12,
     marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -523,28 +509,6 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: '#FF6B6B',
-  },
-  fontSizeButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#F5F5F5',
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  fontSizeButtonActive: {
-    backgroundColor: '#3DB2FF',
-    borderColor: '#3DB2FF',
-  },
-  fontSizeButtonText: {
-    fontSize: 12,
-    color: '#666666',
-    fontFamily: 'OpenDyslexic-Regular',
-  },
-  fontSizeButtonTextActive: {
-    color: '#FFFFFF',
-    fontFamily: 'OpenDyslexic-Bold',
   },
 });
 

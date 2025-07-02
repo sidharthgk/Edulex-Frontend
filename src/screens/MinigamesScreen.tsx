@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppStyles } from '../hooks/useAppStyles';
 
 interface WordSet {
   word: string;
@@ -34,8 +33,6 @@ const wordSets: WordSet[] = [
 ];
 
 const MinigamesScreen = () => {
-  const { theme, styles: globalStyles } = useAppStyles();
-  
   let [fontsLoaded] = useFonts({
     'OpenDyslexic-Regular': require('../../assets/fonts/OpenDyslexic-Regular.otf'),
     'OpenDyslexic-Bold': require('../../assets/fonts/OpenDyslexic-Bold.otf'),
@@ -212,7 +209,7 @@ const MinigamesScreen = () => {
 
   if (currentScreen === 'hub') {
     return (
-      <ScrollView style={globalStyles.container} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Learning Games</Text>
           <Text style={styles.headerSubtitle}>Choose a game to improve your skills</Text>
