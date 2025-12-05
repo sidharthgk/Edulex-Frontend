@@ -27,12 +27,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuthStatus = async () => {
     try {
       setIsLoading(true);
-      const authenticated = await authService.isAuthenticated();
-      
-      if (authenticated) {
+      // For mock auth, we just check if we have a token in storage
+      // We don't need to validate it with the backend
+      const token = await authService.getToken();
+
+      if (token) {
         const userData = await authService.getUser();
-        setUser(userData);
-        setIsAuthenticated(true);
+        if (userData) {
+          setUser(userData);
+          setIsAuthenticated(true);
+        } else {
+          // Token exists but no user data? weird, but let's clear it
+          await authService.clearAuthData();
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -49,20 +58,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: LoginRequest): Promise<{ success: boolean; message: string }> => {
     try {
       setIsLoading(true);
-      const response = await authService.login(credentials);
-      
-      if (response.success) {
-        setUser(response.data);
-        setIsAuthenticated(true);
-        return { success: true, message: response.message };
-      } else {
-        return { success: false, message: response.message || 'Login failed' };
-      }
+      // Mock login - accept any credentials
+      const mockUser: User = {
+        id: 1,
+        name: 'Test User',
+        email: credentials.email,
+        email_verified_at: new Date().toISOString(),
+        token: 'mock-jwt-token',
+      };
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      await authService.setToken('mock-jwt-token');
+      await authService.setUser(mockUser);
+
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      return { success: true, message: 'Login successful' };
     } catch (error: any) {
       console.error('Login error:', error);
-      return { 
-        success: false, 
-        message: error.message || 'Login failed. Please check your credentials.' 
+      return {
+        success: false,
+        message: 'Login failed. Please try again.'
       };
     } finally {
       setIsLoading(false);
@@ -72,33 +90,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: RegisterRequest): Promise<{ success: boolean; message: string }> => {
     try {
       setIsLoading(true);
-      const response = await authService.register(userData);
-      
-      if (response.success) {
-        setUser(response.data);
-        setIsAuthenticated(true);
-        return { success: true, message: response.message };
-      } else {
-        return { success: false, message: response.message || 'Registration failed' };
-      }
+      // Mock registration - accept any data
+      const mockUser: User = {
+        id: Math.floor(Math.random() * 1000) + 1,
+        name: userData.name,
+        email: userData.email,
+        email_verified_at: new Date().toISOString(),
+        token: 'mock-jwt-token',
+      };
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      await authService.setToken('mock-jwt-token');
+      await authService.setUser(mockUser);
+
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      return { success: true, message: 'Registration successful' };
     } catch (error: any) {
       console.error('Registration error:', error);
-      
-      // Handle validation errors
-      if (error.message?.includes('422') || error.errors) {
-        let errorMessage = 'Registration failed. ';
-        if (error.errors) {
-          const errorArray = Object.values(error.errors).flat();
-          errorMessage += errorArray.join(' ');
-        } else {
-          errorMessage += error.message;
-        }
-        return { success: false, message: errorMessage };
-      }
-      
-      return { 
-        success: false, 
-        message: error.message || 'Registration failed. Please try again.' 
+      return {
+        success: false,
+        message: 'Registration failed. Please try again.'
       };
     } finally {
       setIsLoading(false);
@@ -108,7 +122,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      await authService.logout();
+      // Just clear local data
+      await authService.clearAuthData();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -119,28 +134,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const sendPasswordResetLink = async (email: string): Promise<{ success: boolean; message: string }> => {
-    try {
-      const response = await authService.sendPasswordResetLink(email);
-      return { success: true, message: response.status };
-    } catch (error: any) {
-      console.error('Password reset error:', error);
-      
-      // Handle validation errors
-      if (error.message?.includes('422') || error.errors) {
-        let errorMessage = 'Password reset failed. ';
-        if (error.errors?.email) {
-          errorMessage += error.errors.email.join(' ');
-        } else {
-          errorMessage += error.message;
-        }
-        return { success: false, message: errorMessage };
-      }
-      
-      return { 
-        success: false, 
-        message: error.message || 'Failed to send password reset link.' 
-      };
-    }
+    // Mock password reset
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { success: true, message: 'Reset link sent (mock)' };
   };
 
   const refreshUserData = async (): Promise<void> => {
@@ -172,4 +168,4 @@ export const useAuth = (): AuthContextType => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

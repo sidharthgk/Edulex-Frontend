@@ -300,30 +300,56 @@ class AuthService {
   }
 
   async getUserDetails(): Promise<UserDetails> {
-    console.log('📄 Fetching user details...');
-    const response = await this.makeRequest('/api/user', 'GET', undefined, true);
+    console.log('📄 Fetching user details (MOCK)...');
+    // Mock user details
+    const mockDetails: UserDetails = {
+      id: 1,
+      name: 'Test User',
+      email: 'test@example.com',
+      age: 10,
+      wallet: {
+        balance: '100.00',
+        decimal_places: 2,
+        holder: {},
+        holder_id: 1,
+        holder_type: 'user',
+        meta: [],
+        name: 'Test Wallet',
+        slug: 'test-wallet',
+        uuid: 'mock-wallet-uuid',
+      },
+      dyslexia_profile: null,
+    };
 
-    // The /api/user endpoint returns user data directly, not wrapped in success/data structure
-    if (response && response.id) {
-      console.log('✅ User details fetched successfully');
-      return response as UserDetails;
-    }
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    throw new Error('Failed to fetch user details');
+    return mockDetails;
   }
 
   async submitDyslexiaResults(resultsData: DyslexiaResultsRequest): Promise<DyslexiaResultsResponse> {
-    console.log('📊 Submitting dyslexia test results...');
+    console.log('📊 Submitting dyslexia test results (MOCK)...');
     console.log('Results data:', resultsData);
 
-    const response = await this.makeRequest('/api/dyslexia-profile/results', 'POST', resultsData, true);
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (response.success) {
-      console.log('✅ Dyslexia test results submitted successfully');
-      return response as DyslexiaResultsResponse;
-    }
-
-    throw new Error(response.message || 'Failed to submit dyslexia test results');
+    // Mock response
+    return {
+      success: true,
+      message: 'Results submitted successfully (MOCK)',
+      data: {
+        id: 1,
+        user_id: 1,
+        verbal_test_text: 'Mock verbal result',
+        handwriting_test_text: 'Mock handwriting result',
+        dictation_test_text: 'Mock dictation result',
+        quiz_test: [],
+        results: [],
+        dyslexia_personality_report: 'Based on the mock results, you are doing great!',
+        self_improvement_prompts: 'Keep practicing reading aloud.',
+      }
+    };
   }
 
   // Utility function to format test results from GlobalState

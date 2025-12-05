@@ -132,40 +132,223 @@ class TopicsService {
     content_type?: string;
     search?: string;
   }): Promise<TopicsResponse> {
-    try {
-      // Build query parameters
-      const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
-      if (params?.status) queryParams.append('status', params.status);
-      if (params?.content_type) queryParams.append('content_type', params.content_type);
-      if (params?.search) queryParams.append('search', params.search);
+    console.log('📚 Fetching topics (MOCK)...');
 
-      const queryString = queryParams.toString();
-      const endpoint = `/api/topics${queryString ? `?${queryString}` : ''}`;
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-      return await authService.makeAuthenticatedRequest(endpoint, 'GET');
-    } catch (error) {
-      console.error('Error fetching topics:', error);
-      throw error;
-    }
+    const mockTopics: Topic[] = [
+      {
+        id: 1,
+        user_id: 1,
+        title: 'Understanding Dyslexia',
+        description: 'A comprehensive guide to understanding what dyslexia is and how it affects learning.',
+        content: 'Dyslexia is a learning disorder that involves difficulty reading due to problems identifying speech sounds and learning how they relate to letters and words (decoding).',
+        source_type: 'text',
+        content_type: 'educational',
+        metadata: {
+          created_at_utc: new Date().toISOString(),
+          ocr_service: 'mock',
+          ai_generated_metadata: {
+            key_topics: ['Dyslexia', 'Learning', 'Reading'],
+            content_category: 'Education',
+            generated_by: 'Mock AI',
+            generated_at: new Date().toISOString(),
+          },
+          file_name: 'dyslexia_intro.pdf',
+          file_size: 1024,
+          mime_type: 'application/pdf',
+          processing_method: 'mock',
+          images_count: 2,
+          session_dir: '/tmp',
+          curriculum_generated: true,
+          curriculum_generated_at: new Date().toISOString(),
+          total_chapters: 3,
+          total_duration_minutes: 45,
+        },
+        extracted_images: [],
+        status: 'completed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 2,
+        user_id: 1,
+        title: 'Phonemic Awareness',
+        description: 'Learn about the ability to hear, identify, and manipulate individual sounds-phonemes--in spoken words.',
+        content: 'Phonemic awareness is the foundation for learning to read. It is the ability to hear and manipulate the sounds in spoken words and the understanding that spoken words and syllables are made up of sequences of speech sounds.',
+        source_type: 'video',
+        content_type: 'educational',
+        metadata: {
+          created_at_utc: new Date().toISOString(),
+          ocr_service: 'mock',
+          ai_generated_metadata: {
+            key_topics: ['Phonemes', 'Sounds', 'Reading'],
+            content_category: 'Education',
+            generated_by: 'Mock AI',
+            generated_at: new Date().toISOString(),
+          },
+          file_name: 'phonemic_awareness.mp4',
+          file_size: 2048,
+          mime_type: 'video/mp4',
+          processing_method: 'mock',
+          images_count: 0,
+          session_dir: '/tmp',
+          curriculum_generated: true,
+          curriculum_generated_at: new Date().toISOString(),
+          total_chapters: 2,
+          total_duration_minutes: 30,
+        },
+        extracted_images: [],
+        status: 'completed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 3,
+        user_id: 1,
+        title: 'Reading Strategies',
+        description: 'Effective strategies to improve reading speed and comprehension.',
+        content: 'Reading strategies are the broad, problem-solving plans that readers use to decipher text and make meaning.',
+        source_type: 'text',
+        content_type: 'educational',
+        metadata: {
+          created_at_utc: new Date().toISOString(),
+          ocr_service: 'mock',
+          ai_generated_metadata: {
+            key_topics: ['Strategies', 'Comprehension', 'Speed'],
+            content_category: 'Education',
+            generated_by: 'Mock AI',
+            generated_at: new Date().toISOString(),
+          },
+          file_name: 'reading_strategies.pdf',
+          file_size: 1024,
+          mime_type: 'application/pdf',
+          processing_method: 'mock',
+          images_count: 1,
+          session_dir: '/tmp',
+          curriculum_generated: true,
+          curriculum_generated_at: new Date().toISOString(),
+          total_chapters: 4,
+          total_duration_minutes: 60,
+        },
+        extracted_images: [],
+        status: 'completed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+    ];
+
+    return {
+      success: true,
+      message: 'Topics fetched successfully (MOCK)',
+      data: {
+        current_page: 1,
+        data: mockTopics,
+        first_page_url: 'mock-url',
+        from: 1,
+        last_page: 1,
+        last_page_url: 'mock-url',
+        links: [],
+        next_page_url: null,
+        path: 'mock-path',
+        per_page: 10,
+        prev_page_url: null,
+        to: 3,
+        total: 3,
+      },
+    };
   }
 
   // Get chapters for a specific topic
   async getTopicChapters(topicId: number): Promise<ChaptersResponse> {
-    try {
-      return await authService.makeAuthenticatedRequest(`/api/topics/${topicId}/chapters`, 'GET');
-    } catch (error) {
-      console.error(`Error fetching chapters for topic ${topicId}:`, error);
-      throw error;
-    }
+    console.log(`📖 Fetching chapters for topic ${topicId} (MOCK)...`);
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    const mockChapters: Chapter[] = [
+      {
+        id: 101,
+        topic_id: topicId,
+        user_id: 1,
+        title: 'Introduction',
+        description: 'Getting started with the basics.',
+        content: 'This is the introductory chapter content.',
+        chapter_order: 1,
+        difficulty_level: 'Beginner',
+        estimated_duration_minutes: 10,
+        learning_objectives: ['Understand basic concepts'],
+        dyslexia_adaptations: ['Simplified text', 'Audio support'],
+        activities: ['Quiz'],
+        assessments: [],
+        resources: [],
+        metadata: {
+          generated_by: 'Mock AI',
+          generated_at: new Date().toISOString(),
+          curriculum_summary: {
+            total_chapters: 3,
+            teaching_approach: 'Visual',
+            key_adaptations: ['Visual aids'],
+          },
+        },
+        status: 'completed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 102,
+        topic_id: topicId,
+        user_id: 1,
+        title: 'Core Concepts',
+        description: 'Deep dive into the main ideas.',
+        content: 'This chapter covers the core concepts in detail.',
+        chapter_order: 2,
+        difficulty_level: 'Intermediate',
+        estimated_duration_minutes: 20,
+        learning_objectives: ['Master core concepts'],
+        dyslexia_adaptations: ['Highlighted text'],
+        activities: ['Reading'],
+        assessments: [],
+        resources: [],
+        metadata: {
+          generated_by: 'Mock AI',
+          generated_at: new Date().toISOString(),
+          curriculum_summary: {
+            total_chapters: 3,
+            teaching_approach: 'Visual',
+            key_adaptations: ['Visual aids'],
+          },
+        },
+        status: 'completed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+    ];
+
+    return {
+      success: true,
+      message: 'Chapters fetched successfully (MOCK)',
+      data: {
+        topic: {
+          id: topicId,
+          title: 'Mock Topic Title',
+          description: 'Mock Topic Description',
+          status: 'completed',
+        },
+        chapters: mockChapters,
+        total_chapters: 2,
+        total_duration: '30 mins',
+      },
+    };
   }
 
   // Get all topics with their chapters (for progress overview)
   async getTopicsWithChapters(): Promise<Array<Topic & { chapters?: Chapter[] }>> {
+    console.log('📚 Fetching topics with chapters (MOCK)...');
     try {
       // First get all topics
-      const topicsResponse = await this.getTopics({ per_page: 100 }); // Get more topics
+      const topicsResponse = await this.getTopics({ per_page: 100 });
       const topics = topicsResponse.data.data;
 
       // Then get chapters for each topic
@@ -196,18 +379,21 @@ class TopicsService {
 
   // Get video for a specific chapter
   async getChapterVideo(topicId: number, chapterId: number): Promise<VideoResponse> {
-    try {
-      return await authService.makeAuthenticatedRequest(
-        `/api/topics/${topicId}/chapters/${chapterId}/video`, 
-        'GET'
-      );
-    } catch (error) {
-      console.error(`Error fetching video for chapter ${chapterId} in topic ${topicId}:`, error);
-      throw error;
-    }
+    console.log(`🎥 Fetching video for chapter ${chapterId} (MOCK)...`);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    return {
+      success: true,
+      message: 'Video fetched successfully (MOCK)',
+      data: {
+        video_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Sample video
+        transcript: 'This is a mock transcript for the video.',
+        duration_seconds: 600,
+        last_generated_at: new Date().toISOString(),
+      },
+    };
   }
-
-
 }
 
-export const topicsService = new TopicsService(); 
+export const topicsService = new TopicsService();

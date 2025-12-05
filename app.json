@@ -3,7 +3,6 @@
     "name": "frontend",
     "slug": "frontend",
     "newArchEnabled": true,
-    "sdkVersion": "53.0.0",
     "plugins": [
       "expo-font",
       [
